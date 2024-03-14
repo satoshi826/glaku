@@ -1,0 +1,15 @@
+import {PickType} from 'jittoku'
+import {uniMethod} from '.'
+
+export type WebGLConstants = keyof PickType<WebGL2RenderingContextBase, number>
+export type UniformMethod = Extract<keyof WebGL2RenderingContext, `uniform${string}`>
+export type UniformType = keyof typeof uniMethod
+export type Uniforms = Record<UniformName, { type: UniformType; value: null | number | number[] }>
+export type ColorArray = [r: number, g: number, b: number, a: number]
+
+export type ProgramId = string
+export type VaoId = string
+export type RendererId = number
+export type UniformName = `u_${string}`
+export type AttributeName = `a_${string}`
+export type ResizeArgs = {width?: number, height?: number, pixelRatio?: number}
