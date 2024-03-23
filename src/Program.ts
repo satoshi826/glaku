@@ -2,8 +2,6 @@ import {Core} from '.'
 import {keys, oMapO, oForEach} from 'jittoku'
 import {ProgramId, UniformName, UniformType} from './types'
 
-let counter = 0
-
 export class Program<T extends UniformName> {
   core: Core
   id: ProgramId
@@ -14,10 +12,10 @@ export class Program<T extends UniformName> {
 
   constructor(core: Core, {id, uniformTypes = {} as Record<T, UniformType>, frag, vert, texture}:
     {
-      id?: ProgramId, uniformTypes?: Record<T, UniformType>, frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
+      id: ProgramId, uniformTypes?: Record<T, UniformType>, frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
     }) {
     this.core = core
-    this.id = id ?? String(counter++)
+    this.id = id
     this.vert = vert
     this.frag = frag
     this.uniforms = oMapO(uniformTypes, ([key, type]) => [key, {type, value: null}])
