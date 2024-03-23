@@ -1,4 +1,4 @@
-import {Core} from '.'
+import {AttributeName, AttributeType, Core} from '.'
 import {keys, oMapO, oForEach} from 'jittoku'
 import {ProgramId, UniformName, UniformType} from './types'
 
@@ -10,9 +10,10 @@ export class Program<T extends UniformName> {
   texture: Record<UniformName, WebGLTexture>
   uniforms: Record<T, {type: UniformType, value: null | number | number []}>
 
-  constructor(core: Core, {id, uniformTypes = {} as Record<T, UniformType>, frag, vert, texture}:
+  constructor(core: Core, {id, uniformTypes = {} as Record<T, UniformType>, attributeTypes, frag, vert, texture}:
     {
-      id: ProgramId, uniformTypes?: Record<T, UniformType>, frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
+      id: ProgramId, uniformTypes?: Record<T, UniformType>, attributeTypes: Record<AttributeName, AttributeType>,
+      frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
     }) {
     this.core = core
     this.id = id
@@ -24,6 +25,7 @@ export class Program<T extends UniformName> {
     if (!core.program[this.id]) {
       this.core.setProgram(this.id, this.vert, this.frag)
       this.core.setUniLoc(this.id, keys(uniformTypes))
+      this.core.setAttLoc(this.id, attributeTypes)
     }
 
     if(texture) {

@@ -49,6 +49,10 @@ const sample = {
     u_unix      : 'int'
   },
 
+  attributeTypes: {
+    a_position: 'vec3'
+  },
+
   vert: /* glsl */`#version 300 es
     in vec3 a_position;
     void main(void){

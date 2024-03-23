@@ -1,5 +1,5 @@
 import {oForEach, keys, times, isNullish} from 'jittoku'
-import {ProgramId, RendererId, UniformMethod, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName} from './types'
+import {ProgramId, RendererId, UniformMethod, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType} from './types'
 
 export const uniMethod = {
   int  : ['uniform1i', false, false],
@@ -15,23 +15,16 @@ export const uniMethod = {
   ivec4: ['uniform4iv', false, true]
 } as const satisfies Record<string, [UniformMethod, isMat: boolean, isArray: boolean]>
 
-const attLocDef = {
-  a_position    : 0,
-  a_textureCoord: 1
-}
+const strideMap = {
+  float: 1,
+  vec2 : 2,
+  vec3 : 3,
+  vec4 : 4,
+  mat3 : [3, 3],
+  mat4 : [4, 4]
+} as const satisfies Record<AttributeType, number | number[]>
 
-const strideDef = {
-  a_position    : 3,
-  a_textureCoord: 2
-}
-
-type AttLocI = Record<AttributeName, number>
-type StrideI = Record<keyof AttLocI, number | number[]>
-
-export class Core<
-AttLoc extends AttLocI = AttLocI,
-Stride extends StrideI = StrideI
-> {
+export class Core {
   gl: WebGL2RenderingContext
   canvasWidth: number
   canvasHeight: number
@@ -39,22 +32,20 @@ Stride extends StrideI = StrideI
   program: Record<ProgramId, WebGLProgram> = {}
   vao: Record<VaoId, WebGLVertexArrayObject & {count?: number}> = {}
   uniLoc: Record<ProgramId, Record<UniformName, WebGLUniformLocation>> = {}
-  texture: Record<string, {data: WebGLTexture, number: number}> = {} // {<name> : {data, number}}
+  attLoc: Record<ProgramId, number> = {}
+  stride: Record<AttributeName, number | number[]> = {}
+  texture: Record<string, {data: WebGLTexture, number: number}> = {}
   currentProgram: ProgramId | null = null
   currentVao: VaoId | null = null
   currentRenderer: RendererId | null = null
-  attLoc: AttLoc
-  stride: Stride
   uniMethod = uniMethod
   resizeListener: null | (((handler: (arg: ResizeArgs) => void) => void)) = null
 
-  constructor({canvas, pixelRatio = 1, resizeListener, attLoc, stride, options}:
+  constructor({canvas, pixelRatio = 1, resizeListener, options}:
     {
       canvas: HTMLCanvasElement,
       pixelRatio?: number,
       resizeListener?: (((handler: (arg: ResizeArgs) => void) => void)),
-      attLoc?: AttLoc,
-      stride?: Stride,
       options?: WebGLConstants[]}
   ) {
     this.gl = canvas.getContext('webgl2', {antialias: true})!
@@ -65,8 +56,6 @@ Stride extends StrideI = StrideI
     options?.forEach(o => {
       this.gl.enable(this.gl[o])
     })
-    this.attLoc = attLoc ?? attLocDef as unknown as AttLoc
-    this.stride = stride ?? strideDef as unknown as Stride
   }
 
   #compile(txt: string, type: 'VERTEX' | 'FRAGMENT') {
@@ -104,7 +93,17 @@ Stride extends StrideI = StrideI
     }
   }
 
-  setVao({id, index, attributes}: {id: VaoId, index: number[], attributes: Record<keyof AttLoc, number[]>}) {
+  setAttLoc(id: ProgramId, attributeTypes: Record<AttributeName, AttributeType>) {
+    oForEach(attributeTypes, ([name, type]) => {
+      if (!this.attLoc[name]) {
+        const attLoc = this.gl.getAttribLocation(this.program[id], name)
+        this.attLoc[name] ??= attLoc
+        this.stride[name] ??= strideMap[type]
+      }
+    })
+  }
+
+  setVao({id, index, attributes}: {id: VaoId, index: number[], attributes: Record<AttributeName, number[]>}) {
     const vao = this.gl.createVertexArray()
     this.gl.bindVertexArray(vao)
     oForEach(attributes, ([k, v]) => {
@@ -127,6 +126,7 @@ Stride extends StrideI = StrideI
 
   enableAttribute(att: AttributeName) {
     const stride = this.stride[att]
+    if (!stride) throw new Error(`failed to get attribute stride "${att}". Before set Vao, create a target program`)
     const isUnitAtt = typeof stride === 'number'
     if (isUnitAtt) {
       this.gl.enableVertexAttribArray(this.attLoc[att])
@@ -249,22 +249,3 @@ Stride extends StrideI = StrideI
   }
 
 }
-
-//------------------------------------------------------------------------------
-
-// export const strideMap = {
-//   a_position                 : 3,
-//   a_textureCoord             : 2,
-//   a_instance_messagePosition : 2,
-//   a_instance_messageLuminance: 1,
-//   a_instance_userPosition    : 2
-// }
-
-// const attLocMap = {
-//   a_position                 : 0,
-//   a_textureCoord             : 1,
-//   a_instance_messagePosition : 2,
-//   a_instance_messageLuminance: 3,
-//   a_instance_userPosition    : 4
-// }
-//------------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import {uniMethod} from '.'
 export type WebGLConstants = keyof PickType<WebGL2RenderingContextBase, number>
 export type UniformMethod = Extract<keyof WebGL2RenderingContext, `uniform${string}`>
 export type UniformType = keyof typeof uniMethod
+export type AttributeType = 'float' | 'vec2' | 'vec3' | 'vec4' | 'mat3' | 'mat4'
 export type Uniforms = Record<UniformName, { type: UniformType; value: null | number | number[] }>
 export type ColorArray = [r: number, g: number, b: number, a: number]
 
