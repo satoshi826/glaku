@@ -1,7 +1,7 @@
 
 type Callback = (obj: {unix: number, delta: number, drawTime: number, elapsed: number}) => void
 
-export class Animation {
+export class Loop {
   callback: Callback
   interval: null | number
   unix: number

@@ -6,7 +6,7 @@ import Worker from './worker?worker'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <OffscreenCanvasProvider worker={() => new Worker()}>
+    <OffscreenCanvasProvider worker={() => new Worker() as Worker}>
       <App />
     </OffscreenCanvasProvider>
   </React.StrictMode>

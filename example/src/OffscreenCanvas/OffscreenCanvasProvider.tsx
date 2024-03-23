@@ -8,7 +8,7 @@ export function OffscreenCanvasProvider({children, worker}) {
   const canvas = <canvas ref={canvasRef} style={{height: '100%', width: '100%', position: 'absolute'}}/>
   useEffect(() => {
     if (!workerRef.current && canvasRef.current) {
-      console.debug('connecting worker')
+      console.log('connecting worker')
       const offscreenCanvas = canvasRef.current!.transferControlToOffscreen()
       workerRef.current = worker()
       workerRef.current!.postMessage({init: offscreenCanvas}, [offscreenCanvas])
@@ -21,7 +21,7 @@ export function OffscreenCanvasProvider({children, worker}) {
   const addListener = (f) => handlerRef.current.add(f)
   const removeListener = (f) => handlerRef.current.delete(f)
   return(
-    <OffscreenCanvasContext.Provider value={{canvas, post, addListener, removeListener}}>
+    <OffscreenCanvasContext.Provider value={{canvas, post, addListener, removeListener, ref: canvasRef}}>
       {children}
     </OffscreenCanvasContext.Provider>)
 }

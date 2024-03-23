@@ -9,14 +9,14 @@ let counter = 0
 export class Vao {
   core: Core
   id: VaoId
-  attributes:  Record<AttributeName, number[]>
+  attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
   instancedAttributes: Record<string, {array: Float32Array | null, vbo: WebGLBuffer | null}> | null
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:
-      {id?: VaoId, attributes: Record<AttributeName, number[]>, index?: number[], instancedAttributes?: string[], maxInstance?: number}
+      {id?: VaoId, attributes: Record<AttributeName, number[]>, index: number[], instancedAttributes?: string[], maxInstance?: number}
   ) {
     this.core = core
     this.id = id ?? String(counter++)
@@ -31,8 +31,8 @@ export class Vao {
     this.instancedCount = null
 
     this.core.setVao({
-      id        : this.id,
-      index     : this.index,
+      id   : this.id,
+      index: this.index,
       attributes
     })
   }

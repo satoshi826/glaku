@@ -1,4 +1,4 @@
-import {oForEach, keys, times} from 'jittoku'
+import {oForEach, keys, times, isNullish} from 'jittoku'
 import {ProgramId, RendererId, UniformMethod, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName} from './types'
 
 export const uniMethod = {
@@ -67,8 +67,6 @@ Stride extends StrideI = StrideI
     })
     this.attLoc = attLoc ?? attLocDef as unknown as AttLoc
     this.stride = stride ?? strideDef as unknown as Stride
-    // this.gl.enable(this.gl.CULL_FACE)
-    // this.gl.enable(this.gl.DEPTH_TEST)
   }
 
   #compile(txt: string, type: 'VERTEX' | 'FRAGMENT') {
@@ -187,8 +185,7 @@ Stride extends StrideI = StrideI
     this.uniLoc[id] = {}
     uniforms.forEach(uni => {
       const uniLoc = this.gl.getUniformLocation(this.program[id], uni)
-      if (!uniLoc) throw new Error('setUniformLocation failed')
-      this.uniLoc[id][uni] = uniLoc
+      if (!isNullish(uniLoc)) this.uniLoc[id][uni] = uniLoc
     })
   }
 

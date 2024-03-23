@@ -1,27 +1,27 @@
 import {Core} from '.'
 import {keys, oMapO, oForEach} from 'jittoku'
-import {ProgramId, UniformName, UniformType, Uniforms} from './types'
+import {ProgramId, UniformName, UniformType} from './types'
 
 let counter = 0
 
-export class Program {
+export class Program<T extends UniformName> {
   core: Core
   id: ProgramId
   vert: string
   frag: string
-  texture: UniformName[]
-  uniforms: Uniforms
+  texture: Record<UniformName, WebGLTexture>
+  uniforms: Record<T, {type: UniformType, value: null | number | number []}>
 
-  constructor(core: Core, {id, uniformTypes = {}, frag, vert, texture}:
+  constructor(core: Core, {id, uniformTypes = {} as Record<T, UniformType>, frag, vert, texture}:
     {
-      id?: ProgramId, uniformTypes?: Record<UniformName, UniformType>, frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
+      id?: ProgramId, uniformTypes?: Record<T, UniformType>, frag: string, vert: string, texture?: Record<UniformName, WebGLTexture>
     }) {
     this.core = core
     this.id = id ?? String(counter++)
     this.vert = vert
     this.frag = frag
     this.uniforms = oMapO(uniformTypes, ([key, type]) => [key, {type, value: null}])
-    this.texture = []
+    this.texture = {}
 
     if (!core.program[this.id]) {
       this.core.setProgram(this.id, this.vert, this.frag)
@@ -38,7 +38,7 @@ export class Program {
 
   }
 
-  set(uniformValues: Record<UniformName, number | number[]>) {
+  set(uniformValues: Record<T, number | number[]>) {
     oForEach(uniformValues, ([k, v]) => {
       this.uniforms[k].value = v
     })
