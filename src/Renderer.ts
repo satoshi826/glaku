@@ -3,10 +3,10 @@ import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
 
-export const RGBA8 = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR']
-export const RGBA16F = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR']
-export const RGBA32F = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR']
-export const DEPTH = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 'NEAREST']
+export const RGBA8 = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR'] as const
+export const RGBA16F = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR'] as const
+export const RGBA32F = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR'] as const
+export const DEPTH = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 'NEAREST'] as const
 
 let id = 0
 

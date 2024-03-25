@@ -15,9 +15,7 @@ onmessage = async({data}) => {
     setHandler('mouse', (v) => {
       if (v) {
         const {x, y} = v as { x: number, y: number}
-        simpleP.set({
-          u_mouse: [x, y]
-        })
+        simpleP.set({u_mouse: [x, y]})
       }
     })
 
@@ -40,33 +38,20 @@ onmessage = async({data}) => {
 //----------------------------------------------------------------
 
 const sample = {
-
-  id: 'sample',
-
+  id            : 'sample',
+  attributeTypes: {
+    a_position: 'vec3'
+  },
   uniformTypes: {
     u_resolution: 'vec2',
     u_mouse     : 'vec2',
     u_unix      : 'int'
   },
-
-  attributeTypes: {
-    a_position: 'vec3'
-  },
-
-  vert: /* glsl */`#version 300 es
-    in vec3 a_position;
-    void main(void){
-      gl_Position = vec4(a_position, 1.0);
-    }
+  vert: /* glsl */`
+    void main(void){gl_Position = vec4(a_position, 1.0);}
   `,
-
-  frag: /* glsl */`#version 300 es
-    precision highp float;
-    uniform   vec2  u_mouse;
-    uniform   vec2  u_resolution;
-    uniform   int  u_unix;
+  frag: /* glsl */`
     out vec4 outColor;
-
     void main(void){
       vec2 currentPoint = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
       float l = .5*(sin(float(u_unix)/500.) + 2.) * (1.-length(currentPoint-u_mouse));
@@ -75,31 +60,31 @@ const sample = {
   `
 } as const
 
-const gpgpu = {
+// const gpgpu = {
 
-  id: 'gpgpu',
+//   id: 'gpgpu',
 
-  vert: /* glsl */`#version 300 es
-    layout(location = 0) in vec3 a_position;
-    void main(void){
-      gl_Position = vec4(a_position, 1.0);
-    }
-  `,
+//   vert: /* glsl */`#version 300 es
+//     layout(location = 0) in vec3 a_position;
+//     void main(void){
+//       gl_Position = vec4(a_position, 1.0);
+//     }
+//   `,
 
-  frag: /* glsl */`#version 300 es
-    precision highp float;
-    uniform   vec2  u_mouse;
-    uniform   vec2  u_resolution;
-    uniform   int  u_unix;
-    out vec4 outColor;
+//   frag: /* glsl */`#version 300 es
+//     precision highp float;
+//     uniform   vec2  u_mouse;
+//     uniform   vec2  u_resolution;
+//     uniform   int  u_unix;
+//     out vec4 outColor;
 
-    void main(void){
-      vec2 currentPoint = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
-      float l = .5*(sin(float(u_unix)/500.) + 2.) * (1.-length(currentPoint-u_mouse));
-      outColor = vec4(vec3(l), 1.);
-  }
-  `
-} as const
+//     void main(void){
+//       vec2 currentPoint = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
+//       float l = .5*(sin(float(u_unix)/500.) + 2.) * (1.-length(currentPoint-u_mouse));
+//       outColor = vec4(vec3(l), 1.);
+//   }
+//   `
+// } as const
 
 const plane = {
   attributes: {
@@ -115,5 +100,3 @@ const plane = {
     1, 2, 3
   ]
 }
-
-export default {}
