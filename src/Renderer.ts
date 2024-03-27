@@ -91,7 +91,7 @@ export class Renderer {
 
   render(vao: Vao, program: Program) {
     this.beforeRender(vao, program)
-    this.core.render()
+    this.core.render(program.primitive, !!vao?.index)
   }
 
   renderInstanced(vao: Vao, program: Program) {

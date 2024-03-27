@@ -16,7 +16,7 @@ export class Vao {
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:
-      {id?: VaoId, attributes: Record<AttributeName, number[]>, index: number[], instancedAttributes?: string[], maxInstance?: number}
+      {id?: VaoId, attributes: Record<AttributeName, number[]>, index?: number[], instancedAttributes?: string[], maxInstance?: number}
   ) {
     this.core = core
     this.id = id ?? String(counter++)

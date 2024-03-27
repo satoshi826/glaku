@@ -1,8 +1,10 @@
-import {AttributeName, AttributeType, Core} from '.'
+import {AttributeName, AttributeType, Core, PrimitiveTypes} from '.'
 import {keys, oMapO, oForEach, oReduce, PartialRecord} from 'jittoku'
 import {ProgramId, UniformName, UniformType} from './types'
 
-const test = (target: string, key: string) => new RegExp(`[-=+*(]${key}[-=+*).;]`).test(target)
+export type AttributeTypes = Record<AttributeName, AttributeType>
+
+export const testKeyword = (target: string, key: string) => new RegExp(`[-=+*(]${key}[-=+*).;]`).test(target)
 
 export class Program<T extends UniformName = 'u_resolution', K extends UniformName= 'u_texture'> {
   core: Core
@@ -11,10 +13,14 @@ export class Program<T extends UniformName = 'u_resolution', K extends UniformNa
   frag: string
   uniforms: Record<T | K, {type: UniformType, value: null | number | number []}>
   texture: K[]
-  constructor(core: Core, {id, attributeTypes, uniformTypes = {} as Record<T, UniformType>, frag, vert, texture}:
+  primitive: PrimitiveTypes
+  constructor(core: Core, {
+    id, attributeTypes, uniformTypes = {} as Record<T, UniformType>,
+    frag, vert, texture, primitive = 'TRIANGLES'
+  }:
     {
-      id: ProgramId, attributeTypes: Record<AttributeName, AttributeType>, uniformTypes?: Record<T, UniformType>,
-      frag: string, vert: string, texture?: Record<K, WebGLTexture>
+      id: ProgramId, attributeTypes: AttributeTypes, uniformTypes?: Record<T, UniformType>,
+      frag: string, vert: string, texture?: Record<K, WebGLTexture>, primitive?: PrimitiveTypes
     }) {
     this.core = core
     this.id = id
@@ -22,6 +28,7 @@ export class Program<T extends UniformName = 'u_resolution', K extends UniformNa
     this.frag = frag
     this.uniforms = oMapO(uniformTypes, ([key, type]) => [key, {type, value: null}]) as Record<T | K, {type: UniformType, value: null | number | number []}>
     this.texture = []
+    this.primitive = primitive
 
     const parsed = this.#parseShader({vert, frag, attributeTypes, uniformTypes})
 
@@ -43,11 +50,11 @@ export class Program<T extends UniformName = 'u_resolution', K extends UniformNa
 
   #parseShader({vert, frag, attributeTypes, uniformTypes}: {
     vert: string, frag: string,
-    attributeTypes: Record<AttributeName, AttributeType>, uniformTypes: Record<T, UniformType>
+    attributeTypes: AttributeTypes, uniformTypes: Record<T, UniformType>
   }) {
     const uniformKeys = new Set(keys(uniformTypes))
-    const testVert = (key: T) => test(vert, key)
-    const testFrag = (key: T) => test(frag, key)
+    const testVert = (key: T) => testKeyword(vert, key)
+    const testFrag = (key: T) => testKeyword(frag, key)
 
     let fullVert = oReduce(uniformTypes,
       (result, [name, type]) => {

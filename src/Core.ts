@@ -1,5 +1,5 @@
-import {oForEach, keys, times, isNullish} from 'jittoku'
-import {ProgramId, RendererId, UniformMethod, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType} from './types'
+import {oForEach, keys, times, isNullish, firstEntry} from 'jittoku'
+import {ProgramId, RendererId, UniformMethod, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes} from './types'
 
 export const uniMethod = {
   int  : ['uniform1i', false, false],
@@ -15,7 +15,7 @@ export const uniMethod = {
   ivec4: ['uniform4iv', false, true]
 } as const satisfies Record<string, [UniformMethod, isMat: boolean, isArray: boolean]>
 
-const strideMap = {
+export const strideMap = {
   float: 1,
   vec2 : 2,
   vec3 : 3,
@@ -68,21 +68,22 @@ export class Core {
     throw new Error(log ?? 'compile error')
   }
 
-  #link(vert: WebGLShader, frag: WebGLShader) {
+  #link(vert: WebGLShader, frag: WebGLShader, transformFeedback?: string[]) {
     const program = this.gl.createProgram()
     if (!program) throw new Error('createProgram failed')
     this.gl.attachShader(program, vert)
     this.gl.attachShader(program, frag)
+    if (transformFeedback) this.gl.transformFeedbackVaryings(program, transformFeedback, this.gl.SEPARATE_ATTRIBS)
     this.gl.linkProgram(program)
     if(this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) return program
     const log = this.gl.getShaderInfoLog(program)
     throw new Error(log ?? 'link error')
   }
 
-  setProgram(id: ProgramId, vText: string, fText: string) {
+  setProgram(id: ProgramId, vText: string, fText: string, transformFeedback?: string[]) {
     const shaderV = this.#compile(vText, 'VERTEX')
     const shaderF = this.#compile(fText, 'FRAGMENT')
-    const prg = this.#link(shaderV, shaderF)
+    const prg = this.#link(shaderV, shaderF, transformFeedback)
     this.program[id] = prg
   }
 
@@ -103,7 +104,7 @@ export class Core {
     })
   }
 
-  setVao({id, index, attributes}: {id: VaoId, index: number[], attributes: Record<AttributeName, number[]>}) {
+  setVao({id, index, attributes}: {id: VaoId, index?: number[], attributes: Record<AttributeName, number[]>}) {
     const vao = this.gl.createVertexArray()
     this.gl.bindVertexArray(vao)
     oForEach(attributes, ([k, v]) => {
@@ -121,7 +122,13 @@ export class Core {
     this.gl.bindVertexArray(null)
     if (!vao) throw new Error('createVertexArray failed')
     this.vao[id] = vao
-    this.vao[id].count = index.length
+    if (index) {
+      this.vao[id].count = index.length
+    } else{
+      const [attName, values] = firstEntry(attributes)
+      const stride = this.getStrideSize(attName)
+      this.vao[id].count = values.length / stride
+    }
   }
 
   enableAttribute(att: AttributeName) {
@@ -199,8 +206,9 @@ export class Core {
     })
   }
 
-  render() {
-    this.gl.drawElements(this.gl.TRIANGLES, this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0)
+  render(primitive: PrimitiveTypes, drawElements: boolean) {
+    if (drawElements) this.gl.drawElements(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0)
+    else this.gl.drawArrays(this.gl[primitive], 0, this.vao[this.currentVao!].count!)
   }
 
   renderInstanced(count: number) {

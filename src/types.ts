@@ -2,6 +2,7 @@ import {PickType} from 'jittoku'
 import {uniMethod} from '.'
 
 export type WebGLConstants = keyof PickType<WebGL2RenderingContextBase, number>
+export type PrimitiveTypes = 'TRIANGLES' | 'POINTS' | 'LINES'
 export type UniformMethod = Extract<keyof WebGL2RenderingContext, `uniform${string}`>
 export type UniformType = keyof typeof uniMethod
 export type AttributeType = 'float' | 'vec2' | 'vec3' | 'vec4' | 'mat3' | 'mat4'
@@ -13,4 +14,5 @@ export type VaoId = string
 export type RendererId = number
 export type UniformName = `u_${string}`
 export type AttributeName = `a_${string}`
+export type OutputName = `o_${string}`
 export type ResizeArgs = {width?: number, height?: number, pixelRatio?: number}
