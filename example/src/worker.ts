@@ -1,6 +1,7 @@
-import {Loop, Program, Renderer, Vao, setHandler, setState} from '../../src'
+import {Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler, setState} from '../../src'
 import {Core} from '../../src/Core'
-import {GPGPU} from '../../src/GPGPU'
+import {getGpgpu} from './gpgpu'
+import {getProgram} from './program'
 
 console.log('starting worker')
 
@@ -9,83 +10,41 @@ onmessage = async({data}) => {
 
   if (init) {
     const core = new Core({canvas: init, resizeListener: (fn) => setHandler('resize', fn)})
-    const simpleP = new Program(core, sample)
-    const planeVAO = new Vao(core, plane)
-    const renderer = new Renderer(core)
+    const renderer = new Renderer(core, {backgroundColor: [0, 0, 0, 1]})
 
-    const gpgpu = new GPGPU(core, {
-      id            : 'gpgpu',
-      attributeTypes: {a_vecA: 'vec4', a_vecB: 'vec4'},
-      attributes    : {
-        a_vecA: [1, 2, 3, 4],
-        a_vecB: [4, 5, 6, 7]
-      },
-      transformFeedback: {o_result: 'vec4'},
-      vert             : /* glsl */ `
-        void main() {
-          o_result = a_vecA + a_vecB;
-        }`
+    const gpgpu = getGpgpu(core)
+    const program = getProgram(core, gpgpu)
+
+    setHandler('resize', ({width, height}: ResizeArgs = {}) => {
+      const ar = width && height ? calcAspectRatioVec(width, height) : [1, 1]
+      program.set({u_aspectRatio: ar})
     })
 
     setHandler('mouse', (v) => {
       if (v) {
         const {x, y} = v as { x: number, y: number}
-        simpleP.set({u_mouse: [x, y]})
+        gpgpu.set({u_origin: [x, y]})
       }
     })
 
-    const animation = new Loop({callback: ({unix}) => {
-      simpleP.set({u_unix: unix})
+    const animation = new Loop({callback: ({delta, unix}) => {
       renderer.clear()
-      renderer.render(planeVAO, simpleP)
-    }})
+      gpgpu.set({u_delta: delta, u_unix: unix})
+      gpgpu.run()
+      renderer.render(gpgpu.vao, program)
+    }, interval: 0})
 
     animation.start()
-    setInterval(() => self.postMessage({drawTime: animation.drawTime.toFixed(2) + ' ms', fps: (1000 / animation.delta).toFixed(2)}), 200)
+
+    setInterval(() => self.postMessage({
+      drawTime: animation.drawTime.toFixed(2) + ' ms',
+      fps     : (1000 / animation.delta).toFixed(2)
+    }), 200)
 
   }
 
   if (mouse) setState({mouse})
   if (resize) setState({resize})
-
 }
 
-//----------------------------------------------------------------
-
-const sample = {
-  id            : 'sample',
-  attributeTypes: {
-    a_position: 'vec3'
-  },
-  uniformTypes: {
-    u_resolution: 'vec2',
-    u_mouse     : 'vec2',
-    u_unix      : 'int'
-  },
-  vert: /* glsl */`
-    void main(void){gl_Position = vec4(a_position, 1.0);}
-  `,
-  frag: /* glsl */`
-    out vec4 outColor;
-    void main(void){
-      vec2 currentPoint = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
-      float l = .5*(sin(float(u_unix)/500.) + 2.) * (1.-length(currentPoint-u_mouse));
-      outColor = vec4(vec3(l), 1.);
-  }
-  `
-} as const
-
-const plane = {
-  attributes: {
-    a_position: [
-      -1.0, 1.0, 0.0,
-      1.0, 1.0, 0.0,
-      -1.0, -1.0, 0.0,
-      1.0, -1.0, 0.0
-    ]
-  },
-  index: [
-    2, 1, 0,
-    1, 2, 3
-  ]
-}
+export default {}

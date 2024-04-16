@@ -20,6 +20,7 @@ export const strideMap = {
   vec2 : 2,
   vec3 : 3,
   vec4 : 4,
+  mat2 : [2, 2],
   mat3 : [3, 3],
   mat4 : [4, 4]
 } as const satisfies Record<AttributeType, number | number[]>
@@ -65,6 +66,7 @@ export class Core {
     this.gl.compileShader(shader)
     if(this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) return shader
     const log = this.gl.getShaderInfoLog(shader)
+    console.error(txt)
     throw new Error(log ?? 'compile error')
   }
 
@@ -74,9 +76,12 @@ export class Core {
     this.gl.attachShader(program, vert)
     this.gl.attachShader(program, frag)
     if (transformFeedback) this.gl.transformFeedbackVaryings(program, transformFeedback, this.gl.SEPARATE_ATTRIBS)
+    // if (transformFeedback) this.gl.transformFeedbackVaryings(program, transformFeedback, this.gl.INTERLEAVED_ATTRIBS)
     this.gl.linkProgram(program)
     if(this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) return program
     const log = this.gl.getShaderInfoLog(program)
+    console.error(vert)
+    console.error(frag)
     throw new Error(log ?? 'link error')
   }
 
@@ -96,12 +101,19 @@ export class Core {
 
   setAttLoc(id: ProgramId, attributeTypes: Record<AttributeName, AttributeType>) {
     oForEach(attributeTypes, ([name, type]) => {
-      if (!this.attLoc[name]) {
+      if (isNullish(this.attLoc[name])) {
         const attLoc = this.gl.getAttribLocation(this.program[id], name)
-        this.attLoc[name] ??= attLoc
-        this.stride[name] ??= strideMap[type]
+        this.attLoc[name] = attLoc
+        this.stride[name] = strideMap[type]
       }
     })
+  }
+
+  createVbo(data: Float32Array, usage: number = this.gl.STATIC_DRAW) {
+    const vbo = this.gl.createBuffer()
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, data, usage)
+    return vbo
   }
 
   setVao({id, index, attributes}: {id: VaoId, index?: number[], attributes: Record<AttributeName, number[]>}) {
@@ -109,9 +121,7 @@ export class Core {
     this.gl.bindVertexArray(vao)
     oForEach(attributes, ([k, v]) => {
       if (v === undefined) return
-      const vbo = this.gl.createBuffer()
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo)
-      this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(v), this.gl.STATIC_DRAW)
+      this.createVbo(new Float32Array(v))
       this.enableAttribute(k as AttributeName)
     })
     if(index) {
@@ -157,10 +167,7 @@ export class Core {
     this.useVao(id)
     const stride = this.stride[att]
     const isUnitAtt = typeof stride === 'number'
-    const vbo = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, array, this.gl.DYNAMIC_DRAW)
-    this.gl.vertexAttribDivisor(this.attLoc[att], 1)
+    const vbo = this.createVbo(array, this.gl.DYNAMIC_DRAW)
     if (isUnitAtt) {
       this.gl.vertexAttribDivisor(this.attLoc[att], 1)
     }else{
@@ -174,17 +181,17 @@ export class Core {
     return vbo
   }
 
-  updateInstancedVbo(id: VaoId, att: AttributeName, array: Float32Array, vbo: WebGLBuffer) {
-    this.useVao(id)
+  updateVbo(vaoId: VaoId, att: AttributeName, array: Float32Array, vbo: WebGLBuffer) {
+    this.useVao(vaoId)
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo)
     this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, array)
     this.enableAttribute(att)
   }
 
-  useVao(id: VaoId) {
-    if (id !== this.currentVao) {
-      this.gl.bindVertexArray(this.vao[id])
-      this.currentVao = id
+  useVao(vaoId: VaoId) {
+    if (vaoId !== this.currentVao) {
+      this.gl.bindVertexArray(this.vao[vaoId])
+      this.currentVao = vaoId
     }
   }
 

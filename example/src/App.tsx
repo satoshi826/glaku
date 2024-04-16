@@ -21,9 +21,10 @@ function App() {
   }
 
   return (
-    <div style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
-      <div >{state?.fps}</div>
+    <div style={{height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#111', color: '#ddd'}}>
       <h2>React + OffScreenCanvas + gippy</h2>
+      <div >fps: {state?.fps}</div>
+      <div >drawTime: {state?.drawTime}</div>
       <div id='canvas_wrapper' style={{flexGrow: 1, position: 'relative'}}>
         {canvas}
         <div id='canvas_cover' style={{height: '100%', width: '100%', position: 'absolute'}} onMouseMove={handleMouseMove}/>

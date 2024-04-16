@@ -4,9 +4,9 @@ import {ProgramId, UniformName, UniformType} from './types'
 
 export type AttributeTypes = Record<AttributeName, AttributeType>
 
-export const testKeyword = (target: string, key: string) => new RegExp(`[-=+*(]${key}[-=+*).;]`).test(target)
+export const testKeyword = (target: string, key: string) => new RegExp(`[-=+*/(\\s,]${key}[-=+*/).,;\\s]`).test(target)
 
-export class Program<T extends UniformName = 'u_resolution', K extends UniformName= 'u_texture'> {
+export class Program<T extends UniformName, K extends UniformName> {
   core: Core
   id: ProgramId
   vert: string

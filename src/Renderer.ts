@@ -74,9 +74,9 @@ export class Renderer {
     this.core.gl.clear(this.core.gl.COLOR_BUFFER_BIT | this.core.gl.DEPTH_BUFFER_BIT)
   }
 
-  beforeRender(
+  beforeRender<T extends Program>(
     vao: { id: string },
-    program: Program
+    program: T
   ) {
     if (this.resizeQueue) this.resize(this.resizeQueue)
     this.core.useVao(vao.id)
@@ -89,7 +89,7 @@ export class Renderer {
     if (program.uniforms.u_resolution) program.set({u_resolution: [this.width * this.pixelRatio, this.height * this.pixelRatio]})
   }
 
-  render(vao: Vao, program: Program) {
+  render<T extends Program>(vao: Vao, program: T) {
     this.beforeRender(vao, program)
     this.core.render(program.primitive, !!vao?.index)
   }
