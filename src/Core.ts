@@ -76,7 +76,6 @@ export class Core {
     this.gl.attachShader(program, vert)
     this.gl.attachShader(program, frag)
     if (transformFeedback) this.gl.transformFeedbackVaryings(program, transformFeedback, this.gl.SEPARATE_ATTRIBS)
-    // if (transformFeedback) this.gl.transformFeedbackVaryings(program, transformFeedback, this.gl.INTERLEAVED_ATTRIBS)
     this.gl.linkProgram(program)
     if(this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) return program
     const log = this.gl.getShaderInfoLog(program)
