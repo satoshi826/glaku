@@ -1,11 +1,12 @@
-import {useEffect, useState} from 'react'
-import {useCanvasListener, useOffscreenCanvas} from './OffscreenCanvas/hooks'
+import {useEffect} from 'react'
+import {useOffscreenCanvas} from './OffscreenCanvas/hooks'
 import {resizeObserver, screenToViewPortAspectRatio} from '../../src'
+import {Frame} from './frame'
 
 function App() {
-  const [state, setState] = useState(null)
   const {canvas, post, ref} = useOffscreenCanvas()
-  useCanvasListener((state) => setState(state))
+  // const [state, setState] = useState(null)
+  // useCanvasListener((state) => setState(state))
 
   const sendResize = resizeObserver(({width, height}) => post({resize: {width, height}}))
   useEffect(() => {
@@ -21,15 +22,12 @@ function App() {
   }
 
   return (
-    <div style={{height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#111', color: '#ddd'}}>
-      <h2>React + OffScreenCanvas + gippy</h2>
-      <div >fps: {state?.fps}</div>
-      <div >drawTime: {state?.drawTime}</div>
+    <Frame >
       <div id='canvas_wrapper' style={{flexGrow: 1, position: 'relative'}}>
         {canvas}
         <div id='canvas_cover' style={{height: '100%', width: '100%', position: 'absolute'}} onMouseMove={handleMouseMove}/>
       </div>
-    </div>
+    </Frame>
   )
 }
 

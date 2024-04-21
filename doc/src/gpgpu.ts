@@ -2,7 +2,7 @@ import {random, range} from 'jittoku'
 import {GPGPU} from '../../src/extension/GPGPU'
 import {Core} from '../../src'
 
-const PARTICLE_NUM = 500000
+const PARTICLE_NUM = 50000
 const PARTICLE_RANGE = range(PARTICLE_NUM)
 
 export const getGpgpu = (core: Core) => new GPGPU(core, {
