@@ -1,5 +1,5 @@
 import {PickType} from 'jittoku'
-import {uniMethod} from '.'
+import {uniMethod} from './constants'
 
 export type WebGLConstants = keyof PickType<WebGL2RenderingContextBase, number>
 export type PrimitiveTypes = 'TRIANGLES' | 'POINTS' | 'LINES'
