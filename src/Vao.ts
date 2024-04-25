@@ -29,11 +29,13 @@ export class Vao {
       : null
 
     this.instancedCount = null
+  }
 
+  setVao() {
     this.core.setVao({
-      id   : this.id,
-      index: this.index,
-      attributes
+      id        : this.id,
+      index     : this.index,
+      attributes: this.attributes
     })
   }
 

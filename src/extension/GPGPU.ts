@@ -69,21 +69,26 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
 
   run() {
     const core = this.core
+    const vaoW = this.vaoArray[this.indexW]
+    const vaoR = this.vaoArray[this.indexR]
+    const vboArrayR = this.vboArray[this.indexR]
+
+    if (!this.core.vao[vaoW.id]) vaoW.setVao()
     core.useVao(this.vaoArray[this.indexW].id)
     core.useProgram(this.id)
     core.setUniforms(this.uniforms)
 
     core.gl.enable(core.gl.RASTERIZER_DISCARD)
 
-    core.gl.bindTransformFeedback(core.gl.TRANSFORM_FEEDBACK, this.vboArray[this.indexR].transformFeedback)
+    core.gl.bindTransformFeedback(core.gl.TRANSFORM_FEEDBACK, vboArrayR.transformFeedback)
     core.gl.beginTransformFeedback(core.gl.POINTS)
     core.render('POINTS', false)
     core.gl.disable(core.gl.RASTERIZER_DISCARD)
     core.gl.endTransformFeedback()
     core.gl.bindTransformFeedback(core.gl.TRANSFORM_FEEDBACK, null)
 
-    core.useVao(this.vaoArray[this.indexR].id)
-    oForEach(this.vboArray[this.indexR].vbo, (([att, vbo]) => {
+    core.useVao(vaoR.id)
+    oForEach(vboArrayR.vbo, (([att, vbo]) => {
       core.gl.bindBuffer(this.core.gl.ARRAY_BUFFER, vbo)
       core.enableAttribute(att)
     }))

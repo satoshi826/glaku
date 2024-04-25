@@ -75,10 +75,11 @@ export class Renderer {
   }
 
   beforeRender<T extends Program>(
-    vao: { id: string },
+    vao: Vao,
     program: T
   ) {
     if (this.resizeQueue) this.resize(this.resizeQueue)
+    if (!this.core.vao[vao.id]) vao.setVao()
     this.core.useVao(vao.id)
     this.core.useRenderer(this)
     this.core.useProgram(program.id)

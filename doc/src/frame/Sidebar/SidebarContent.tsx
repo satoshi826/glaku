@@ -1,38 +1,55 @@
-import {List, ListItem, ListItemButton, ListItemText, Stack, Tab, styled} from '@mui/material'
-import {useState} from 'react'
+import {List, ListItem, ListItemButton, ListItemText, Stack} from '@mui/material'
 import {Tabs} from './Tabs'
-import {Link} from 'wouter'
+import {Link, useLocation, useRoute} from 'wouter'
+import {Page, PageType, pageTypes, pages} from '../../pages'
+import {aToO} from 'jittoku'
 
-type TabOption = 'docs' | 'examples'
-const tabOption: TabOption[] = ['docs', 'examples']
+const items = aToO(pageTypes, (v) => [v, pages.filter(({type}) => type === v)])
 
 export function SidebarContent() {
-  const [value, setValue] = useState<TabOption>('docs')
-  const items = ['hoge', 'fuga']
+  const [, setLocation] = useLocation()
+  const [, params] = useRoute('/:name')
+  const currentPage = params?.name
+
+  const currentTab: PageType = items.examples.find(({name}) => name === currentPage) ? 'examples' : 'docs'
+  const handleChangeTab = (value: PageType) => {
+    if(value === currentTab) return
+    setLocation(`/${items[value][0].name}`)
+  }
+
   return (
     <Stack>
-      <Tabs value={value} options={tabOption} onChange={(v) => setValue(v)}/>
-      <SidebarList items={items}/>
+      <Tabs value={currentTab} options={pageTypes} onChange={handleChangeTab}/>
+      <SidebarList items={items[currentTab]} currentPage={currentPage ?? ''}/>
     </Stack>
   )
 }
 
-function SidebarList({items}: {items: string[]}) {
+function SidebarList({items, currentPage}: {items: Page[], currentPage: string}) {
   return (
     <List >
-      {items.map(item =>
-        <ListItem
-          key={item}
-          component={Link}
-          to={`/${item}`}
-          sx={({palette}) => ({color: palette.text.primary})}
-          dense
-          disablePadding >
-          <ListItemButton>
-            <ListItemText>{item}</ListItemText>
-          </ListItemButton>
-        </ListItem>
-      )}
+      {items.map(({name}) => {
+        const isCurrentPage = currentPage === name
+        return (
+          <ListItem
+            key={name}
+            component={Link}
+            to={name}
+            sx={({palette : {text, primary}}) => ({
+              color      : isCurrentPage ? primary.main : text.primary,
+              borderRight: isCurrentPage ? `2px solid ${primary.main}` : undefined
+            })}
+            dense
+            disablePadding
+          >
+            <ListItemButton>
+              <ListItemText >
+                {name}
+              </ListItemText>
+            </ListItemButton>
+          </ListItem>
+        )
+      })}
     </List>
   )
 }
