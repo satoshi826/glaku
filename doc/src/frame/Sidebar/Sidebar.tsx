@@ -7,9 +7,8 @@ import {SidebarContent} from './SidebarContent'
 export function Sidebar() {
   const [open, setOpen] = useAtom(sidebarOpenAtom)
   const isXs = useIsXs()
-  const variant = isXs ? 'temporary' : 'persistent'
   return (
-    <Drawer open={open} onClose={() => setOpen(false)} variant={variant}
+    <Drawer open={open} onClose={() => setOpen(false)} variant={isXs ? 'temporary' : 'persistent'}
       sx={({
         transitions : {duration : {enteringScreen, leavingScreen}, easing: {easeIn, easeOut}},
         zIndex : {appBar},

@@ -11,14 +11,22 @@ export const pageTypes: PageType[] = ['docs', 'examples']
 export const pages: Page[] = [
   {
     type: 'docs',
-    name: 'hogeD'
+    name: 'getStarted'
   },
   {
     type: 'docs',
-    name: 'fugaD'
+    name: 'hogeD'
   },
   {
     type: 'examples',
     name: 'helloTriangle'
+  },
+  {
+    type: 'examples',
+    name: 'attributes'
+  },
+  {
+    type: 'examples',
+    name: 'demo'
   }
 ]

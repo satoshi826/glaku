@@ -1,5 +1,5 @@
 # gippy
-tiny webGL library
+simple webGL library
 
 ## Install
 

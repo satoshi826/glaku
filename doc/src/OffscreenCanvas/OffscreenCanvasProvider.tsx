@@ -9,9 +9,13 @@ export function OffscreenCanvasProvider({children, worker}) {
   useEffect(() => {
     if (!workerRef.current && canvasRef.current) {
       console.log('connecting worker')
-      const offscreenCanvas = canvasRef.current!.transferControlToOffscreen()
+      const canvas = canvasRef.current
+      const offscreenCanvas = canvas.transferControlToOffscreen()
+      const {width, height} = canvas.getBoundingClientRect()
+      offscreenCanvas.width = width
+      offscreenCanvas.height = height
       workerRef.current = worker()
-      workerRef.current!.postMessage({init: offscreenCanvas}, [offscreenCanvas])
+      workerRef.current!.postMessage({canvas: offscreenCanvas}, [offscreenCanvas])
       workerRef.current!.onmessage = ({data}: {data: unknown}) => {
         handlerRef.current.forEach((f) => f(data))
       }

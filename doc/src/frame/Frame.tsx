@@ -1,4 +1,4 @@
-import {Box, Stack as MUIStack, styled} from '@mui/material'
+import {Stack as MUIStack, styled} from '@mui/material'
 import {atom} from 'jotai'
 import {Header} from './Header/Header'
 import {Sidebar} from './Sidebar/Sidebar'

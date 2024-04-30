@@ -1,6 +1,6 @@
 import {Canvas} from './Canvas'
 import {Frame} from './frame'
-import {pages, pageTypes} from './pages'
+import {pages} from './pages'
 import {Suspense, lazy} from 'react'
 import {Route} from 'wouter'
 
@@ -8,7 +8,7 @@ function App() {
   return (
     <Frame >
       <Pages/>
-      <Canvas/>
+      {/* <Canvas/> */}
     </Frame>
   )
 }

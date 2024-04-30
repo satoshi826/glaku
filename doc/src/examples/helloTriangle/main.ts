@@ -6,11 +6,11 @@ export const main = (canvas: HTMLCanvasElement) => {
   const program = new Program(core, {
     id            : 'red',
     attributeTypes: {
-      a_position: 'vec3'
+      a_position: 'vec2'
     },
     vert: /* glsl */ `
         void main() {
-          gl_Position = vec4(a_position, 1.0);
+          gl_Position = vec4(a_position,1.0,1.0);
         }`,
     frag: /* glsl */`
         out vec4 fragColor;
@@ -19,11 +19,12 @@ export const main = (canvas: HTMLCanvasElement) => {
         }`
   })
   const vao = new Vao(core, {
+    id        : 'triangle',
     attributes: {
       a_position: [
-        0, 0.5, 0,
-        0.5, -0.5, 0,
-        -0.5, -0.5, 0.0
+        0, 0.5, // top center
+        0.5, -0.5, // bottom right
+        -0.5, -0.5 // bottom left
       ]
     }
   })
