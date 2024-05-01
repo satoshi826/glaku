@@ -3,9 +3,7 @@ import {Core} from '../../../../src/Core'
 import {getGpgpu} from './gpgpu'
 import {getProgram} from './program'
 
-export const main = (canvas: HTMLCanvasElement) => {
-
-  // const hoge = Date.now().toString().slice(-4)
+export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})
   const renderer = new Renderer(core, {backgroundColor: [0, 0, 0, 1]})
@@ -26,12 +24,11 @@ export const main = (canvas: HTMLCanvasElement) => {
   })
 
   const animation = new Loop({callback: ({delta, unix}) => {
-    // console.log(hoge)
     renderer.clear()
     gpgpu.set({u_delta: delta, u_unix: unix})
     gpgpu.run()
     renderer.render(gpgpu.vao, program)
-  }, interval: 1000})
+  }})
 
   animation.start()
 

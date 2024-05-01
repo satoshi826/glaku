@@ -1,13 +1,4 @@
-import {Fab, Icon} from '@mui/material'
-import {Canvas} from './Canvas'
-
-export default function Page() {
-  return (
-    <>
-      <Canvas src={'helloTriangle'}/>
-      <Fab sx={{position: 'absolute', right: 16, bottom: 16}}>
-        <Icon>code</Icon>
-      </Fab>
-    </>
-  )
+import {Template} from '../Template'
+export default function Page({name}: {name: string}) {
+  return <Template src={name}/>
 }

@@ -21,7 +21,7 @@ export class Core {
 
   constructor({canvas, pixelRatio = 1, resizeListener, options}:
     {
-      canvas: HTMLCanvasElement,
+      canvas: HTMLCanvasElement | OffscreenCanvas,
       pixelRatio?: number,
       resizeListener?: (((handler: (arg: ResizeArgs) => void) => void)),
       options?: WebGLConstants[]}

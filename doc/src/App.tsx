@@ -1,4 +1,3 @@
-import {Canvas} from './Canvas'
 import {Frame} from './frame'
 import {pages} from './pages'
 import {Suspense, lazy} from 'react'
@@ -8,7 +7,6 @@ function App() {
   return (
     <Frame >
       <Pages/>
-      {/* <Canvas/> */}
     </Frame>
   )
 }
@@ -20,7 +18,7 @@ function Pages() {
       return (
         <Route path={name} key={name}>
           <Suspense fallback={null}>
-            <Page />
+            <Page name={name}/>
           </Suspense>
         </Route>
       )

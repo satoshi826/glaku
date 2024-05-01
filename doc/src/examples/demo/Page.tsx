@@ -1,7 +1,4 @@
-import {useOffscreenCanvas} from '../../OffscreenCanvas/hooks'
-
-export default function Page() {
-  const {post} = useOffscreenCanvas()
-  post({src: 'demo'})
-  return null
+import {Template} from '../Template'
+export default function Page({name}: {name: string}) {
+  return <Template src={name}/>
 }

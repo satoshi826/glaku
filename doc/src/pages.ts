@@ -27,6 +27,10 @@ export const pages: Page[] = [
   },
   {
     type: 'examples',
+    name: 'uniforms'
+  },
+  {
+    type: 'examples',
     name: 'demo'
   }
 ]

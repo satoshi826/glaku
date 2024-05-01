@@ -1,6 +1,6 @@
 import {Core, Program, Renderer, Vao} from '../../../../src'
 
-export const main = (canvas: HTMLCanvasElement) => {
+export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
   const renderer = new Renderer(core)
   const program = new Program(core, {
@@ -17,9 +17,9 @@ export const main = (canvas: HTMLCanvasElement) => {
         }`,
     frag: /* glsl */`
         in vec3 color;
-        out vec4 fragColor;
+        out vec4 o_color;
         void main() {
-          fragColor = vec4(color,1.0);
+          o_color = vec4(color,1.0);
         }`
   })
   const vao = new Vao(core, {
