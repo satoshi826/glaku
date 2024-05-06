@@ -13,14 +13,11 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   setHandler('resize', ({width, height}: ResizeArgs = {}) => {
     const ar = width && height ? calcAspectRatioVec(width, height) : [1, 1]
-    program.set({u_aspectRatio: ar})
+    gpgpu.set({u_aspectRatio: ar})
   })
 
-  setHandler('mouse', (v) => {
-    if (v) {
-      const {x, y} = v as { x: number, y: number}
-      gpgpu.set({u_origin: [x, y]})
-    }
+  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+    gpgpu.set({u_origin: [x, y]})
   })
 
   const animation = new Loop({callback: ({delta, unix}) => {

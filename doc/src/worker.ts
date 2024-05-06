@@ -1,18 +1,24 @@
 import {main as helloTriangle} from './examples/helloTriangle/main'
 import {main as attributes} from './examples/attributes/main'
 import {main as uniforms} from './examples/uniforms/main'
+import {main as animation} from './examples/animation/main'
+import {main as resize} from './examples/resize/main'
+import {main as texture} from './examples/texture/main'
 import {main as demo} from './examples/demo/main'
 
 import {setState} from '../../src'
 
-const srcRecord = {
+export const srcRecord = {
   helloTriangle,
   attributes,
   uniforms,
+  animation,
+  resize,
+  texture,
   demo
 } as const
 
-export type SrcType = keyof typeof srcRecord
+type SrcType = keyof typeof srcRecord
 
 console.log('starting worker')
 

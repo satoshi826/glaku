@@ -4,7 +4,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
   const renderer = new Renderer(core)
   const program = new Program(core, {
-    id            : 'color',
+    id            : 'attributes',
     attributeTypes: {
       a_position: 'vec2',
       a_color   : 'vec3'
@@ -37,6 +37,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
       ]
     }
   })
+  renderer.clear()
   renderer.render(vao, program)
 }
 

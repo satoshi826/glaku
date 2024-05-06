@@ -84,9 +84,7 @@ export class Renderer {
     this.core.useRenderer(this)
     this.core.useProgram(program.id)
     this.core.setUniforms(program.uniforms)
-    if (program.texture.length) {
-      program.texture.forEach((tex) => this.core.useTexture(tex))
-    }
+    if (program.texture.length) program.texture.forEach((tex) => this.core.useTexture(tex))
     if (program.uniforms.u_resolution) program.set({u_resolution: [this.width * this.pixelRatio, this.height * this.pixelRatio]})
   }
 

@@ -121,7 +121,7 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
       (result, [name, type]) => result +
         `in ${type} ${name};\nout ${type} ${name.replace('a_', 'a_tf_')};\n`, fullVert) + this.vert
 
-    if(uniformKeys.size) console.warn('unused uniform keys : ' + [...uniformKeys.values()].join(', '))
+    if(uniformKeys.size) console.warn(`--- programId: ${this.id} --- unused uniform keys : ${ [...uniformKeys.values()].join(', ')}`)
     return fullVert
   }
 }

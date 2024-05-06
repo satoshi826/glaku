@@ -1,8 +1,9 @@
-import {useEffect, useLayoutEffect, useRef} from 'react'
+import {useLayoutEffect, useRef} from 'react'
 import Worker from '../worker?worker'
-import {resizeObserver, screenToViewPortAspectRatio} from '../../../src'
 
-export function Canvas({src}) {
+export type CanvasProps = { src: string; state?: object}
+
+export function useCanvas() {
 
   const workerRef = useRef<Worker | null>(null)
   const handlerRef = useRef(new Set<(v: unknown) => void>())
@@ -24,7 +25,6 @@ export function Canvas({src}) {
     console.log('connecting worker')
     workerRef.current = new Worker() as Worker
     post({canvas: offScreenCanvas}, [offScreenCanvas])
-    post({src})
     workerRef.current!.onmessage = ({data}: {data: unknown}) => handlerRef.current.forEach((f) => f(data))
     return () => {
       console.log('terminate worker')
@@ -34,23 +34,8 @@ export function Canvas({src}) {
     }
   })
 
-  const sendResize = resizeObserver(({width, height}) => post({state: {resize: {width, height}}}))
-  useEffect(() => {
-    coverRef.current && sendResize.observe(coverRef.current)
-    return () => {
-      coverRef.current && sendResize.unobserve(coverRef.current)
-    }
-  }, [coverRef])
+  const canvas = <div id='canvas_wrapper' ref={coverRef} style={{flexGrow: 1, position: 'relative'}} />
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const {offsetX, offsetY, target} = e.nativeEvent
-    const {clientWidth, clientHeight} = target as HTMLElement
-    const {x, y} = screenToViewPortAspectRatio({offsetX, offsetY, clientWidth, clientHeight})
-    post({state: {mouse: {x, y}}})
-  }
-
-  return (
-    <div id='canvas_wrapper' ref={coverRef} style={{flexGrow: 1, position: 'relative'}} onMouseMove={handleMouseMove}/>
-  )
+  return {canvas, post, ref: coverRef}
 }
 

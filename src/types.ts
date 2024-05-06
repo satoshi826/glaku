@@ -13,6 +13,7 @@ export type ProgramId = string
 export type VaoId = string
 export type RendererId = number
 export type UniformName = `u_${string}`
+export type TextureName = `t_${string}`
 export type AttributeName = `a_${string}`
 export type OutputName = `o_${string}`
 export type ResizeArgs = {width?: number, height?: number, pixelRatio?: number}
