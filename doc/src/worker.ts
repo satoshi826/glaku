@@ -5,6 +5,7 @@ import {main as animation} from './examples/animation/main'
 import {main as resize} from './examples/resize/main'
 import {main as texture} from './examples/texture/main'
 import {main as demo} from './examples/demo/main'
+import {main as _3d} from './examples/3d/main'
 
 import {setState} from '../../src'
 
@@ -15,6 +16,7 @@ export const srcRecord = {
   animation,
   resize,
   texture,
+  '3d': _3d,
   demo
 } as const
 

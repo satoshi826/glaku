@@ -54,12 +54,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
         in vec2 textureCoord;
         out vec4 o_color;
         void main() {
-          vec3 texture_rgb = texture(t_texture,textureCoord).rgb;
+          vec3 texture_rgb = texture(t_texture, textureCoord).rgb;
           vec3 texture_hsv = rgbToHsv(texture_rgb);
-          float new_h = texture_hsv.x+u_mouse.x*0.5;
-          float new_s = max(texture_hsv.y+u_mouse.y*0.5,0.0);
-          vec3 result_color = hsvToRgb(vec3(new_h,new_s,texture_hsv.z));
-          o_color = vec4(result_color,1.0);
+          float new_h = texture_hsv.x + u_mouse.x * 0.5;
+          float new_s = max(texture_hsv.y + u_mouse.y *0.5, 0.0);
+          vec3 result_color = hsvToRgb(vec3(new_h, new_s, texture_hsv.z));
+          o_color = vec4(result_color, 1.0);
         }`
   })
   const vao = new Vao(core, {
@@ -87,8 +87,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
   program.set({u_aspectRatio_image: calcAspectRatioVec(image.width, image.height)})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
-    const aspectRatio = width / height
-    program.set({u_aspectRatio: aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]})
+    program.set({u_aspectRatio: calcAspectRatioVec(width, height)})
   })
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
