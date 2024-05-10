@@ -1,71 +1,73 @@
-import {Core, Loop, Program, Renderer, Vao, box, calcAspectRatioVec, setHandler} from '../../../../src'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler} from '../../../../src'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})
   const renderer = new Renderer(core)
 
-  const program2 = new Program(core, {
-    id            : 'frame',
+  const boxVao = new Vao(core, {
+    id: 'box',
+    ...box()
+  })
+
+  const model = new Model({rotation: {axis: [0, 1, 0], angle: 0}})
+  const camera = new Camera({position: [0, 0, 5]})
+
+  const program = new Program(core, { // Model View Projection
+    id            : '3d',
     attributeTypes: {
-      a_position: 'vec2'
+      a_position: 'vec3',
+      a_normal  : 'vec3'
     },
     uniformTypes: {
-      u_aspectRatio: 'vec2'
+      u_mMatrix       : 'mat4',
+      u_vpMatrix      : 'mat4',
+      u_lightPosition : 'vec3',
+      u_cameraPosition: 'vec3'
     },
     vert: /* glsl */ `
-        out vec2 o_pos;
+        out vec3 o_position;
+        out vec3 o_normal;
         void main() {
-          vec2 pos = a_position / u_aspectRatio;
-          gl_Position = vec4(pos,1.0,1.0);
+          o_position = (u_mMatrix * vec4(a_position, 1.0)).xyz;
+          o_normal = a_normal;
+          mat4 mvpMatrix = u_vpMatrix * u_mMatrix;
+          vec4 localPosition = mvpMatrix * vec4(a_position, 1.0);
+          gl_Position =  localPosition;
         }`,
     frag: /* glsl */`
+        in vec3 o_position;
+        in vec3 o_normal;
         out vec4 o_color;
         void main() {
+          vec3 viewDir = normalize(u_cameraPosition - o_position);
+          vec3 lightDir = normalize(u_lightPosition - o_position);
+          float lightDis = distance(u_lightPosition, o_position);
+          vec3 diffuse = vec3(0.0);
+          vec3 specular = vec3(0.0);
           o_color = vec4(vec3(0.5), 1.0);
         }`
   })
 
-
-  const vao = plane(core)
-  // const vao2 = new Vao(core, {
-  //   id: 'box',
-  //   ...box()
-  // })
-
-
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
-    const aspectRatioVec = calcAspectRatioVec(width, height)
-    // const aspectRatio = width / height
-    // const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
-    program2.set({u_aspectRatio: aspectRatioVec})
+    camera.aspect = width / height
+    camera.update()
+    program.set({u_vpMatrix: camera.matrix.vp})
   })
 
-  // setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-  //   program1.set({u_mouse: [x, y]})
-  // })
+  program.set({
+    u_lightPosition : [0, 0, 1],
+    u_cameraPosition: camera.position
+  })
 
-  const animation = new Loop({callback: () => {
+  const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
-    renderer.render(vao, program2)
+    model.rotation.angle = elapsed / 400
+    model.update()
+    program.set({u_mMatrix: model.matrix.m})
+    renderer.render(boxVao, program)
   }})
 
   animation.start()
 }
 
 //----------------------------------------------------------------
-
-const plane = (core: Core) => new Vao(core, {
-  id        : 'plane',
-  attributes: {
-    a_position: [
-      -1.0, 1.0,
-      1.0, 1.0,
-      -1.0, -1.0,
-      1.0, -1.0
-    ]
-  },
-  index: [
-    2, 1, 0,
-    1, 2, 3
-  ]
-})

@@ -48,7 +48,7 @@ export class Program<T extends UniformName, K extends TextureName> {
 
   }
 
-  set(uniformValues: PartialRecord<T, number | number[]>) {
+  set(uniformValues: PartialRecord<T, number | number[] | Float32Array>) {
     oForEach(uniformValues as Record<T, number | number[]>, ([k, v]) => {
       this.uniforms[k].value = v
     })

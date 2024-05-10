@@ -96,7 +96,7 @@ export class Core {
     const vao = this.gl.createVertexArray()
     this.gl.bindVertexArray(vao)
     oForEach(attributes, ([k, v]) => {
-      if (v === undefined) return
+      if (v === undefined || !this.stride[k]) return
       this.createVbo(new Float32Array(v))
       this.enableAttribute(k as AttributeName)
     })

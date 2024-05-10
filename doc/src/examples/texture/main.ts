@@ -6,8 +6,11 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const renderer = new Renderer(core)
 
   const image = await new Promise<ImageBitmap>((resolve) => {
-    setHandler('image', (image) => {
-      if (image) resolve(image)
+    const cleanup = setHandler('image', (img) => {
+      if (img) {
+        resolve(img)
+        cleanup()
+      }
     })
   })
   // const image = document.getElementById('image')

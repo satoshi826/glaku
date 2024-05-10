@@ -16,14 +16,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         out float x;
         void main() {
           x = a_position.x;
-          gl_Position = vec4(0.2*a_position+u_offset,1.0,1.0);
+          gl_Position = vec4(0.2 * a_position + u_offset, 1.0, 1.0);
         }`,
     frag: /* glsl */`
         in float x;
         out vec4 o_color;
         void main() {
-          float wave = 0.5*sin(3.1415*x*0.5)+0.5; // 0 -> 1
-          o_color = vec4(wave*u_color,1.0);
+          float gradient = 0.5 * sin(3.1415 * x * 0.5) + 0.5; // 0 -> 1
+          o_color = vec4(gradient * u_color, 1.0);
         }`
   })
   const vao = triangle(core)

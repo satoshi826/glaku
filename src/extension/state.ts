@@ -22,4 +22,5 @@ export const setHandler = (key: string, f: Fn) => {
   state[key].handler ??= new Set()
   state[key].handler!.add(f)
   f(state[key].value)
+  return () => state[key].handler?.delete(f)
 }
