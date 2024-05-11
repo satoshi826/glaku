@@ -10,16 +10,16 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
       a_color   : 'vec3'
     },
     vert: /* glsl */ `
-        out vec3 color;
+        out vec3 v_color;
         void main() {
-          color = a_color;
+          v_color = a_color;
           gl_Position = vec4(a_position, 1.0, 1.0);
         }`,
     frag: /* glsl */`
-        in vec3 color;
+        in vec3 v_color;
         out vec4 o_color;
         void main() {
-          o_color = vec4(color, 1.0);
+          o_color = vec4(v_color, 1.0);
         }`
   })
   const vao = new Vao(core, {

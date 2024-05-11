@@ -60,9 +60,7 @@ type Rotation = {
 }
 
 export class Model {
-  matrix: {
-    m: Matrix
-  }
+  matrix: { m: Matrix}
   position?: Vector
   rotation: Rotation
   scale?: Vector
