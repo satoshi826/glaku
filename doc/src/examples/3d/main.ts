@@ -18,9 +18,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const model = new Model({rotation: {axis: [0, 1, 0], angle: 0}})
   const camera = new Camera({position: [0, 2, 4]})
 
-  // Model View Projection
-  // Phong reflection model
-  // Point Light
   const program = new Program(core, {
     id            : '3d',
     attributeTypes: {
@@ -30,7 +27,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     uniformTypes: {
       u_mMatrix       : 'mat4',
       u_vpMatrix      : 'mat4',
-      u_lightPosition : 'vec3',
+      u_lightPosition : 'vec3', // PointLight
       u_cameraPosition: 'vec3'
     },
     vert: /* glsl */ `
@@ -40,7 +37,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           vec4 position_4 = vec4(a_position, 1.0);
           v_position = (u_mMatrix * position_4).xyz;
           v_normal = (u_mMatrix * vec4(a_normal, 1.0)).xyz;
-          mat4 mvpMatrix = u_vpMatrix * u_mMatrix;
+          mat4 mvpMatrix = u_vpMatrix * u_mMatrix; // Model View Projection
           gl_Position = mvpMatrix * position_4;
         }`,
     frag: /* glsl */`
@@ -67,7 +64,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
 
   program.set({
-    u_lightPosition : [2, 2, 2],
+    u_lightPosition : [1, 2, 1],
     u_cameraPosition: camera.position
   })
 
