@@ -1,5 +1,4 @@
-import {Core, Program} from 'gippy'
-import {GPGPU} from '../../../../src/extension/GPGPU'
+import {Core, Program, GPGPU} from 'gippy'
 
 export const getProgram = (core: Core, gpgpu: GPGPU) => new Program(core, {
   id            : 'renderer',

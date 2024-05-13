@@ -1,6 +1,5 @@
 import {random, range} from 'jittoku'
-import {GPGPU} from '../../../../src/extension/GPGPU'
-import {Core} from 'gippy'
+import {Core, GPGPU} from 'gippy'
 
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)
