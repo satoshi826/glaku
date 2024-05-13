@@ -25,18 +25,20 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - name: cd doc
-        run: cd doc
       - name: npm install
-        run: npm install
+        run: |
+          cd doc
+          npm install
       - name: npm run build
-        run: npm run build
+        run: |
+          cd doc
+          npm run build
         env:
           GITHUB_PAGES: true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./dist
+          path: .doc/dist
 
   deploy:
     environment:
