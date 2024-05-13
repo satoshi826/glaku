@@ -1,5 +1,4 @@
-import {Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'gippy'
-import {Core} from '../../../../src/Core'
+import {Core, Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'gippy'
 import {getGpgpu} from './gpgpu'
 import {getProgram} from './program'
 
@@ -20,9 +19,9 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     gpgpu.set({u_origin: [x, y]})
   })
 
-  const animation = new Loop({callback: ({delta, unix}) => {
+  const animation = new Loop({callback: ({delta, elapsed}) => {
     renderer.clear()
-    gpgpu.set({u_delta: delta, u_unix: unix})
+    gpgpu.set({u_delta: delta, u_unix: elapsed})
     gpgpu.run()
     renderer.render(gpgpu.vao, program)
   }})

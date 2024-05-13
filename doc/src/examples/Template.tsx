@@ -1,7 +1,7 @@
 import {Fab, Icon} from '@mui/material'
 import {useCanvas} from './useCanvas'
 import {useEffect} from 'react'
-import {resizeObserver, screenToViewPort} from '../../../src'
+import {resizeObserver, screenToViewPort} from 'gippy'
 
 export function Template({src, state}: {src: string, state?: object}) {
   const {canvas, post, ref} = useCanvas()
