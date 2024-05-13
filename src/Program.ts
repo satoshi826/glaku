@@ -16,7 +16,7 @@ export class Program<T extends UniformName, K extends TextureName> {
   primitive: PrimitiveTypes
   constructor(core: Core, {
     id, attributeTypes, uniformTypes = {} as Record<T, UniformType>,
-    frag, vert, texture = {}, primitive = 'TRIANGLES'
+    frag, vert, texture = {} as Record<K, WebGLTexture>, primitive = 'TRIANGLES'
   }:
     {
       id: ProgramId, attributeTypes: AttributeTypes, uniformTypes?: Record<T, UniformType>,

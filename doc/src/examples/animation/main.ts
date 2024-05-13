@@ -1,4 +1,4 @@
-import {Core, Loop, Program, Renderer, Vao, setHandler} from '../../../../src'
+import {Core, Loop, Program, Renderer, Vao, setHandler} from 'gippy'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})

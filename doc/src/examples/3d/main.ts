@@ -1,4 +1,4 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler} from '../../../../src'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler} from 'gippy'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({

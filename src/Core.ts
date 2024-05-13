@@ -1,5 +1,5 @@
 import {oForEach, keys, times, isNullish, firstEntry} from 'jittoku'
-import {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes} from './types'
+import {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes, TextureName} from './types'
 import {strideMap, uniMethod} from './constants'
 
 export class Core {
@@ -220,7 +220,7 @@ export class Core {
     return texture
   }
 
-  setTexture(key: UniformName, data: WebGLTexture) {
+  setTexture(key: TextureName, data: WebGLTexture) {
     if(this.texture[key]) {
       this.texture[key] = {...this.texture[key], data}
       return this.texture[key].number
@@ -230,7 +230,7 @@ export class Core {
     return textureNum
   }
 
-  useTexture(key: UniformName) {
+  useTexture(key: TextureName) {
     const {data, number} = this.texture[key]
     if (data) {
       const attr = `TEXTURE${number}` as WebGLConstants

@@ -1,4 +1,4 @@
-import {Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from '../../../../src'
+import {Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'gippy'
 import {Core} from '../../../../src/Core'
 import {getGpgpu} from './gpgpu'
 import {getProgram} from './program'

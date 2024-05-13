@@ -1,4 +1,4 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, setHandler} from '../../../../src'
+import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, setHandler} from 'gippy'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})

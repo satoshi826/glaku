@@ -1,4 +1,4 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, imageToTexture, setHandler} from '../../../../src'
+import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, imageToTexture, setHandler} from 'gippy'
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
