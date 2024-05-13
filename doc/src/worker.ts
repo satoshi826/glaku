@@ -7,7 +7,7 @@ import {main as texture} from './examples/texture/main'
 import {main as demo} from './examples/demo/main'
 import {main as _3d} from './examples/3d/main'
 
-import {setState} from '../../src'
+import {setState} from 'gippy'
 
 export const srcRecord = {
   helloTriangle,
