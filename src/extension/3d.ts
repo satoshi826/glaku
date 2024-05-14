@@ -1,4 +1,4 @@
-import {Matrix, Vector, create, lookAt, multiply, perspective, rotate, translate, scale as mScale, identity} from './matrix'
+import {Matrix, Vector, create, lookAt, multiply, perspective, rotate, translate, scale as mScale, identity, inverse, transpose} from './matrix'
 
 export class Camera {
   matrix: {
@@ -60,12 +60,18 @@ type Rotation = {
 }
 
 export class Model {
-  matrix: { m: Matrix}
+  matrix: {
+    m: Matrix,
+    normal: Matrix
+  }
   position?: Vector
   rotation: Rotation
   scale?: Vector
   constructor({position, rotation = {angle: 0, axis: [0, 1, 0]}, scale}: {position?: Vector, rotation?: Rotation, scale?: Vector}) {
-    this.matrix = {m: create()}
+    this.matrix = {
+      m: create(),
+      normal: create(),
+    }
     this.position = position
     this.rotation = rotation
     this.scale = scale
@@ -73,10 +79,14 @@ export class Model {
   }
 
   update() {
-    const {position, rotation, scale} = this
+    const {position, rotation: {angle, axis}, scale} = this
     identity(this.matrix.m)
     if (position) translate(this.matrix.m, position, this.matrix.m)
-    if (rotation.angle) rotate(this.matrix.m, rotation.angle, rotation.axis, this.matrix.m)
+    if (angle) rotate(this.matrix.m, angle, axis, this.matrix.m)
     if (scale) mScale(this.matrix.m, scale, this.matrix.m)
+    if (position || angle || scale || scale){
+      inverse(this.matrix.m, this.matrix.normal)
+      transpose(this.matrix.normal, this.matrix.normal)
+    }
   }
 }
