@@ -12,8 +12,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     ...box()
   })
 
-  const modelA = new Model({position:[1, -1, 1], rotation: {axis: [0, 1, 0], angle: 0}})
-  const modelB = new Model({position:[-1, 0.5, -2], rotation: {axis: [1, 0, 0], angle: 0}})
+  const modelA = new Model({position: [1, -1, 1], rotation: {axis: [0, 1, 0], angle: 0}})
+  const modelB = new Model({position: [-1, 0.5, -2], rotation: {axis: [1, 0, 0], angle: 0}})
   const camera = new Camera({position: [0, 0, 6]})
 
   const program = new Program(core, {
@@ -64,7 +64,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-    program.set({u_lightPosition: [5*x, 5*y, 4]})
+    program.set({u_lightPosition: [5 * x, 5 * y, 4]})
   })
 
   program.set({
