@@ -1,4 +1,4 @@
-# gippy
+# minimagl
 simple webGL library
 
 ## Install

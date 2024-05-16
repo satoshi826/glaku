@@ -1,7 +1,7 @@
 {
-  "name": "gippy",
-  "version": "0.0.12",
-  "description": "tiny webGL library",
+  "name": "minimagl",
+  "version": "0.0.1",
+  "description": "simple webGL library",
   "type": "module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,9 +14,7 @@
   },
   "author": "mu",
   "license": "MIT",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "devDependencies": {
     "eslint": "^9.2.0",
     "typescript": "^5.2.2",
