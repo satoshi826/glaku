@@ -5,7 +5,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const renderer = new Renderer(core)
 
   const program1 = new Program(core, {
-    id            : 'resize',
+    id            : 'rect',
     attributeTypes: {
       a_position: 'vec2'
     },

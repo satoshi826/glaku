@@ -1,4 +1,4 @@
-# minimagl
+# glaku
 simple webGL library
 
 ## Install

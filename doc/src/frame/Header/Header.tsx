@@ -10,7 +10,7 @@ export function Header() {
         <Icon >menu</Icon>
       </IconButton>
       <Typography variant="h6" noWrap>
-        Gippy
+        Glaku
       </Typography>
     </StyledAppBar>
   )
