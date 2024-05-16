@@ -10,7 +10,7 @@ export const DEPTH = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 
 
 let id = 0
 
-type GippyTexture = (WebGLTexture & {internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants})
+type TextureWithInfo = (WebGLTexture & {internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants})
 type Textures = [WebGLConstants, WebGLConstants, WebGLConstants, WebGLConstants][]
 
 export class Renderer {
@@ -23,7 +23,7 @@ export class Renderer {
   backgroundColor: ColorArray
   isCanvas: boolean
   frameBuffer: WebGLFramebuffer | null
-  renderTexture: GippyTexture[]
+  renderTexture: TextureWithInfo[]
   drawBuffers: number[]
   screenFit: boolean
 
@@ -108,7 +108,7 @@ export class Renderer {
     this.renderTexture = []
     textures.forEach(([internalFormat, format, type, filter], i: number) => {
       const attachment = gl.COLOR_ATTACHMENT0 + i
-      const texture = this.core.createTexture(this.width, this.height, internalFormat, format, type, filter) as GippyTexture
+      const texture = this.core.createTexture(this.width, this.height, internalFormat, format, type, filter) as TextureWithInfo
       if (!texture) throw new Error('Could not create texture')
       gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture, 0)
       texture.internalFormat = internalFormat

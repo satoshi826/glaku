@@ -12,7 +12,7 @@ export class Vao {
   attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
-  instancedAttributes: Record<string, {array: Float32Array | null, vbo: WebGLBuffer | null}> | null
+  instancedAttributes: Record<AttributeName, {array: Float32Array | null, vbo: WebGLBuffer | null}> | null
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:

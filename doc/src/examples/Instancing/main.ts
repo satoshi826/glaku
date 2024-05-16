@@ -1,4 +1,5 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler} from 'gippy'
+import {Camera, Core, Loop, Model, Program, Renderer, box, setHandler} from 'gippy'
+import {Vao} from '../../../../src/'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
@@ -12,6 +13,13 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const vao = new Vao(core, {
     id: 'box',
+    instancedAttributes: {
+      a_offset_position: [
+        0, 0, 0,
+        1,,1, 1,
+        -1, -1, -1,
+      ]
+    },
     ...box()
   })
 
