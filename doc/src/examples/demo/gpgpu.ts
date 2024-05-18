@@ -1,5 +1,5 @@
 import {random, range} from 'jittoku'
-import {Core, GPGPU} from 'gippy'
+import {Core, GPGPU} from 'glaku'
 
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)

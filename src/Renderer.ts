@@ -80,6 +80,7 @@ export class Renderer {
   ) {
     if (this.resizeQueue) this.resize(this.resizeQueue)
     if (!this.core.vao[vao.id]) vao.setVao()
+    vao.updateInstancedVbo()
     this.core.useVao(vao.id)
     this.core.useRenderer(this)
     this.core.useProgram(program.id)
@@ -89,14 +90,11 @@ export class Renderer {
 
   render<U extends UniformName, T extends TextureName>(vao: Vao, program: Program<U, T>) {
     this.beforeRender(vao, program)
-    this.core.render(program.primitive, !!vao?.index)
-  }
-
-  renderInstanced<U extends UniformName, T extends TextureName>(vao: Vao, program: Program<U, T>) {
-    this.beforeRender(vao, program)
     if (vao.instancedCount) {
-      this.core.renderInstanced(vao.instancedCount)
+      this.core.renderInstanced(program.primitive, !!vao?.index, vao.instancedCount)
+      return
     }
+    this.core.render(program.primitive, !!vao?.index)
   }
 
   setFrameBuffer(textures: Textures) {

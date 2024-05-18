@@ -1,4 +1,4 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, imageToTexture, setHandler} from 'gippy'
+import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, imageToTexture, setHandler} from 'glaku'
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
 

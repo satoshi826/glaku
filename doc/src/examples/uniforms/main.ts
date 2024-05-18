@@ -1,4 +1,4 @@
-import {Core, Program, Renderer, Vao} from 'gippy'
+import {Core, Program, Renderer, Vao} from 'glaku'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})

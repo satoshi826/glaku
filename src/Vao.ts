@@ -45,9 +45,14 @@ export class Vao {
       this.instancedAttributes![att].array ??= new Float32Array(this.maxInstance * strideSize)
       this.instancedCount = value.length / strideSize
       for (let i = 0; i < value.length; i++) this.instancedAttributes![att].array![i] = value[i]
-      this.instancedAttributes![att].vbo ??= this.core.createInstancedVbo(this.id, att, this.instancedAttributes![att].array!)
-      this.core.updateVbo(this.id, att, this.instancedAttributes![att].array!, this.instancedAttributes![att].vbo!)
     }))
+  }
+
+  updateInstancedVbo(){
+    this.instancedAttributes && oForEach(this.instancedAttributes, ([att, {array, vbo}]) => {
+      vbo ??= this.core.createInstancedVbo(this.id, att, array!)
+      this.core.updateVbo(this.id, att, array!, vbo)
+    })
   }
 }
 

@@ -1,4 +1,4 @@
-import {Core, Program, GPGPU} from 'gippy'
+import {Core, Program, GPGPU} from 'glaku'
 
 export const getProgram = (core: Core, gpgpu: GPGPU) => new Program(core, {
   id            : 'renderer',

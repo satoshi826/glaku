@@ -1,4 +1,4 @@
-import {Core, Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'gippy'
+import {Core, Loop, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'glaku'
 import {getGpgpu} from './gpgpu'
 import {getProgram} from './program'
 

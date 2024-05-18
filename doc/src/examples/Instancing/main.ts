@@ -1,5 +1,6 @@
-import {Camera, Core, Loop, Model, Program, Renderer, box, setHandler} from 'gippy'
-import {Vao} from '../../../../src/'
+import {Camera, Loop, Model, Program, box, setHandler} from 'glaku'
+
+import {Vao, Core, Renderer} from '../../../../src'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
@@ -13,56 +14,58 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const vao = new Vao(core, {
     id: 'box',
-    instancedAttributes: {
-      a_offset_position: [
-        0, 0, 0,
-        1,,1, 1,
-        -1, -1, -1,
-      ]
-    },
+    instancedAttributes: ['a_mMatrix'],
+    maxInstance: 3,
     ...box()
   })
 
-  const model = new Model({rotation: {axis: [0, 1, 0], angle: 0}})
-  const camera = new Camera({position: [0, 2, 4]})
+  const modelA = new Model({position: [0,0,0], rotation: {axis: [0, 1, 0], angle: 0}})
+  const modelB = new Model({position: [2,2,2], rotation: {axis: [0, 1, 0], angle: 0}})
+  const modelC = new Model({position: [-2,-2,-2], rotation: {axis: [0, 1, 0], angle: 0}})
+
+  const camera = new Camera({position: [0, 2, 8]})
 
   const program = new Program(core, {
     id            : '3d',
     attributeTypes: {
       a_position: 'vec3',
-      a_normal  : 'vec3'
+      a_normal  : 'vec3',
+      a_mMatrix:  'mat4',
     },
     uniformTypes: {
-      u_mMatrix       : 'mat4',
       u_vpMatrix      : 'mat4',
-      u_lightPosition : 'vec3', // PointLight
+      u_lightPosition : 'vec3',
       u_cameraPosition: 'vec3'
     },
     vert: /* glsl */ `
         out vec3 v_position;
         out vec3 v_normal;
         void main() {
-          vec4 position_4 = vec4(a_position, 1.0);
-          v_position = (u_mMatrix * position_4).xyz;
-          v_normal = (u_mMatrix * vec4(a_normal, 1.0)).xyz;
-          mat4 mvpMatrix = u_vpMatrix * u_mMatrix; // Model View Projection
-          gl_Position = mvpMatrix * position_4;
+          vec4 position = vec4(a_position, 1.0);
+          v_position = (a_mMatrix * position).xyz;
+          v_normal = (a_mMatrix * vec4(a_normal, 0.0)).xyz;
+          mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
+          gl_Position = mvpMatrix * position;
         }`,
     frag: /* glsl */`
         in vec3 v_position;
         in vec3 v_normal;
         out vec4 o_color;
         void main() {
-          vec3 viewDir = normalize(u_cameraPosition - v_position);
-          vec3 lightDir = normalize(u_lightPosition - v_position);
-          vec3 reflectDir = reflect(-lightDir, v_normal);
-          float ambient = 0.05;
-          float diffuse = max(0.0, dot(lightDir, v_normal));
-          float specular = pow(max(0.0, dot(viewDir, reflectDir)), 20.0);
+          vec3 normal = normalize(v_normal);
+          vec3 viewVec = normalize(u_cameraPosition - v_position);
+          vec3 lightVec = normalize(u_lightPosition - v_position);
+          vec3 reflectVec = reflect(-lightVec, v_normal);
+          float ambient = 0.1;
+          float diffuse = max(0.0, dot(lightVec, v_normal));
+          float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
           vec3 color = vec3(0.5, 0.8, 1.0);
           vec3 result = (ambient + diffuse + specular) * color;
           o_color = vec4(result, 1.0);
         }`
+  })
+  vao.setInstancedValues({
+    a_mMatrix: modelA.matrix.m
   })
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
@@ -78,11 +81,13 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
-    model.rotation.angle = elapsed / 800
-    model.update()
-    program.set({u_mMatrix: model.matrix.m})
+    // model.rotation.angle = elapsed / 800
+    // model.update()
+
+
+    // program.set({u_mMatrix: modelA.matrix.m})
     renderer.render(vao, program)
-  }})
+  }, interval: 0})
 
   animation.start()
 }

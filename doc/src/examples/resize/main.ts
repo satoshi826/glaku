@@ -1,4 +1,4 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, setHandler} from 'gippy'
+import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, setHandler} from 'glaku'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})

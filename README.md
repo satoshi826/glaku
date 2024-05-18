@@ -4,7 +4,7 @@ simple webGL library
 ## Install
 
 ```
-npm install gippy
+npm install glaku
 ```
 
 ## Usage
