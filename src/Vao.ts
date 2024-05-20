@@ -4,13 +4,13 @@ import {VaoId} from './types'
 
 let counter = 0
 
-export class Vao<T extends AttributeName> {
+export class Vao<T extends AttributeName = 'a_'> {
   core: Core
   id: VaoId
   attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
-  instancedAttributes: Record<T, {array: Float32Array | null, vbo: WebGLBuffer | null, dirtyFlag: boolean}> | null
+  instancedAttributes: Record<T, {array: Float32Array | null, vbo: WebGLBuffer | null, dirtyFlag: boolean}>
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:
@@ -22,10 +22,7 @@ export class Vao<T extends AttributeName> {
     this.index = index
 
     this.maxInstance = maxInstance ?? 1000
-    this.instancedAttributes = instancedAttributes
-      ? aToO(instancedAttributes, (att) => [att, {array: null, vbo: null, dirtyFlag: false}])
-      : null
-
+    this.instancedAttributes = aToO(instancedAttributes ?? [], (att) => [att, {array: null, vbo: null, dirtyFlag: false}])
     this.instancedCount = null
   }
 
