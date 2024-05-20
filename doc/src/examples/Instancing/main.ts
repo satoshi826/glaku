@@ -1,4 +1,4 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize, getState} from 'glaku'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
 import {random, range} from 'jittoku'
 
 const CUBE_NUM = 3000
@@ -7,7 +7,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
     canvas,
     resizeListener: (fn) => setHandler('resize', fn),
-    pixelRatio    : getState('pixelRatio') as number,
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
@@ -19,14 +18,12 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     ...box()
   })
 
-  const models = range(CUBE_NUM).map(() => {
-    return new Model({
-      position: [random(-60, 60), random(-25, 25), random(-60, 60)],
-      rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0}
-    })
-  })
+  const models = range(CUBE_NUM).map(() => new Model({
+    position: [random(-60, 60), random(-25, 25), random(-60, 60)],
+    rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0}
+  }))
 
-  const camera = new Camera({lookAt: [0, 0, 0], far: 200})
+  const camera = new Camera({lookAt: [0, 0, 0], position: [0, 0, 50], far: 200})
 
   const program = new Program(core, {
     id            : '3d',
@@ -67,7 +64,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           o_color = vec4(result, 1.0);
         }`
   })
-  vao.setInstancedValues({a_mMatrix: models.map(({matrix: {m}}) => m).flat()})
+  vao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
@@ -82,7 +79,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
-    camera.position = [60 * Math.cos(elapsed / 4000), 10, 60 * Math.sin(elapsed / 4000)]
+    camera.position = [80 * Math.cos(elapsed / 4000), 10, 30 * Math.sin(elapsed / 4000)]
     camera.update()
     program.set({
       u_vpMatrix      : camera.matrix.vp,
@@ -93,7 +90,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
       model.rotation.angle = elapsed / 600
       model.update()
     })
-    vao.setInstancedValues({a_mMatrix: models.map(({matrix: {m}}) => m).flat()})
+    vao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
 
     renderer.render(vao, program)
   }, interval: 0})
