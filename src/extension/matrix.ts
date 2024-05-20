@@ -1,6 +1,6 @@
 
-export type Matrix = Float32Array
-export type Vector = Float32Array | number[]
+export type Matrix = number[]
+export type Vector = number[]
 
 export const identity = (dest: Matrix) => {
   dest[0] = 1; dest[1] = 0; dest[2] = 0; dest[3] = 0
@@ -11,7 +11,7 @@ export const identity = (dest: Matrix) => {
 }
 
 export const create = () => {
-  const dest = new Float32Array(16)
+  const dest = new Array(16)
   identity(dest)
   return dest
 }
@@ -210,4 +210,12 @@ export const inverse = (mat: Matrix, dest: Matrix) => {
   dest[13] = (a * z - b * x + c * w) * ivd
   dest[14] = (-m * t + n * r - o * q) * ivd
   dest[15] = (i * t - j * r + k * q) * ivd
+}
+
+export const normalize = (vec: Vector) => {
+  const sq = Math.sqrt(vec.reduce((a, c) => a += c*c, 0))
+  if (sq !== 1){
+    return vec.map(v => v/sq)
+  }
+  return vec
 }

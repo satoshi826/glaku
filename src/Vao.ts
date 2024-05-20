@@ -2,21 +2,19 @@ import {aToO, oForEach} from 'jittoku'
 import {AttributeName, Core} from '.'
 import {VaoId} from './types'
 
-type InstancedValue = Record<AttributeName, number[]>
-
 let counter = 0
 
-export class Vao {
+export class Vao<T extends AttributeName> {
   core: Core
   id: VaoId
   attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
-  instancedAttributes: Record<AttributeName, {array: Float32Array | null, vbo: WebGLBuffer | null}> | null
+  instancedAttributes: Record<T, {array: Float32Array | null, vbo: WebGLBuffer | null, dirtyFlag: boolean}> | null
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:
-      {id?: VaoId, attributes: Record<AttributeName, number[]>, index?: number[], instancedAttributes?: string[], maxInstance?: number}
+      {id?: VaoId, attributes: Record<AttributeName, number[]>, index?: number[], instancedAttributes?: T[], maxInstance?: number}
   ) {
     this.core = core
     this.id = id ?? String(counter++)
@@ -25,7 +23,7 @@ export class Vao {
 
     this.maxInstance = maxInstance ?? 1000
     this.instancedAttributes = instancedAttributes
-      ? aToO(instancedAttributes, (att) => [att, {array: null, vbo: null}])
+      ? aToO(instancedAttributes, (att) => [att, {array: null, vbo: null, dirtyFlag: false}])
       : null
 
     this.instancedCount = null
@@ -39,19 +37,25 @@ export class Vao {
     })
   }
 
-  setInstancedValues(instancedValue: InstancedValue) {
+  setInstancedValues(instancedValue: Record<T, number[]>) {
     oForEach(instancedValue, (([att, value]) => {
       const strideSize = this.core.getStrideSize(att)
       this.instancedAttributes![att].array ??= new Float32Array(this.maxInstance * strideSize)
       this.instancedCount = value.length / strideSize
-      for (let i = 0; i < value.length; i++) this.instancedAttributes![att].array![i] = value[i]
+      for (let i = 0; i < value.length; i++) {
+        this.instancedAttributes![att].array![i] = value[i]
+        this.instancedAttributes![att].dirtyFlag = true
+      }
     }))
   }
 
   updateInstancedVbo(){
-    this.instancedAttributes && oForEach(this.instancedAttributes, ([att, {array, vbo}]) => {
-      vbo ??= this.core.createInstancedVbo(this.id, att, array!)
-      this.core.updateVbo(this.id, att, array!, vbo)
+    this.instancedAttributes && oForEach(this.instancedAttributes, ([att, o]) => {
+      o.vbo ??= this.core.createInstancedVbo(this.id, att, o.array!)
+      if (o.dirtyFlag){
+        this.core.updateVbo(this.id, att, o.array!, o.vbo)
+        o.dirtyFlag = false
+      }
     })
   }
 }

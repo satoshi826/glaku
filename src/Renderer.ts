@@ -1,4 +1,4 @@
-import {Core, TextureName, UniformName} from '.'
+import {AttributeName, Core, TextureName, UniformName} from '.'
 import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
@@ -74,8 +74,8 @@ export class Renderer {
     this.core.gl.clear(this.core.gl.COLOR_BUFFER_BIT | this.core.gl.DEPTH_BUFFER_BIT)
   }
 
-  beforeRender<U extends UniformName, T extends TextureName>(
-    vao: Vao,
+  beforeRender<U extends UniformName, T extends TextureName, K extends AttributeName>(
+    vao: Vao<K>,
     program: Program<U, T>
   ) {
     if (this.resizeQueue) this.resize(this.resizeQueue)
@@ -88,7 +88,8 @@ export class Renderer {
     if (program.texture.length) program.texture.forEach((tex) => this.core.useTexture(tex))
   }
 
-  render<U extends UniformName, T extends TextureName>(vao: Vao, program: Program<U, T>) {
+  render<U extends UniformName, T extends TextureName, K extends AttributeName>
+  (vao: Vao<K>, program: Program<U, T>) {
     this.beforeRender(vao, program)
     if (vao.instancedCount) {
       this.core.renderInstanced(program.primitive, !!vao?.index, vao.instancedCount)

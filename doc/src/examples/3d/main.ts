@@ -6,9 +6,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     resizeListener: (fn) => setHandler('resize', fn),
     options       : ['DEPTH_TEST', 'CULL_FACE'] // gl.enable(gl.DEPTH_TEST) && gl.enable(gl.CULL_FACE)
   })
-  const renderer = new Renderer(core, {
-    backgroundColor: [0.1, 0.1, 0.1, 1.0]
-  })
+  const renderer = new Renderer(core, {backgroundColor: [0.1, 0.1, 0.1, 1.0]})
 
   const vao = new Vao(core, {
     id: 'box',

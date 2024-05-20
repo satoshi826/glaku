@@ -28,7 +28,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
       ]
     }
   })
-  renderer.clear()
   renderer.render(vao, program)
 }
 
