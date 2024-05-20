@@ -1,4 +1,4 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize, getState} from 'glaku'
 import {random, range} from 'jittoku'
 
 const CUBE_NUM = 3000
@@ -7,6 +7,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
     canvas,
     resizeListener: (fn) => setHandler('resize', fn),
+    pixelRatio    : getState('pixelRatio') as number,
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
