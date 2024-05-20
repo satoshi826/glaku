@@ -7,23 +7,23 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     resizeListener: (fn) => setHandler('resize', fn),
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
-  const renderer = new Renderer(core, {backgroundColor: [0.25, 0.25, 0.3, 1.0]})
+  const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
 
   const vao = new Vao(core, {
     id: 'box',
     instancedAttributes: ['a_mMatrix'],
-    maxInstance: 2000,
+    maxInstance: 3000,
     ...box()
   })
 
-  const models = range(2000).map(() => {
+  const models = range(3000).map(() => {
     return new Model({
-      position: [random(-40, 30), random(-40, 40), random(-40, 40)],
+      position: [random(-60, 60), random(-25, 25), random(-60, 60)],
       rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle:  random(-4, 4)}
     })
   })
 
-  const camera = new Camera({lookAt:[0, 0, 0], position: [0, 0, 50], far: 100})
+  const camera = new Camera({lookAt:[0, 0, 0], position: [0, 0, 50], far: 200})
 
   const program = new Program(core, {
     id            : '3d',
@@ -75,18 +75,19 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
 
   program.set({
-    u_lightPosition : [0, -100, 0],
+    u_lightPosition : [100, 0, 0],
     u_cameraPosition: camera.position
   })
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
-    const position = [40 * Math.cos(elapsed/4000), 10, 40 * Math.sin(elapsed/4000)]
-    camera.position = position
+    camera.position = [60 * Math.cos(elapsed/4000), 10, 60 * Math.sin(elapsed/4000)]
     camera.update()
-    program.set({u_vpMatrix: camera.matrix.vp})
-
+    program.set({
+      u_vpMatrix: camera.matrix.vp,
+      u_cameraPosition: camera.position
+    })
 
     models.forEach(model => {
       model.rotation.angle = elapsed / 300
@@ -96,7 +97,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     vao.setInstancedValues({
       a_mMatrix: models.map(({matrix: {m}}) => m).flat(),
     })
-  
 
     renderer.render(vao, program)
   }, interval: 0})
