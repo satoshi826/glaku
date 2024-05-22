@@ -34,7 +34,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         in float y;
         out vec4 o_color;
         void main() {
-          o_color = vec4(vec3(step(sin(20.0*y), 0.0)),1.0);
+          o_color = vec4(vec3(step(-cos(20.0*y), 0.0)),1.0);
         }`
   })
 
@@ -68,9 +68,10 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           return rand(vec2(time, floor(uv.y * blocks)));
         }
         void main() {
-          vec3 framebufferColor = texture(t_texture, v_textureCoord).rgb;
-          vec2 uv = vec2(gl_FragCoord.xy / u_resolution);
 
+          vec3 framebufferColor = texture(t_texture, v_textureCoord).rgb;
+
+          vec2 uv = vec2(gl_FragCoord.xy / u_resolution);
           vec3 effected = vec3(
             texture(t_texture, uv + vec2(offset(128.0, uv, u_elapsed) * 0.03, 0.0)).r,
             texture(t_texture, uv + vec2(offset(128.0, uv, u_elapsed) * 0.03 * 0.16666666, 0.0)).g,

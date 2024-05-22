@@ -15,7 +15,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     frag: /* glsl */`
         out vec4 o_color;
         void main() {
-          o_color = vec4(1.0, 0.2, 0.2, 1.0); // (r,g,b,a) -> red
+          o_color = vec4(0.4, 0.4, 1.0, 1.0); // (r,g,b,a) -> blue
         }`
   })
   const vao = new Vao(core, {
