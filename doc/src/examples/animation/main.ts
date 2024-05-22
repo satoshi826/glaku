@@ -20,7 +20,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           return m * v;
         }
         void main() {
-          vec2 pos = rotate(a_position,u_elapsed/500.)+u_mouse;
+          vec2 pos = rotate(a_position, u_elapsed / 500.0)+u_mouse;
           gl_Position = vec4(pos,1.0,1.0);
         }`,
     frag: /* glsl */`

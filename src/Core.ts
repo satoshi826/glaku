@@ -19,30 +19,22 @@ export class Core {
   uniMethod = uniMethod
   resizeListener: null | (((handler: (arg: ResizeArgs) => void) => void)) = null
 
-  constructor({canvas, pixelRatio = 1, resizeListener, options}:
+  constructor({canvas, pixelRatio = 1, resizeListener, options, extensions}:
     {
       canvas: HTMLCanvasElement | OffscreenCanvas,
       pixelRatio?: number,
       resizeListener?: (((handler: (arg: ResizeArgs) => void) => void)),
-      options?: WebGLConstants[]}
+      options?: WebGLConstants[]
+      extensions?: string[]
+    }
   ) {
     this.gl = canvas.getContext('webgl2', {antialias: true})!
-
-    this.gl.getExtension('EXT_color_buffer_float')
-    this.gl.getExtension('EXT_float_blend')
-    this.gl.getExtension('OES_texture_half_float')
-    this.gl.getExtension('OES_texture_half_float_linear')
-    this.gl.getExtension('OES_texture_float')
-    this.gl.getExtension('OES_texture_float_linear')
-    this.gl.getExtension('WEBGL_color_buffer_float')
-
     this.canvasWidth = this.gl.canvas.width
     this.canvasHeight = this.gl.canvas.height
     this.pixelRatio = pixelRatio
     if (resizeListener) this.resizeListener = resizeListener
-    options?.forEach(o => {
-      this.gl.enable(this.gl[o])
-    })
+    options?.forEach(o => this.gl.enable(this.gl[o]))
+    extensions?.forEach(e => this.gl.getExtension(e))
   }
 
   #compile(txt: string, type: 'VERTEX' | 'FRAGMENT') {

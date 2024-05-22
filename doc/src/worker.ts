@@ -17,9 +17,9 @@ export const srcRecord = {
   animation,
   resize,
   texture,
+  frameBuffer,
   '3d': _3d,
   instancing,
-  frameBuffer,
   demo
 } as const
 
