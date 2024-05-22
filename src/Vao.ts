@@ -2,11 +2,10 @@ import {aToO, oForEach} from 'jittoku'
 import {AttributeName, Core} from '.'
 import {VaoId} from './types'
 
-let counter = 0
-
 export class Vao<T extends AttributeName = 'a_'> {
-  core: Core
+  static idCounter = 0
   id: VaoId
+  core: Core
   attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
@@ -17,7 +16,7 @@ export class Vao<T extends AttributeName = 'a_'> {
       {id?: VaoId, attributes: Record<AttributeName, number[]>, index?: number[], instancedAttributes?: T[], maxInstance?: number}
   ) {
     this.core = core
-    this.id = id ?? String(counter++)
+    this.id = id ?? String(Vao.idCounter++)
     this.attributes = attributes
     this.index = index
 

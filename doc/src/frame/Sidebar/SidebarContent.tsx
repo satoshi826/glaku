@@ -2,10 +2,10 @@ import {List, ListItem, ListItemButton, ListItemText, Stack} from '@mui/material
 import {Tabs} from './Tabs'
 import {Link, useLocation, useRoute} from 'wouter'
 import {Page, PageType, pageTypes, pages} from '../../pages'
-import { sidebarOpenAtom } from '..'
-import { useSetAtom } from 'jotai'
+import {sidebarOpenAtom} from '..'
+import {useSetAtom} from 'jotai'
 import {aToO} from 'jittoku'
-import { useIsXs } from '../../theme/hooks'
+import {useIsXs} from '../../theme/hooks'
 
 const items = aToO(pageTypes, (v) => [v, pages.filter(({type}) => type === v)])
 

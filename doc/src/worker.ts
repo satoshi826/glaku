@@ -7,6 +7,7 @@ import {main as texture} from './examples/texture/main'
 import {main as demo} from './examples/demo/main'
 import {main as _3d} from './examples/3d/main'
 import {main as instancing} from './examples/instancing/main'
+import {main as frameBuffer} from './examples/frameBuffer/main'
 import {setState} from 'glaku'
 
 export const srcRecord = {
@@ -18,6 +19,7 @@ export const srcRecord = {
   texture,
   '3d': _3d,
   instancing,
+  frameBuffer,
   demo
 } as const
 

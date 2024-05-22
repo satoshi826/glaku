@@ -3,17 +3,11 @@ import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
 
-export const RGBA8 = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR'] as const
-export const RGBA16F = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR'] as const
-export const RGBA32F = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR'] as const
-export const DEPTH = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 'NEAREST'] as const
-
-let id = 0
-
 type TextureWithInfo = (WebGLTexture & {internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants})
-type Textures = [WebGLConstants, WebGLConstants, WebGLConstants, WebGLConstants][]
+type Texture = [WebGLConstants, WebGLConstants, WebGLConstants, WebGLConstants]
 
 export class Renderer {
+  static idCounter = 0
   id: number
   core: Core
   pixelRatio: number
@@ -28,9 +22,9 @@ export class Renderer {
   screenFit: boolean
 
   constructor(core: Core, {height, width, backgroundColor, frameBuffer, pixelRatio, screenFit = true}: {
-    height?: number, width?: number, backgroundColor?: ColorArray, frameBuffer?: Textures, pixelRatio?: number, screenFit?: boolean
+    height?: number, width?: number, backgroundColor?: ColorArray, frameBuffer?: Texture[], pixelRatio?: number, screenFit?: boolean
   } = {}) {
-    this.id = id++
+    this.id = Renderer.idCounter++
     this.core = core
     this.pixelRatio = this.core.pixelRatio * (pixelRatio ?? 1)
     this.width = width ?? core.canvasWidth
@@ -98,7 +92,7 @@ export class Renderer {
     this.core.render(program.primitive, !!vao?.index)
   }
 
-  setFrameBuffer(textures: Textures) {
+  setFrameBuffer(textures: Texture[]) {
     const gl = this.core.gl
 
     this.frameBuffer = gl.createFramebuffer()

@@ -36,8 +36,14 @@ export function Template({src, state}: {src: string, state?: object}) {
   return (
     <>
       {canvas}
-      <Fab sx={{position: 'absolute', right: 16, bottom: 16}}>
-        <Icon>code</Icon>
+      <Fab sx={{position: 'absolute', right: 16, bottom: 16}}
+        LinkComponent={'a'} 
+        href={`https://github.com/satoshi826/glaku/blob/main/doc/src/examples/${src}/main.ts`}
+        target="_blank"
+      >
+        <Icon >
+            code
+        </Icon>
       </Fab>
     </>
   )

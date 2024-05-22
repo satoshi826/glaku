@@ -1,8 +1,13 @@
-import {Core, Program, Renderer, Vao} from 'glaku'
+import {Core, Program, RGBA16F, Renderer, Vao} from 'glaku'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
   const renderer = new Renderer(core)
+
+  const renderer1 = new Renderer(core, {frameBuffer: [RGBA16F]})
+
+
+
   const program = new Program(core, {
     id            : 'hello',
     attributeTypes: {

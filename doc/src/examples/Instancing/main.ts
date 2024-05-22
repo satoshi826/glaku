@@ -23,8 +23,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0}
   }))
 
-  const camera = new Camera({lookAt: [0, 0, 0], position: [0, 0, 50], far: 200})
-
   const program = new Program(core, {
     id            : '3d',
     attributeTypes: {
@@ -65,6 +63,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         }`
   })
   vao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
+
+  const camera = new Camera({lookAt: [0, 0, 0], position: [0, 0, 50], far: 200})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height

@@ -1,4 +1,4 @@
-import {AttributeType, UniformMethod} from '.'
+import {AttributeType, UniformMethod, WebGLConstants} from '.'
 
 export const uniMethod = {
   int  : ['uniform1i', false, false],
@@ -23,3 +23,9 @@ export const strideMap = {
   mat3 : [3, 3],
   mat4 : [4, 4]
 } as const satisfies Record<AttributeType, number | number[]>
+
+type TextureType = [WebGLConstants, WebGLConstants, WebGLConstants, WebGLConstants]
+export const RGBA8 : TextureType = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR']
+export const RGBA16F: TextureType = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR']
+export const RGBA32F: TextureType = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR']
+export const DEPTH: TextureType = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 'NEAREST']
