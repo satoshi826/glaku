@@ -96,6 +96,7 @@ export class Renderer {
     const gl = this.core.gl
 
     this.frameBuffer = gl.createFramebuffer()
+    if (!this.frameBuffer) throw new Error('Could not create frameBuffer')
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer)
 
     this.renderTexture = []

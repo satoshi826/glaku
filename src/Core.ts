@@ -27,6 +27,15 @@ export class Core {
       options?: WebGLConstants[]}
   ) {
     this.gl = canvas.getContext('webgl2', {antialias: true})!
+
+    this.gl.getExtension('EXT_color_buffer_float')
+    this.gl.getExtension('EXT_float_blend')
+    this.gl.getExtension('OES_texture_half_float')
+    this.gl.getExtension('OES_texture_half_float_linear')
+    this.gl.getExtension('OES_texture_float')
+    this.gl.getExtension('OES_texture_float_linear')
+    this.gl.getExtension('WEBGL_color_buffer_float')
+
     this.canvasWidth = this.gl.canvas.width
     this.canvasHeight = this.gl.canvas.height
     this.pixelRatio = pixelRatio
