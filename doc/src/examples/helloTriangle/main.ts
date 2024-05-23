@@ -3,6 +3,16 @@ import {Core, Program, Renderer, Vao} from 'glaku'
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
   const renderer = new Renderer(core)
+  const vao = new Vao(core, {
+    id        : 'triangle',
+    attributes: {
+      a_position: [
+        0, 0.5, // top center
+        0.5, -0.5, // bottom right
+        -0.5, -0.5 // bottom left
+      ]
+    }
+  })
   const program = new Program(core, {
     id            : 'hello',
     attributeTypes: {
@@ -17,16 +27,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         void main() {
           o_color = vec4(0.4, 0.4, 1.0, 1.0); // (r,g,b,a) -> blue
         }`
-  })
-  const vao = new Vao(core, {
-    id        : 'triangle',
-    attributes: {
-      a_position: [
-        0, 0.5, // top center
-        0.5, -0.5, // bottom right
-        -0.5, -0.5 // bottom left
-      ]
-    }
   })
   renderer.render(vao, program)
 }

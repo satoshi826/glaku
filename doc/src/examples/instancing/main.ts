@@ -72,9 +72,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     program.set({u_vpMatrix: camera.matrix.vp})
   })
 
-  program.set({
-    u_lightPosition: [100, 0, 0]
-  })
+  program.set({u_lightPosition: [100, 0, 0]})
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()

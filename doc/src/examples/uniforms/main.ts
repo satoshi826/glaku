@@ -3,6 +3,7 @@ import {Core, Program, Renderer, Vao} from 'glaku'
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
   const renderer = new Renderer(core)
+  const vao = triangle(core)
   const program = new Program(core, {
     id            : 'uniforms',
     attributeTypes: {
@@ -26,7 +27,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           o_color = vec4(gradient * u_color, 1.0);
         }`
   })
-  const vao = triangle(core)
 
   renderer.clear()
 
