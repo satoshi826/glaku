@@ -1,7 +1,7 @@
 import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize, plane} from 'glaku'
 import {random, range} from 'jittoku'
 
-const CUBE_NUM = 5000
+const CUBE_NUM = 11000
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
@@ -26,8 +26,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
 
   const models = range(CUBE_NUM).map(() => new Model({
-    position: [random(-800, 800), 0, random(-1000, 50)],
-    scale   : [random(1, 10), random(10, 100), random(1, 50)]
+    position: [random(-5000, 5000), 0, random(-5000, 5000)],
+    scale   : [random(10, 50), random(5, 150), random(10, 50)]
   }))
 
   const program = new Program(core, {
@@ -72,7 +72,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
 
-  const camera = new Camera({lookAt: [0, 0, -100], position: [0, 100, 200], far: 4000, fov: 70})
+  const camera = new Camera({lookAt: [0, 100, 0], position: [0, 200, 0], far: 10000, fov: 70})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
@@ -80,12 +80,12 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     program.set({u_vpMatrix: camera.matrix.vp})
   })
 
-  program.set({u_lightPosition: [500, 200, 100]})
+  program.set({u_lightPosition: [1000, 300, 1000]})
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
-    camera.position = [40 * Math.cos(elapsed / 2000), 200, 200]
+    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 2000 * Math.sin(elapsed / 3000)]
     camera.update()
     program.set({
       u_vpMatrix      : camera.matrix.vp,
