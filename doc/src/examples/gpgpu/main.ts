@@ -4,9 +4,9 @@ import {random, range} from 'jittoku'
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)
 
-export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
+export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
 
-  const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})
+  const core = new Core({canvas, pixelRatio, resizeListener: (fn) => setHandler('resize', fn)})
   const renderer = new Renderer(core, {backgroundColor: [0, 0, 0, 1]})
 
   const gpgpu = new GPGPU(core, {

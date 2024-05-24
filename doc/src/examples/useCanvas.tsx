@@ -26,7 +26,6 @@ export function useCanvas() {
     console.log('connecting worker')
     workerRef.current = new Worker() as Worker
     post({canvas: offScreenCanvas, pixelRatio: devicePixelRatio}, [offScreenCanvas])
-    post({state: {pixelRatio: devicePixelRatio}})
     workerRef.current!.onmessage = ({data}: {data: unknown}) => handlerRef.current.forEach((f) => f(data))
     return () => {
       console.log('terminate worker')

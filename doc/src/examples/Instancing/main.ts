@@ -4,9 +4,10 @@ import {Model} from '../../../../src/extension/3d'
 
 const CUBE_NUM = 3000
 
-export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
+export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
   const core = new Core({
     canvas,
+    pixelRatio,
     resizeListener: (fn) => setHandler('resize', fn),
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })

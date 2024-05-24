@@ -30,11 +30,13 @@ type SrcType = keyof typeof srcRecord
 console.log('starting worker')
 
 let canvas: OffscreenCanvas | null = null
+let pr: number = 1
 
 onmessage = async({data}) => {
-  const {canvas : offscreenCanvas, src, state} = data
+  const {canvas : offscreenCanvas, pixelRatio, src, state} = data
   if (offscreenCanvas) canvas = offscreenCanvas as OffscreenCanvas
-  if (src) srcRecord[src as SrcType](canvas!)
+  if (pixelRatio) pr = pixelRatio
+  if (src) srcRecord[src as SrcType](canvas!, pr)
   if (state) setState(state)
 }
 
