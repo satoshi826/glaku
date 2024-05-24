@@ -17,6 +17,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     maxInstance        : CUBE_NUM,
     ...box()
   })
+  const models = range(CUBE_NUM).map(() => {
+    let zScale = random(5, 100)
+    zScale = zScale > 99.5 ? 1.75 * zScale : zScale
+    return new Model({
+      position: [random(-5000, 5000), zScale, random(-5000, 5000)],
+      scale   : [random(10, 50), zScale, random(10, 50)]
+    })
+  })
 
   const planeVao = new Vao(core, {
     id                 : 'box',
@@ -24,11 +32,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     maxInstance        : CUBE_NUM,
     ...plane()
   })
-
-  const models = range(CUBE_NUM).map(() => new Model({
-    position: [random(-5000, 5000), 0, random(-5000, 5000)],
-    scale   : [random(10, 50), random(5, 150), random(10, 50)]
-  }))
 
   const program = new Program(core, {
     id            : '3d',
@@ -78,6 +81,10 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     camera.aspect = width / height
     camera.update()
     program.set({u_vpMatrix: camera.matrix.vp})
+  })
+
+  setHandler('pixelRatio', (pixelRatio: number = 1) => {
+    renderer.resize({pixelRatio})
   })
 
   program.set({u_lightPosition: [1000, 300, 1000]})

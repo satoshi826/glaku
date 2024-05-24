@@ -20,8 +20,9 @@ export function useCanvas() {
     wrapperEl?.appendChild(canvasEl)
     const offScreenCanvas = canvasEl.transferControlToOffscreen()
     const {width, height} = canvasEl.getBoundingClientRect()
-    offScreenCanvas.width = width
-    offScreenCanvas.height = height
+    const pixelRatio = window.devicePixelRatio
+    offScreenCanvas.width = width * pixelRatio
+    offScreenCanvas.height = height * pixelRatio
     console.log('connecting worker')
     workerRef.current = new Worker() as Worker
     post({canvas: offScreenCanvas, pixelRatio: devicePixelRatio}, [offScreenCanvas])

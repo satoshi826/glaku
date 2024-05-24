@@ -45,6 +45,7 @@ export class Renderer {
     const gl = this.core.gl
     this.width = width
     this.height = height
+    this.pixelRatio = pixelRatio
     gl.viewport(0, 0, width * pixelRatio, height * pixelRatio)
     if(this.isCanvas) {
       gl.canvas.width = width * pixelRatio
