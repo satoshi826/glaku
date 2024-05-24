@@ -1,6 +1,6 @@
 {
   "name": "glaku",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "simple webGL library",
   "type": "module",
   "exports": "./dist/index.js",
