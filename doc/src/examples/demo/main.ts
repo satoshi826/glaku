@@ -1,8 +1,7 @@
-import {Camera, Core, Loop, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize, plane} from 'glaku'
 import {random, range} from 'jittoku'
-import {Model} from '../../../../src/extension/3d'
 
-const CUBE_NUM = 3000
+const CUBE_NUM = 5000
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
@@ -12,17 +11,23 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
 
-  const vao = new Vao(core, {
+  const boxVao = new Vao(core, {
     id                 : 'box',
     instancedAttributes: ['a_mMatrix'],
     maxInstance        : CUBE_NUM,
     ...box()
   })
 
+  const planeVao = new Vao(core, {
+    id                 : 'box',
+    instancedAttributes: ['a_mMatrix'],
+    maxInstance        : CUBE_NUM,
+    ...plane()
+  })
+
   const models = range(CUBE_NUM).map(() => new Model({
-    position: [random(-60, 60), random(-25, 25), random(-60, 60)],
-    rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0},
-    scale   : [random(0.1, 2), random(0.1, 2), random(0.1, 2)]
+    position: [random(-800, 800), 0, random(-1000, 50)],
+    scale   : [random(1, 10), random(10, 100), random(1, 50)]
   }))
 
   const program = new Program(core, {
@@ -60,14 +65,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
           float ambient = 0.1;
           float diffuse = max(0.0, dot(lightVec, v_normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
-          vec3 color = vec3(0.6, 0.6, 0.7);
+          vec3 color = vec3(0.5);
           vec3 result = (ambient + diffuse + specular) * color;
           o_color = vec4(result, 1.0);
         }`
   })
-  vao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
+  boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
 
-  const camera = new Camera({lookAt: [0, 0, 0], position: [0, 0, 50], far: 200})
+  const camera = new Camera({lookAt: [0, 0, -100], position: [0, 100, 200], far: 4000, fov: 70})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
@@ -75,25 +80,19 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     program.set({u_vpMatrix: camera.matrix.vp})
   })
 
-  program.set({u_lightPosition: [100, 0, 0]})
+  program.set({u_lightPosition: [500, 200, 100]})
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
-    camera.position = [80 * Math.cos(elapsed / 4000), 10, 30 * Math.sin(elapsed / 4000)]
+    camera.position = [40 * Math.cos(elapsed / 2000), 200, 200]
     camera.update()
     program.set({
       u_vpMatrix      : camera.matrix.vp,
       u_cameraPosition: camera.position
     })
 
-    models.forEach(model => {
-      model.rotation.angle = elapsed / 600
-      model.update()
-    })
-    vao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
-
-    renderer.render(vao, program)
+    renderer.render(boxVao, program)
   }, interval: 0})
 
   animation.start()

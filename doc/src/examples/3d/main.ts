@@ -33,7 +33,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         void main() {
           vec4 position = vec4(a_position, 1.0);
           v_position = (u_mMatrix * position).xyz;
-          v_normal = (u_mMatrix * vec4(a_normal, 0.0)).xyz;
+          mat3 normalMatrix = transpose(inverse(mat3(u_mMatrix)));
+          v_normal = normalize(normalMatrix * a_normal);
           mat4 mvpMatrix = u_vpMatrix * u_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,

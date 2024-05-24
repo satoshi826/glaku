@@ -8,6 +8,7 @@ import {main as gpgpu} from './examples/gpgpu/main'
 import {main as _3d} from './examples/3d/main'
 import {main as instancing} from './examples/instancing/main'
 import {main as frameBuffer} from './examples/frameBuffer/main'
+import {main as demo} from './examples/demo/main'
 import {setState} from 'glaku'
 
 export const srcRecord = {
@@ -20,7 +21,8 @@ export const srcRecord = {
   frameBuffer,
   '3d': _3d,
   instancing,
-  gpgpu
+  gpgpu,
+  demo
 } as const
 
 type SrcType = keyof typeof srcRecord

@@ -1,5 +1,6 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
+import {Camera, Core, Loop, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
 import {random, range} from 'jittoku'
+import {Model} from '../../../../src/extension/3d'
 
 const CUBE_NUM = 3000
 
@@ -20,7 +21,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const models = range(CUBE_NUM).map(() => new Model({
     position: [random(-60, 60), random(-25, 25), random(-60, 60)],
-    rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0}
+    rotation: {axis: normalize([random(-1, 1), random(-1, 1), random(-1, 1)]), angle: 0},
+    scale   : [random(0.1, 2), random(0.1, 2), random(0.1, 2)]
   }))
 
   const program = new Program(core, {
@@ -41,7 +43,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         void main() {
           vec4 position = vec4(a_position, 1.0);
           v_position = (a_mMatrix * position).xyz;
-          v_normal = (a_mMatrix * vec4(a_normal, 0.0)).xyz;
+          mat3 normalMatrix = transpose(inverse(mat3(a_mMatrix)));
+          v_normal = normalize(normalMatrix * a_normal);
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,

@@ -7,7 +7,7 @@ export default defineConfig({
     emptyOutDir: true,
     lib        : {
       entry   : resolve(__dirname, 'src/index.ts'),
-      name    : 'jittoku',
+      name    : 'glaku',
       fileName: 'index',
       formats : ['es']
     }
