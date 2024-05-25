@@ -29,3 +29,22 @@ export const RGBA8 : TextureType = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR']
 export const RGBA16F: TextureType = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR']
 export const RGBA32F: TextureType = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR']
 export const DEPTH: TextureType = ['DEPTH_COMPONENT16', 'DEPTH_COMPONENT', 'UNSIGNED_SHORT', 'NEAREST']
+
+export const defaultExtensions : string[] = [
+  'EXT_color_buffer_float',
+  'EXT_float_blend',
+  'OES_texture_half_float',
+  'OES_texture_half_float_linear',
+  'OES_texture_float',
+  'OES_texture_float_linear',
+  'WEBGL_color_buffer_float',
+  'WEBGL_depth_texture',
+  'MOZ_WEBGL_depth_texture',
+  'WEBKIT_WEBGL_depth_texture',
+  'OES_vertex_array_object',
+  'ANGLE_instanced_arrays',
+  'WEBGL_draw_buffers',
+  'WEBGL_multi_draw',
+  'OES_standard_derivatives',
+  'WEBGL_multisampled_render_to_texture'
+]

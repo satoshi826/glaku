@@ -1,4 +1,4 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, plane} from 'glaku'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, plane, RGBA16F} from 'glaku'
 import {random, range} from 'jittoku'
 
 const CUBE_NUM = 11000
@@ -11,6 +11,11 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
+
+  const preRenderer = new Renderer(core, {
+    backgroundColor: [0.2, 0.2, 0.25, 1.0],
+    frameBuffer    : [RGBA16F, RGBA16F]
+  })
 
   const boxVao = new Vao(core, {
     id                 : 'box',

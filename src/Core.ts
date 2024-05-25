@@ -1,6 +1,6 @@
 import {oForEach, keys, times, isNullish, firstEntry} from 'jittoku'
 import {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes, TextureName} from './types'
-import {strideMap, uniMethod} from './constants'
+import {defaultExtensions, strideMap, uniMethod} from './constants'
 
 export class Core {
   gl: WebGL2RenderingContext
@@ -19,7 +19,7 @@ export class Core {
   uniMethod = uniMethod
   resizeListener: null | (((handler: (arg: ResizeArgs) => void) => void)) = null
 
-  constructor({canvas, pixelRatio = 1, resizeListener, options, extensions}:
+  constructor({canvas, pixelRatio = 1, resizeListener, options, extensions = defaultExtensions}:
     {
       canvas: HTMLCanvasElement | OffscreenCanvas,
       pixelRatio?: number,
