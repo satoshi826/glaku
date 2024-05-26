@@ -17,7 +17,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
     id                 : 'box',
     instancedAttributes: ['a_mMatrix'],
     maxInstance        : CUBE_NUM,
-    ...sphere(10, 10, 1)
+    ...box()
   })
   const models = range(CUBE_NUM).map(() => {
     let zScale = random(5, 100)
@@ -65,7 +65,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
           vec3 color = vec3(0.5);
           vec3 result = (ambient + diffuse + specular) * color;
-          o_color = vec4(normal, 1.0);
+          o_color = vec4(result, 1.0);
         }`
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
