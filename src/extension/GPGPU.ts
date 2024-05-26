@@ -36,10 +36,12 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
     this.indexW = 1
 
     const transformFeedbackTarget = outputNames(attributeTypes)
+    this.core.setAttLoc(attributeTypes)
+
     const parsedVert = this.#parseShader({vert, attributeTypes, uniformTypes})
     if (core.program[this.id]) throw new Error('Already exists gpgpu id')
+
     this.core.setProgram(this.id, parsedVert, dummyFrag, transformFeedbackTarget)
-    this.core.setAttLoc(this.id, attributeTypes)
     this.core.setUniLoc(this.id, keys(uniformTypes))
 
     this.vaoArray = [new Vao(core, {id: `${id}_vao1`, attributes}), new Vao(core, {id: `${id}_vao2`, attributes})]
@@ -119,7 +121,9 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
     )
     fullVert = oReduce(attributeTypes,
       (result, [name, type]) => result +
-        `in ${type} ${name};\nout ${type} ${name.replace('a_', 'a_tf_')};\n`, fullVert) + this.vert
+        `layout(location = ${this.core.attLoc[name]}) in ${type} ${name};
+        out ${type} ${name.replace('a_', 'a_tf_')};
+        `, fullVert) + this.vert
 
     if(uniformKeys.size) console.warn(`--- programId: ${this.id} --- unused uniform keys : ${ [...uniformKeys.values()].join(', ')}`)
     return fullVert

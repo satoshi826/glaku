@@ -1,4 +1,4 @@
-import {oForEach, keys, times, isNullish, firstEntry} from 'jittoku'
+import {oForEach, keys, times, isNullish, firstEntry, oReduce} from 'jittoku'
 import {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes, TextureName} from './types'
 import {defaultExtensions, strideMap, uniMethod} from './constants'
 
@@ -9,8 +9,8 @@ export class Core {
   pixelRatio: number
   program: Record<ProgramId, WebGLProgram> = {}
   vao: Record<VaoId, WebGLVertexArrayObject & {count?: number}> = {}
-  uniLoc: Record<ProgramId, Record<UniformName, WebGLUniformLocation>> = {}
-  attLoc: Record<ProgramId, number> = {}
+  uniLoc: Record<ProgramId, Record<UniformName | TextureName, WebGLUniformLocation>> = {}
+  attLoc: Record<AttributeName, number> = {}
   stride: Record<AttributeName, number | number[]> = {}
   texture: Record<string, {data: WebGLTexture, number: number}> = {}
   currentProgram: ProgramId | null = null
@@ -76,12 +76,15 @@ export class Core {
     }
   }
 
-  setAttLoc(id: ProgramId, attributeTypes: Record<AttributeName, AttributeType>) {
+  setAttLoc(attributeTypes: Record<AttributeName, AttributeType>){
     oForEach(attributeTypes, ([name, type]) => {
       if (isNullish(this.attLoc[name])) {
-        const attLoc = this.gl.getAttribLocation(this.program[id], name)
-        this.attLoc[name] = attLoc
         this.stride[name] = strideMap[type]
+        const nextLoc = oReduce(this.attLoc, (res, [name, loc]) => {
+          const locDiff = Array.isArray(this.stride[name]) ? (this.stride[name] as number[])[0] : 1
+          return res <= loc ? loc + locDiff : res
+        }, 0)
+        this.attLoc[name] = nextLoc
       }
     })
   }
@@ -122,14 +125,17 @@ export class Core {
     const stride = this.stride[att]
     if (!stride) throw new Error(`failed to get attribute stride "${att}". Before set Vao, create a target program`)
     const isUnitAtt = typeof stride === 'number'
+
+    const attLoc = this.attLoc[att]
     if (isUnitAtt) {
-      this.gl.enableVertexAttribArray(this.attLoc[att])
-      this.gl.vertexAttribPointer(this.attLoc[att], stride, this.gl.FLOAT, false, 0, 0)
+      this.gl.enableVertexAttribArray(attLoc)
+      this.gl.vertexAttribPointer(attLoc, stride, this.gl.FLOAT, false, 0, 0)
+
     }else{
       const [row, col] = stride
       for (let i = 0; i < row; i++) {
-        this.gl.enableVertexAttribArray(this.attLoc[att] + i)
-        this.gl.vertexAttribPointer(this.attLoc[att] + i, col, this.gl.FLOAT, false, row * col * 4, i * col * 4)
+        this.gl.enableVertexAttribArray(attLoc + i)
+        this.gl.vertexAttribPointer(attLoc + i, col, this.gl.FLOAT, false, row * col * 4, i * col * 4)
       }
     }
   }
@@ -143,14 +149,15 @@ export class Core {
   createInstancedVbo(id: VaoId, att: AttributeName, array: Float32Array) {
     this.useVao(id)
     const stride = this.stride[att]
+    const attLoc = this.attLoc[att]
     const isUnitAtt = typeof stride === 'number'
     const vbo = this.createVbo(array, this.gl.DYNAMIC_DRAW)
     if (isUnitAtt) {
-      this.gl.vertexAttribDivisor(this.attLoc[att], 1)
+      this.gl.vertexAttribDivisor(attLoc, 1)
     }else{
       const [row] = stride
       times(row, (i) => {
-        this.gl.vertexAttribDivisor(this.attLoc[att] + i, 1)
+        this.gl.vertexAttribDivisor(attLoc + i, 1)
       })
     }
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null)
@@ -172,7 +179,7 @@ export class Core {
     }
   }
 
-  setUniLoc(id: ProgramId, uniforms: UniformName[]) {
+  setUniLoc(id: ProgramId, uniforms: (UniformName | TextureName) []) {
     this.uniLoc[id] = {}
     uniforms.forEach(uni => {
       const uniLoc = this.gl.getUniformLocation(this.program[id], uni)
@@ -182,7 +189,7 @@ export class Core {
 
   setUniforms(uniforms: Uniforms) {
     oForEach(uniforms, ([k, {type, value}]) => {
-      if(value === undefined || value === null) return
+      if(value == null) return
       const [method, isMat, isArray] = this.uniMethod[type]
       if (isMat) this.gl[method](this.uniLoc[this.currentProgram!][k], false, value as number[])
       else if (isArray) this.gl[method](this.uniLoc[this.currentProgram!][k], value as number[])
@@ -242,3 +249,4 @@ export class Core {
   }
 
 }
+

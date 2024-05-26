@@ -72,3 +72,40 @@ export const box = (): Shape => {
       20, 21, 22, 20, 22, 23] // back
   }
 }
+
+export const sphere = (row: number, column: number, rad: number): Shape => {
+  let pos = [], nor = [], idx = [], st = []
+  let i, ii, r
+  for(i = 0; i <= row; i++) {
+    r = Math.PI / row * i
+    let ry = Math.cos(r)
+    let rr = Math.sin(r)
+    for(ii = 0; ii <= column; ii++) {
+      let tr = Math.PI * 2 / column * ii
+      let tx = rr * rad * Math.cos(tr)
+      let ty = ry * rad
+      let tz = rr * rad * Math.sin(tr)
+      let rx = rr * Math.cos(tr)
+      let rz = rr * Math.sin(tr)
+      pos.push(tx, ty, tz)
+      nor.push(rx, ry, rz)
+      st.push(1 - 1 / column * ii, 1 / row * i)
+    }
+  }
+  r = 0
+  for(i = 0; i < row; i++) {
+    for(ii = 0; ii < column; ii++) {
+      r = (column + 1) * i + ii
+      idx.push(r, r + 1, r + column + 2)
+      idx.push(r, r + column + 2, r + column + 1)
+    }
+  }
+  return {
+    attributes: {
+      a_position: pos,
+      a_normal: nor,
+      a_textureCoord: st
+    },
+    index: idx
+  }
+}

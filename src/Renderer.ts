@@ -1,3 +1,4 @@
+import { partition } from 'jittoku'
 import {AttributeName, Core, TextureName, UniformName} from '.'
 import {Program} from './Program'
 import {Vao} from './Vao'
@@ -17,7 +18,9 @@ export class Renderer {
   backgroundColor: ColorArray
   isCanvas: boolean
   frameBuffer: WebGLFramebuffer | null
+  depthRenderBuffer:  WebGLRenderbuffer | null
   renderTexture: TextureWithInfo[]
+  depthTexture: TextureWithInfo | null
   drawBuffers: number[]
   screenFit: boolean
 
@@ -33,11 +36,13 @@ export class Renderer {
     this.backgroundColor = backgroundColor ?? [0, 0, 0, 1]
     this.isCanvas = !frameBuffer
     this.frameBuffer = null
+    this.depthRenderBuffer = null
     this.renderTexture = []
+    this.depthTexture = null
     this.drawBuffers = [this.core.gl.BACK]
     this.screenFit = screenFit
 
-    if (frameBuffer) this.setFrameBuffer(frameBuffer)
+    if (frameBuffer) this.#setFrameBuffer(frameBuffer)
     if (screenFit) this.core.resizeListener?.((args) => this.resizeQueue = args)
   }
 
@@ -51,12 +56,12 @@ export class Renderer {
       gl.canvas.width = width * pixelRatio
       gl.canvas.height = height * pixelRatio
     }else {
+      if(!this.depthTexture) gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthRenderBuffer)
       this.renderTexture.forEach((renderTexture) => {
-        const {internalFormat, format, type} = renderTexture
-        gl.bindTexture(gl.TEXTURE_2D, renderTexture)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl[internalFormat], width * pixelRatio, height * pixelRatio, 0, gl[format], gl[type], null)
-        gl.bindTexture(gl.TEXTURE_2D, null)
+        this.#bindTexture(renderTexture)
+        if(!this.depthTexture) gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width * pixelRatio, height * pixelRatio)
       })
+      if (this.depthTexture) this.#bindTexture(this.depthTexture)
       gl.bindRenderbuffer(gl.RENDERBUFFER, null)
     }
     this.resizeQueue = null
@@ -69,7 +74,7 @@ export class Renderer {
     this.core.gl.clear(this.core.gl.COLOR_BUFFER_BIT | this.core.gl.DEPTH_BUFFER_BIT)
   }
 
-  beforeRender<U extends UniformName, T extends TextureName, K extends AttributeName>(
+  #beforeRender<U extends UniformName, T extends TextureName, K extends AttributeName>(
     vao: Vao<K>,
     program: Program<U, T>
   ) {
@@ -85,7 +90,7 @@ export class Renderer {
 
   render<U extends UniformName, T extends TextureName, K extends AttributeName>
   (vao: Vao<K>, program: Program<U, T>) {
-    this.beforeRender(vao, program)
+    this.#beforeRender(vao, program)
     if (vao.instancedCount) {
       this.core.renderInstanced(program.primitive, !!vao?.index, vao.instancedCount)
       return
@@ -93,28 +98,50 @@ export class Renderer {
     this.core.render(program.primitive, !!vao?.index)
   }
 
-  setFrameBuffer(textures: Texture[]) {
+  #setFrameBuffer(textures: Texture[]) {
     const gl = this.core.gl
 
     this.frameBuffer = gl.createFramebuffer()
     if (!this.frameBuffer) throw new Error('Could not create frameBuffer')
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer)
 
-    this.renderTexture = []
-    textures.forEach(([internalFormat, format, type, filter], i: number) => {
+    const [colorTextures, [depthTexture]] = partition(textures, (([_, format]) => format !== 'DEPTH_COMPONENT'))
+    colorTextures.forEach((colorTexture, i) => {
       const attachment = gl.COLOR_ATTACHMENT0 + i
-      const texture = this.core.createTexture(this.width, this.height, internalFormat, format, type, filter) as TextureWithInfo
-      if (!texture) throw new Error('Could not create texture')
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture, 0)
-      texture.internalFormat = internalFormat
-      texture.format = format
-      texture.type = type
-      this.renderTexture[i] = texture
+      this.renderTexture[i] = this.#createTexture(attachment, this.width, this.height, ...colorTexture)
       this.drawBuffers[i] = attachment
     })
 
+    if (depthTexture){
+      this.depthTexture = this.#createTexture(this.core.gl.DEPTH_ATTACHMENT, this.width, this.height, ...depthTexture)
+    } else {
+      this.depthRenderBuffer = this.core.gl.createRenderbuffer()
+      gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthRenderBuffer)
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height)
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthRenderBuffer)
+    }
+
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+
+  #bindTexture(texture : TextureWithInfo) {
+    const {internalFormat, format, type} = texture
+    const gl = this.core.gl
+    const {width, height, pixelRatio} = this
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl[internalFormat], width * pixelRatio, height * pixelRatio, 0, gl[format], gl[type], null)
+    gl.bindTexture(gl.TEXTURE_2D, null)
+  }
+
+  #createTexture( attachment: number ,...[width, height, internalFormat, format, type, filter]: Parameters<Core['createTexture']>) {
+    const texture = this.core.createTexture(width, height, internalFormat, format, type, filter) as TextureWithInfo
+    if (!texture) throw new Error('Could create depth texture')
+    this.core.gl.framebufferTexture2D(this.core.gl.FRAMEBUFFER, attachment, this.core.gl.TEXTURE_2D, texture, 0)
+    texture.internalFormat = internalFormat
+    texture.format = format
+    texture.type = type
+    return texture
   }
 
 }

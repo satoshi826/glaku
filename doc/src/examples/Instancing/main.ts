@@ -1,6 +1,5 @@
-import {Camera, Core, Loop, Program, Renderer, Vao, box, setHandler, normalize} from 'glaku'
+import {Camera, Core, Loop, Program, Renderer, Vao, box, setHandler, normalize, Model} from 'glaku'
 import {random, range} from 'jittoku'
-import {Model} from '../../../../src/extension/3d'
 
 const CUBE_NUM = 3000
 
@@ -54,7 +53,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
         in vec3 v_normal;
         out vec4 o_color;
         void main() {
-          vec3 normal = normalize(v_normal);
           vec3 viewVec = normalize(u_cameraPosition - v_position);
           vec3 lightVec = normalize(u_lightPosition - v_position);
           vec3 reflectVec = reflect(-lightVec, v_normal);

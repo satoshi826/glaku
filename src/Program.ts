@@ -30,22 +30,21 @@ export class Program<T extends UniformName, K extends TextureName> {
     this.texture = []
     this.primitive = primitive
 
+    this.core.setAttLoc(attributeTypes)
     const parsed = this.#parseShader({vert, frag, attributeTypes, uniformTypes, texture})
 
-    if (!core.program[this.id]) {
-      this.core.setProgram(this.id, parsed.vert, parsed.frag)
-      this.core.setUniLoc(this.id, keys(uniformTypes))
-      this.core.setAttLoc(this.id, attributeTypes)
-    }
-
     if(texture) {
-      oForEach(texture, (([uniform, data], i) => {
-        const textureNum = core.setTexture(uniform, data)
-        this.uniforms[uniform] = {type: 'int', value: textureNum}
-        this.texture[i] = uniform
+      oForEach(texture, (([name, data], i) => {
+        const textureNum = core.setTexture(name, data)
+        this.uniforms[name] = {type: 'int', value: textureNum}
+        this.texture[i] = name
       }))
     }
 
+    if (!core.program[this.id]) {
+      this.core.setProgram(this.id, parsed.vert, parsed.frag)
+      this.core.setUniLoc(this.id, keys(this.uniforms))
+    }
   }
 
   set(uniformValues: PartialRecord<T, number | number[] | Float32Array>) {
@@ -72,9 +71,9 @@ export class Program<T extends UniformName, K extends TextureName> {
       '#version 300 es\n'
     )
     fullVert = oReduce(attributeTypes,
-      (result, [name, type]) => {
-        return result + `in ${type} ${name};\n`
-      }, fullVert) + this.vert
+      (result, [name, type]) =>
+      result +
+      `layout(location = ${this.core.attLoc[name]}) in ${type} ${name};\n`, fullVert) + this.vert
 
     let fullFrag = oReduce(uniformTypes,
       (result, [name, type]) => {

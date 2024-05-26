@@ -1,6 +1,7 @@
 import {Core, GPGPU, Loop, Program, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'glaku'
 import {random, range} from 'jittoku'
 
+
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)
 

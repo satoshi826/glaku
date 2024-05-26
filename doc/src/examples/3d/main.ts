@@ -43,7 +43,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         in vec3 v_normal;
         out vec4 o_color;
         void main() {
-          vec3 normal = normalize(v_normal);
           vec3 viewVec = normalize(u_cameraPosition - v_position);
           vec3 lightVec = normalize(u_lightPosition - v_position);
           vec3 reflectVec = reflect(-lightVec, v_normal);
