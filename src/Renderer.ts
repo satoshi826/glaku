@@ -58,7 +58,7 @@ export class Renderer {
       if(!this.depthTexture) gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthRenderBuffer)
       this.renderTexture.forEach((renderTexture) => {
         this.#bindTexture(renderTexture)
-        if(!this.depthTexture) gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width * pixelRatio, height * pixelRatio)
+        if(!this.depthTexture) gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, width * pixelRatio, height * pixelRatio)
       })
       if (this.depthTexture) this.#bindTexture(this.depthTexture)
       gl.bindRenderbuffer(gl.RENDERBUFFER, null)
