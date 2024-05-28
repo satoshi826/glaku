@@ -24,7 +24,10 @@ export const strideMap = {
   mat4 : [4, 4]
 } as const satisfies Record<AttributeType, number | number[]>
 
-type TextureType = [WebGLConstants, WebGLConstants, WebGLConstants, WebGLConstants]
+export type TextureFilter = 'NEAREST' | 'LINEAR' | 'NEAREST_MIPMAP_NEAREST' | 'NEAREST_MIPMAP_LINEAR' | 'LINEAR_MIPMAP_NEAREST' | 'LINEAR_MIPMAP_LINEAR'
+export type TextureWrap = 'REPEAT' | 'MIRRORED_REPEAT' | 'CLAMP_TO_EDGE'
+
+export type TextureType = [WebGLConstants, WebGLConstants, WebGLConstants, TextureFilter, TextureWrap?]
 export const RGBA8 : TextureType = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR']
 export const RGBA16F: TextureType = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR']
 export const RGBA32F: TextureType = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR']

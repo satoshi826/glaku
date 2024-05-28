@@ -35,7 +35,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
     out vec2 v_textureCoord;
         void main() {
           vec2 pos = (u_aspectRatio_image * (0.6*a_position))/ u_aspectRatio;
-          v_textureCoord = a_textureCoord;
+          v_uv = a_textureCoord;
           gl_Position = vec4(pos,1.0,1.0);
         }`,
     frag: /* glsl */`
@@ -54,10 +54,10 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
           return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
         }
 
-        in vec2 v_textureCoord;
+        in vec2 v_uv;
         out vec4 o_color;
         void main() {
-          vec3 texture_rgb = texture(t_texture, v_textureCoord).rgb;
+          vec3 texture_rgb = texture(t_texture, v_uv).rgb;
           vec3 texture_hsv = rgbToHsv(texture_rgb);
           float new_h = texture_hsv.x + u_mouse.x * 0.5;
           float new_s = max(texture_hsv.y + u_mouse.y *0.5, 0.0);

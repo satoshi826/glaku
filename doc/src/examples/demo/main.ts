@@ -12,7 +12,7 @@ const models = range(CUBE_NUM).map(() => {
   })
 })
 
-const camera = new Camera({lookAt: [0, 100, 0], position: [0, 200, 0], far: 10000, fov: 70})
+const camera = new Camera({lookAt: [0, 100, 0], position: [0, 200, 0], far: 8000, fov: 60})
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
   const core = new Core({
@@ -97,7 +97,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           v_normal = vec4(a_normal, 1.0);
           x = a_position.x;
           y = a_position.y;
-          v_uv  = a_textureCoord;
+          v_uv  = a_textureCoord * 2.0;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,
@@ -158,8 +158,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float ambient = 0.1;
           float diffuse = max(0.0, dot(lightVec, normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
-          // vec3 result = (ambient + diffuse + specular) * color;
-          vec3 result = 0.5 * color;
+          vec3 result = (ambient + diffuse + specular) * color;
+          // vec3 result = 0.5 * color;
 
           o_color = vec4(result, 1.0);
         }`
@@ -172,13 +172,14 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     prepassProgram.set({u_vpMatrix: camera.matrix.vp})
   })
 
+  composeProgram.set({u_lightPosition: [2000, 400, 8000]})
 
   const animation = new Loop({callback: ({elapsed}) => {
 
     renderer.clear()
     preRenderer.clear()
 
-    camera.position = [2000 * Math.cos(elapsed / 3000), 500, 2000 * Math.sin(elapsed / 3000)]
+    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 2000 * Math.sin(elapsed / 3000)]
     camera.update()
     prepassProgram.set({u_vpMatrix: camera.matrix.vp})
     composeProgram.set({u_cameraPosition: camera.position})
