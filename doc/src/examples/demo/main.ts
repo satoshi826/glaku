@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, DEPTH, Program, RGBA16F, RGBA8, Core, Renderer} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, DEPTH, Program, RGBA16F, RGBA8, Core, Renderer, TextureType} from 'glaku'
 import {random, range} from 'jittoku'
 
 const CUBE_NUM = 11000
@@ -58,8 +58,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         in float y;
         out vec4 o_color;
         void main() {
-          o_color = vec4(step(cos(2.0*y), 0.0) + step(cos(2.0*x), 0.0));
-          // o_color = vec4(0.5);
+          float window = 0.6 * step(abs(x), 0.5) * step(abs(y), 0.5) + 0.2;
+          o_color = vec4(window);
         }`
   })
 
@@ -97,7 +97,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           v_normal = vec4(a_normal, 1.0);
           x = a_position.x;
           y = a_position.y;
-          v_uv  = a_textureCoord * 2.0;
+          float scale = min(min(a_mMatrix[0][0], a_mMatrix[1][1]), a_mMatrix[2][2]);
+          v_uv  = a_textureCoord * scale * 0.4;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,
@@ -111,7 +112,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         layout (location = 1) out vec4 o_normal;
         layout (location = 2) out vec4 o_color;
         void main() {
-          vec3 window = texture(t_buildingTexture, v_uv).xyz;
+          vec3 window = texture(t_buildingTexture, v_uv).xyz; // todo: set specular
           o_position = v_position;
           o_normal = v_normal;
           o_color = vec4(window, 1.0);
@@ -165,6 +166,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         }`
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
+
+  console.log(models)
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height

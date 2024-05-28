@@ -105,14 +105,14 @@ export class Renderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer)
 
     const [colorTextures, [depthTexture]] = partition(textures, (([_, format]) => format !== 'DEPTH_COMPONENT'))
-    colorTextures.forEach(([internalFormat, format, type, filter, wrap = 'CLAMP_TO_EDGE'], i) => {
+    colorTextures.forEach(([internalFormat, format, type, filter, wrap], i) => {
       const attachment = gl.COLOR_ATTACHMENT0 + i
       this.renderTexture[i] = this.#createTexture(attachment, this.width, this.height, internalFormat, format, type, filter, wrap)
       this.drawBuffers[i] = attachment
     })
 
     if (depthTexture){
-      const [internalFormat, format, type, filter, wrap = 'CLAMP_TO_EDGE'] = depthTexture
+      const [internalFormat, format, type, filter, wrap] = depthTexture
       this.depthTexture = this.#createTexture(this.core.gl.DEPTH_ATTACHMENT, this.width, this.height, internalFormat, format, type, filter, wrap)
     } else {
       this.depthRenderBuffer = this.core.gl.createRenderbuffer()

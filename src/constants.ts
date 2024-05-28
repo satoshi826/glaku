@@ -27,11 +27,12 @@ export const strideMap = {
 export type TextureFilter = 'NEAREST' | 'LINEAR' | 'NEAREST_MIPMAP_NEAREST' | 'NEAREST_MIPMAP_LINEAR' | 'LINEAR_MIPMAP_NEAREST' | 'LINEAR_MIPMAP_LINEAR'
 export type TextureWrap = 'REPEAT' | 'MIRRORED_REPEAT' | 'CLAMP_TO_EDGE'
 
-export type TextureType = [WebGLConstants, WebGLConstants, WebGLConstants, TextureFilter, TextureWrap?]
-export const RGBA8 : TextureType = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR']
-export const RGBA16F: TextureType = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR']
-export const RGBA32F: TextureType = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR']
-export const DEPTH: TextureType = ['DEPTH_COMPONENT32F', 'DEPTH_COMPONENT', 'FLOAT', 'NEAREST']
+export type TextureType = [WebGLConstants, WebGLConstants, WebGLConstants, TextureFilter, TextureWrap]
+
+export const RGBA8 : TextureType = ['RGBA', 'RGBA', 'UNSIGNED_BYTE', 'LINEAR', 'REPEAT']
+export const RGBA16F: TextureType = ['RGBA16F', 'RGBA', 'HALF_FLOAT', 'LINEAR', 'REPEAT']
+export const RGBA32F: TextureType = ['RGBA32F', 'RGBA', 'FLOAT', 'LINEAR', 'REPEAT']
+export const DEPTH: TextureType = ['DEPTH_COMPONENT32F', 'DEPTH_COMPONENT', 'FLOAT', 'NEAREST', 'REPEAT']
 
 export const defaultExtensions : string[] = [
   'EXT_color_buffer_float',
