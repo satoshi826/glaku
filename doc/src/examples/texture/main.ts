@@ -33,6 +33,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
     },
     vert: /* glsl */ `
     out vec2 v_textureCoord;
+    out vec2 v_uv;
         void main() {
           vec2 pos = (u_aspectRatio_image * (0.6*a_position))/ u_aspectRatio;
           v_uv = a_textureCoord;
