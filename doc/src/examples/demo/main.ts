@@ -81,9 +81,9 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     uniformTypes: {
       u_vpMatrix: 'mat4'
     },
-    texture: {
-      t_buildingTexture: textureRenderer.renderTexture[0]
-    },
+    // texture: {
+    //   t_buildingTexture: textureRenderer.renderTexture[0]
+    // },
     vert: /* glsl */ `
         out vec4 v_position;
         out vec4 v_normal;
@@ -95,8 +95,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           v_position = vec4((a_mMatrix * position).xyz, 1.0);
           mat3 normalMatrix = transpose(inverse(mat3(a_mMatrix)));
           v_normal = vec4(a_normal, 1.0);
-          x = a_position.x;
-          y = a_position.y;
+          x = a_mMatrix[0][0] * a_position.x * 0.005;
+          y = a_mMatrix[1][1] * a_position.y * 0.005;
           // float scale = max(max(a_mMatrix[0][0], a_mMatrix[1][1]), a_mMatrix[2][2]);
           v_uv  = a_textureCoord * 10.0;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
@@ -112,10 +112,10 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         layout (location = 1) out vec4 o_normal;
         layout (location = 2) out vec4 o_color;
         void main() {
-          vec3 window = texture(t_buildingTexture, v_uv).xyz; // todo: set specular
+          // vec3 window = texture(t_buildingTexture, v_uv).xyz; // todo: set specular
           o_position = v_position;
           o_normal = v_normal;
-          o_color = vec4(window, 1.0);
+          o_color = vec4(x, y, 0.0, 1.0);
         }`
   })
 
@@ -159,8 +159,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float ambient = 0.1;
           float diffuse = max(0.0, dot(lightVec, normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
-          vec3 result = (ambient + diffuse + specular) * color;
-          // vec3 result = 0.5 * color;
+          // vec3 result = (ambient + diffuse + specular) * color;
+          vec3 result = color;
           o_color = vec4(result, 1.0);
         }`
   })
