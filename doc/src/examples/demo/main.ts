@@ -97,8 +97,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           v_normal = vec4(a_normal, 1.0);
           x = a_position.x;
           y = a_position.y;
-          float scale = min(min(a_mMatrix[0][0], a_mMatrix[1][1]), a_mMatrix[2][2]);
-          v_uv  = a_textureCoord * scale * 0.4;
+          // float scale = max(max(a_mMatrix[0][0], a_mMatrix[1][1]), a_mMatrix[2][2]);
+          v_uv  = a_textureCoord * 10.0;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,
@@ -161,13 +161,10 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
           vec3 result = (ambient + diffuse + specular) * color;
           // vec3 result = 0.5 * color;
-
           o_color = vec4(result, 1.0);
         }`
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
-
-  console.log(models)
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
