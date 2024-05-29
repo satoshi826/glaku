@@ -4,7 +4,8 @@ import {random, range} from 'jittoku'
 const CUBE_NUM = 11000
 const MAX_HEIGHT = 200
 
-const MAX_HEIGHT_INVERSE = 1 / 200
+const CUBE_NUM_INVERSE = 1 / CUBE_NUM
+const MAX_HEIGHT_INVERSE = 1 / MAX_HEIGHT
 
 const models = range(CUBE_NUM).map(() => {
   let zScale = random(10, MAX_HEIGHT * 0.5)
@@ -32,7 +33,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   // const textureRenderer = new Renderer(core, {frameBuffer: [RGBA8], width: 100, height: 100})
   const preRenderer = new Renderer(core, {frameBuffer: [RGBA32F, RGBA32F, RGBA32F]})
-  const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
+  const renderer = new Renderer(core, {backgroundColor: [0.15, 0.15, 0.2, 1.0]})
 
   const boxVao = new Vao(core, {
     id                 : 'box',
@@ -40,41 +41,6 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     maxInstance        : CUBE_NUM,
     ...box()
   })
-
-  const textureProgram = new Program(core, {
-    id            : 'tex',
-    // id            : 'compose',
-    attributeTypes: {
-      a_position    : 'vec3',
-      a_textureCoord: 'vec2'
-    },
-    vert: /* glsl */ `
-        out float y;
-        out float x;
-        out vec3 pos;
-        void main() {
-          x = a_position.x;
-          y = a_position.y;
-          pos = a_position;
-          gl_Position = vec4(a_position, 1.0);
-        }`,
-    frag: /* glsl */`
-        in float x;
-        in float y;
-        in vec3 pos;
-        out vec4 o_color;
-        void main() {
-          float window = 0.6 * step(abs(x), 0.5) * step(abs(y), 0.5) + 0.2;
-          o_color = vec4(window);
-        }`
-  })
-
-  // await new Promise((resolve) => {
-  //   requestAnimationFrame(() => {
-  //     textureRenderer.render(planeVao, textureProgram)
-  //     resolve(null)
-  //   })
-  // })
 
   const prepassProgram = new Program(core, {
     id            : '3d',
@@ -87,14 +53,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     uniformTypes: {
       u_vpMatrix: 'mat4'
     },
-    // texture: {
-    //   t_buildingTexture: textureRenderer.renderTexture[0]
-    // },
     vert: /* glsl */ `
         out vec4 v_position;
         out vec4 v_normal;
         out vec3  v_pos_local;
         out vec2 v_uv;
+        out float v_id;
         void main() {
           vec4 position = vec4(a_position, 1.0);
           v_position = vec4((a_mMatrix * position).xyz, 1.0);
@@ -102,6 +66,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           v_normal = vec4(a_normal, 1.0);
           v_pos_local = vec3(a_mMatrix[0][0], a_mMatrix[1][1], a_mMatrix[2][2]) * a_position * ${MAX_HEIGHT_INVERSE};
           v_uv  = a_textureCoord * 10.0;
+          v_id = float(gl_InstanceID) * ${CUBE_NUM_INVERSE};
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
         }`,
@@ -110,13 +75,14 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         in vec4 v_normal;
         in vec3 v_pos_local;
         in vec2 v_uv;
+        in float v_id;
         layout (location = 0) out vec4 o_position;
         layout (location = 1) out vec4 o_normal;
         layout (location = 2) out vec4 o_color;
         void main() {
           o_position = v_position;
           o_normal = v_normal;
-          o_color = vec4(v_pos_local, 1.0);
+          o_color = vec4(v_pos_local, v_id);
         }`
   })
 
@@ -142,6 +108,11 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           gl_Position = vec4(a_position, 1.0);
         }`,
     frag: /* glsl */`
+
+        float rand(vec2 co){
+          return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+        }
+
         in vec2 v_uv;
         out vec4 o_color;
         void main() {
@@ -150,11 +121,13 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
           vec3 color = texture(t_colorTexture, v_uv).rgb;
 
-          vec3 w = texture(t_colorTexture, v_uv).xyz;
-          float tmp = step(0.5, fract(10.0 * w.x)) + step(0.5, fract(10.0 * w.y)) + step(0.5, fract(10.0 * w.z));
+          vec4 w = texture(t_colorTexture, v_uv).xyzw;
+          float tmp = step(0.5, fract(10.0 * w.x)) + step(0.5, fract(15.0 * w.y)) + step(0.5, fract(10.0 * w.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
           float isWindow = step(0.5, window1) + step(0.5, window2);
+
+          float isLighted = isWindow * step(0.3, rand(vec2(w.y)));
 
           float window = 0.5 * isWindow + 0.1;
 
@@ -169,8 +142,6 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float diffuse = max(0.0, dot(lightVec, normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), isWindow * 20.0);
           float result = (ambient + diffuse + 10.0 * isWindow * specular) * window;
-          // vec3 result = color;
-          // vec3 result = vec3(window);
           o_color = vec4(result);
         }`
   })
@@ -189,7 +160,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     renderer.clear()
     preRenderer.clear()
 
-    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 2000 * Math.sin(elapsed / 3000)]
+    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 1000 * Math.sin(elapsed / 3000)]
     camera.update()
     prepassProgram.set({u_vpMatrix: camera.matrix.vp})
     composeProgram.set({u_cameraPosition: camera.position})
