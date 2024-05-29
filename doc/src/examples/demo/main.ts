@@ -151,15 +151,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 color = texture(t_colorTexture, v_uv).rgb;
 
           vec3 w = texture(t_colorTexture, v_uv).xyz;
-          // float window = step(0.4, fract(10.0 * w.x)) + step(0.4, fract(10.0 * w.y)) + step(0.4, fract(10.0 * w.z));
-          float tmp = step(0.5, fract(5.0 * w.x)) + step(0.5, fract(5.0 * w.y)) + step(0.5, fract(5.0 * w.z));
+          float tmp = step(0.5, fract(10.0 * w.x)) + step(0.5, fract(10.0 * w.y)) + step(0.5, fract(10.0 * w.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
-          float window = step(0.5, window1) + step(0.5, window2);
-          // float window = 2.0 * tmp - 6.0;
-          // float window = 0.6 * step(cos(w.x*100.0), 0.4) * step(cos(w.y*100.0), 0.4) + 0.2;
-          // float window = 0.6 * cos(w.x*50.0) * cos(w.y*50.0) + 0.2;
+          float isWindow = step(0.5, window1) + step(0.5, window2);
 
+          float window = 0.5 * isWindow + 0.1;
 
           if (position == vec3(0.0)) {
             discard;
@@ -170,11 +167,11 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 reflectVec = reflect(-lightVec, normal);
           float ambient = 0.1;
           float diffuse = max(0.0, dot(lightVec, normal));
-          float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
-          // vec3 result = (ambient + diffuse + specular) * color;
+          float specular = pow(max(0.0, dot(viewVec, reflectVec)), isWindow * 20.0);
+          float result = (ambient + diffuse + 10.0 * isWindow * specular) * window;
           // vec3 result = color;
-          vec3 result = vec3(window);
-          o_color = vec4(result, 1.0);
+          // vec3 result = vec3(window);
+          o_color = vec4(result);
         }`
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
