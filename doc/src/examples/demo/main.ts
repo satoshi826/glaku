@@ -151,8 +151,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 color = texture(t_colorTexture, v_uv).rgb;
 
           vec3 w = texture(t_colorTexture, v_uv).xyz;
-          float window = step(1.1, step(0.4, fract(10.0 * w.x)) + step(0.4, fract(10.0 * w.y)) + step(0.4, fract(10.0 * w.z)));
-
+          // float window = step(0.4, fract(10.0 * w.x)) + step(0.4, fract(10.0 * w.y)) + step(0.4, fract(10.0 * w.z));
+          float tmp = step(0.5, fract(5.0 * w.x)) + step(0.5, fract(5.0 * w.y)) + step(0.5, fract(5.0 * w.z));
+          float window1 = 1.0 - tmp;
+          float window2 = 3.0 * tmp - 6.0;
+          float window = step(0.5, window1) + step(0.5, window2);
+          // float window = 2.0 * tmp - 6.0;
           // float window = 0.6 * step(cos(w.x*100.0), 0.4) * step(cos(w.y*100.0), 0.4) + 0.2;
           // float window = 0.6 * cos(w.x*50.0) * cos(w.y*50.0) + 0.2;
 
