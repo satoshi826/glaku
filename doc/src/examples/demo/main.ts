@@ -12,7 +12,7 @@ const models = range(CUBE_NUM).map(() => {
   })
 })
 
-const camera = new Camera({lookAt: [0, 100, 0], position: [0, 200, 0], far: 8000, fov: 60})
+const camera = new Camera({lookAt: [0, 100, 0], position: [0, 200, 0], near: 100, far: 8000, fov: 60})
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
   const core = new Core({
@@ -27,7 +27,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     ...plane()
   })
 
-  const textureRenderer = new Renderer(core, {frameBuffer: [RGBA8], width: 100, height: 100})
+  // const textureRenderer = new Renderer(core, {frameBuffer: [RGBA8], width: 100, height: 100})
   const preRenderer = new Renderer(core, {frameBuffer: [RGBA32F, RGBA32F, RGBA32F]})
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
 
@@ -63,12 +63,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
         }`
   })
 
-  await new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      textureRenderer.render(planeVao, textureProgram)
-      resolve(null)
-    })
-  })
+  // await new Promise((resolve) => {
+  //   requestAnimationFrame(() => {
+  //     textureRenderer.render(planeVao, textureProgram)
+  //     resolve(null)
+  //   })
+  // })
 
   const prepassProgram = new Program(core, {
     id            : '3d',
@@ -149,6 +149,10 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
           vec3 color = texture(t_colorTexture, v_uv).rgb;
 
+          vec2 w = texture(t_colorTexture, v_uv).xy;
+
+          float window = 0.6 * step(cos(w.x*50.0), 0.5) * step(cos(w.y*50.0), 0.5) + 0.2;
+
           if (position == vec3(0.0)) {
             discard;
           }
@@ -160,7 +164,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float diffuse = max(0.0, dot(lightVec, normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), 40.0);
           // vec3 result = (ambient + diffuse + specular) * color;
-          vec3 result = color;
+          // vec3 result = color;
+          vec3 result = vec3(window);
           o_color = vec4(result, 1.0);
         }`
   })
