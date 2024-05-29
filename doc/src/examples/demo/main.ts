@@ -127,9 +127,14 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float window2 = 3.0 * tmp - 6.0;
           float isWindow = step(0.5, window1) + step(0.5, window2);
 
-          float isLighted = isWindow * step(0.3, rand(vec2(w.y)));
+          int id = int(w.w);
 
-          float window = 0.5 * isWindow + 0.1;
+          int tmpx = int(10.0 * w.x);
+          int tmpy = int(10.0 * w.y);
+          int tmpz = int(10.0 * w.z);
+          float isLighted = isWindow * step(0.75, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
+
+          float window = 0.2 * isWindow + 0.001;
 
           if (position == vec3(0.0)) {
             discard;
@@ -141,8 +146,9 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           float ambient = 0.1;
           float diffuse = max(0.0, dot(lightVec, normal));
           float specular = pow(max(0.0, dot(viewVec, reflectVec)), isWindow * 20.0);
-          float result = (ambient + diffuse + 10.0 * isWindow * specular) * window;
-          o_color = vec4(result);
+          float result = (ambient + diffuse + 4.0 * isWindow * specular) * window;
+          o_color = vec4(result) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
+
         }`
   })
   boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
