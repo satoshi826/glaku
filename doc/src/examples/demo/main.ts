@@ -2,10 +2,13 @@ import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, DEPTH, Progra
 import {random, range} from 'jittoku'
 
 const CUBE_NUM = 11000
+const MAX_HEIGHT = 200
+
+const MAX_HEIGHT_INVERSE = 1 / 200
 
 const models = range(CUBE_NUM).map(() => {
-  let zScale = random(10, 100)
-  zScale = zScale > 99.5 ? 1.75 * zScale : zScale
+  let zScale = random(10, MAX_HEIGHT * 0.5)
+  zScale = zScale > MAX_HEIGHT * 0.5 * 0.99 ? zScale + random(0, 100) : zScale
   return new Model({
     position: [random(-5000, 5000), zScale, random(-5000, 5000)],
     scale   : [random(10, 50), zScale, random(10, 50)]
@@ -48,14 +51,17 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     vert: /* glsl */ `
         out float y;
         out float x;
+        out vec3 pos;
         void main() {
           x = a_position.x;
           y = a_position.y;
+          pos = a_position;
           gl_Position = vec4(a_position, 1.0);
         }`,
     frag: /* glsl */`
         in float x;
         in float y;
+        in vec3 pos;
         out vec4 o_color;
         void main() {
           float window = 0.6 * step(abs(x), 0.5) * step(abs(y), 0.5) + 0.2;
@@ -87,17 +93,14 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     vert: /* glsl */ `
         out vec4 v_position;
         out vec4 v_normal;
-        out float y;
-        out float x;
+        out vec3  v_pos_local;
         out vec2 v_uv;
         void main() {
           vec4 position = vec4(a_position, 1.0);
           v_position = vec4((a_mMatrix * position).xyz, 1.0);
           mat3 normalMatrix = transpose(inverse(mat3(a_mMatrix)));
           v_normal = vec4(a_normal, 1.0);
-          x = a_mMatrix[0][0] * a_position.x * 0.005;
-          y = a_mMatrix[1][1] * a_position.y * 0.005;
-          // float scale = max(max(a_mMatrix[0][0], a_mMatrix[1][1]), a_mMatrix[2][2]);
+          v_pos_local = vec3(a_mMatrix[0][0], a_mMatrix[1][1], a_mMatrix[2][2]) * a_position * ${MAX_HEIGHT_INVERSE};
           v_uv  = a_textureCoord * 10.0;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
@@ -105,17 +108,15 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     frag: /* glsl */`
         in vec4 v_position;
         in vec4 v_normal;
-        in float x;
-        in float y;
+        in vec3 v_pos_local;
         in vec2 v_uv;
         layout (location = 0) out vec4 o_position;
         layout (location = 1) out vec4 o_normal;
         layout (location = 2) out vec4 o_color;
         void main() {
-          // vec3 window = texture(t_buildingTexture, v_uv).xyz; // todo: set specular
           o_position = v_position;
           o_normal = v_normal;
-          o_color = vec4(x, y, 0.0, 1.0);
+          o_color = vec4(v_pos_local, 1.0);
         }`
   })
 
@@ -149,9 +150,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
           vec3 color = texture(t_colorTexture, v_uv).rgb;
 
-          vec2 w = texture(t_colorTexture, v_uv).xy;
+          vec3 w = texture(t_colorTexture, v_uv).xyz;
+          float window = step(1.1, step(0.4, fract(10.0 * w.x)) + step(0.4, fract(10.0 * w.y)) + step(0.4, fract(10.0 * w.z)));
 
-          float window = 0.6 * step(cos(w.x*50.0), 0.5) * step(cos(w.y*50.0), 0.5) + 0.2;
+          // float window = 0.6 * step(cos(w.x*100.0), 0.4) * step(cos(w.y*100.0), 0.4) + 0.2;
+          // float window = 0.6 * cos(w.x*50.0) * cos(w.y*50.0) + 0.2;
+
 
           if (position == vec3(0.0)) {
             discard;
