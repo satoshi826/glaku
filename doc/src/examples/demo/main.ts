@@ -3,18 +3,25 @@ import {random, range} from 'jittoku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
+import {blurEffect} from './blur'
 
 export const CUBE_NUM = 11000
 export const LIGHT_NUM = 50
 export const MAX_HEIGHT = 200
 
-const models = range(CUBE_NUM).map(() => {
+const buildings = range(CUBE_NUM).map(() => {
   let zScale = random(10, MAX_HEIGHT * 0.5)
   zScale = zScale > MAX_HEIGHT * 0.5 * 0.99 ? zScale + random(0, 100) : zScale
   return new Model({
     position: [random(-5000, 5000), zScale, random(-5000, 5000)],
     scale   : [random(10, 50), zScale, random(10, 50)]
   })
+})
+
+const floor = new Model({
+  scale   : [10000, 10000, 1000],
+  position: [0, 10, 0],
+  rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
 })
 
 const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-1500, 1500), random(50, 100), random(-1500, 1500)])
@@ -45,11 +52,21 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     ...box()
   })
 
+  const floorVao = new Vao(core, {
+    id                 : 'plane',
+    ...plane(),
+    instancedAttributes: ['a_mMatrix'],
+    maxInstance        : 1
+  })
+
   const prepassProgram = prepass(core)
-  boxVao.setInstancedValues({a_mMatrix: models.flatMap(({matrix: {m}}) => m)})
+  boxVao.setInstancedValues({a_mMatrix: buildings.flatMap(({matrix: {m}}) => m)})
+  floorVao.setInstancedValues({a_mMatrix: floor.matrix.m})
 
   const shadeProgram = shade(core, LIGHT_NUM, preRenderer)
   shadeProgram.set({u_lightPosition: lightPositions})
+
+  const blurProgram = blurEffect(core, shadeRenderer)
 
   const postEffectProgram = postEffect(core, shadeRenderer)
 
@@ -68,9 +85,22 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     prepassProgram.set({u_vpMatrix: camera.matrix.vp})
     shadeProgram.set({u_cameraPosition: camera.position})
 
+    prepassProgram.set({u_isBuilding: 0})
+    preRenderer.render(floorVao, prepassProgram)
+    prepassProgram.set({u_isBuilding: 1})
     preRenderer.render(boxVao, prepassProgram)
+
     shadeRenderer.render(planeVao, shadeProgram)
-    renderer.render(planeVao, postEffectProgram)
+    // renderer.render(planeVao, blurProgram)
+
+    // shadeRenderer.render(planeVao, shadeProgram)
+
+    // blurRenderer.render(planeVao, blurProgram)
+    // renderer.render(planeVao, postEffectProgram)
+    renderer.render(planeVao, blurProgram)
+
+
+
   }})
   animation.start()
 }

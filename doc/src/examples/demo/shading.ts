@@ -34,15 +34,15 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
           vec3 position = texture(t_positionTexture, v_uv).xyz;
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
-          vec3 color = texture(t_colorTexture, v_uv).rgb;
-
           vec4 w = texture(t_colorTexture, v_uv).xyzw;
+
           float tmp = step(0.5, fract(20.0 * w.x)) + step(0.5, fract(30.0 * w.y)) + step(0.5, fract(20.0 * w.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
-          float isWindow = step(0.5, window1) + step(0.5, window2);
 
-          int id = int(w.w);
+          bool isBuilding = w.w > 0.1;
+          float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
+
 
           int tmpx = int(20.0 * w.x);
           int tmpy = int(10.0 * w.y);
@@ -51,9 +51,6 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
           float window = 0.2 * isWindow + 0.001;
 
-          if (position == vec3(0.0)) {
-            discard;
-          }
 
           vec3 viewVec = normalize(u_cameraPosition - position);
 
@@ -65,18 +62,20 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
+          float specIntensity = isBuilding ? isWindow * 10.0 : 5.0;
+          float color = isBuilding ? 0.25: 0.1;
+
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -1.4);
+            lightDecay = pow(lightDis, -1.2);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 500.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 400.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), isWindow * 20.0);
+            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 300.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
-          float result = (ambient + diffuse + 5.0 * isWindow * specular) * 0.25;
+          float result = (ambient + diffuse + specular) * color;
           o_color = vec4(result) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
-
         }`
 })
