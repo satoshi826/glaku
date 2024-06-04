@@ -1,6 +1,5 @@
 import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler, plane} from 'glaku'
 import {random, range} from 'jittoku'
-import {sphere} from '../../../../src'
 
 const CUBE_NUM = 11000
 
@@ -75,17 +74,17 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
     camera.update()
-    program.set({u_vpMatrix: camera.matrix.vp})
+    program.setUniform({u_vpMatrix: camera.matrix.vp})
   })
 
-  program.set({u_lightPosition: [1000, 300, 1000]})
+  program.setUniform({u_lightPosition: [1000, 300, 1000]})
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
     camera.position = [2000 * Math.cos(elapsed / 3000), 400, 2000 * Math.sin(elapsed / 3000)]
     camera.update()
-    program.set({
+    program.setUniform({
       u_vpMatrix      : camera.matrix.vp,
       u_cameraPosition: camera.position
     })

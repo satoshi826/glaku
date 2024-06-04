@@ -88,14 +88,14 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
     ]
   })
 
-  program.set({u_aspectRatio_image: calcAspectRatioVec(image.width, image.height)})
+  program.setUniform({u_aspectRatio_image: calcAspectRatioVec(image.width, image.height)})
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
-    program.set({u_aspectRatio: calcAspectRatioVec(width, height)})
+    program.setUniform({u_aspectRatio: calcAspectRatioVec(width, height)})
   })
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-    program.set({u_mouse: [x, y]})
+    program.setUniform({u_mouse: [x, y]})
   })
 
   const animation = new Loop({callback: () => {

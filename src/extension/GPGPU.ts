@@ -97,7 +97,7 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
     this.#swap()
   }
 
-  set(uniformValues: PartialRecord<T, number | number[]>) {
+  setUniform(uniformValues: PartialRecord<T, number | number[]>) {
     oForEach(uniformValues as Record<T, number | number[]>, ([k, v]) => {
       this.uniforms[k].value = v
       this.uniforms[k].dirty = true

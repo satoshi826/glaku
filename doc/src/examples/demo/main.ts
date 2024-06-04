@@ -1,13 +1,12 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, Renderer, RGBA16F} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA16F, Core, Renderer} from 'glaku'
 import {random, range} from 'jittoku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
-import {blurEffect} from './blur'
-import {Core} from '../../../../src'
+import {getBlurPass} from './blur'
 
-export const CUBE_NUM = 11000
-export const LIGHT_NUM = 20
+export const CUBE_NUM = 10000
+export const LIGHT_NUM = 10
 export const MAX_HEIGHT = 200
 
 const buildings = range(CUBE_NUM).map(() => {
@@ -41,37 +40,16 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F]})
   const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
-  const blurRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
-
-  const blurPass = () => {
-    const renderers = [
-      new Renderer(core, {frameBuffer: [RGBA16F]}),
-      new Renderer(core, {frameBuffer: [RGBA16F]})
-    ]
-
-    const postBlurTexture = renderers[1].renderTexture[0]
-
-    return {
-      render: () => {
-        renderers.forEach(renderer => {
-          
-        })
-      }
-    }
-  }
 
   const renderer = new Renderer(core, {backgroundColor: [0.08, 0.14, 0.2, 1.0]})
 
-  const planeVao = new Vao(core, {
-    id: 'plane',
-    ...plane()
-  })
+  const planeVao = new Vao(core, {id: 'plane', ...plane()})
 
   const boxVao = new Vao(core, {
     id                 : 'box',
+    ...box(),
     instancedAttributes: ['a_mMatrix'],
-    maxInstance        : CUBE_NUM,
-    ...box()
+    maxInstance        : CUBE_NUM
   })
 
   const floorVao = new Vao(core, {
@@ -86,39 +64,42 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   floorVao.setInstancedValues({a_mMatrix: floor.matrix.m})
 
   const shadeProgram = shade(core, LIGHT_NUM, preRenderer)
-  shadeProgram.set({u_lightPosition: lightPositions})
+  shadeProgram.setUniform({u_lightPosition: lightPositions})
 
-  const blurProgram = blurEffect(core, shadeRenderer)
-  const postEffectProgram = postEffect(core, blurRenderer)
+  const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
+
+  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass.result)
+
+  const animation = new Loop({callback: ({elapsed}) => {
+
+    [preRenderer, shadeRenderer, renderer].forEach(r => r.clear())
+
+    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 1000 * Math.sin(elapsed / 3000)]
+    camera.update()
+
+    // set Camera and view-projection-matrix
+    prepassProgram.setUniform({u_vpMatrix: camera.matrix.vp})
+    shadeProgram.setUniform({u_cameraPosition: camera.position})
+
+    // render buildings
+    prepassProgram.setUniform({u_isBuilding: 0})
+    preRenderer.render(floorVao, prepassProgram)
+    prepassProgram.setUniform({u_isBuilding: 1})
+    preRenderer.render(boxVao, prepassProgram)
+
+    shadeRenderer.render(planeVao, shadeProgram)
+    blurPass.render()
+
+    renderer.render(planeVao, postEffectProgram)
+
+
+  }, interval: 0})
+  animation.start()
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
   })
 
-  const animation = new Loop({callback: ({elapsed}) => {
-    preRenderer.clear()
-    shadeRenderer.clear()
-    blurRenderer.clear()
-    renderer.clear()
-
-    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 1000 * Math.sin(elapsed / 3000)]
-    camera.update()
-
-    prepassProgram.set({u_vpMatrix: camera.matrix.vp})
-    shadeProgram.set({u_cameraPosition: camera.position})
-
-    prepassProgram.set({u_isBuilding: 0})
-    preRenderer.render(floorVao, prepassProgram)
-    prepassProgram.set({u_isBuilding: 1})
-    preRenderer.render(boxVao, prepassProgram)
-
-    shadeRenderer.render(planeVao, shadeProgram)
-
-    // renderer.render(planeVao, blurProgram)
-    renderer.render(planeVao, shadeProgram)
-
-  }})
-  animation.start()
 }
 
 //----------------------------------------------------------------

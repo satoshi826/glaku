@@ -59,12 +59,12 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     const aspectRatioVec = calcAspectRatioVec(width, height)
     // const aspectRatio = width / height
     // const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
-    program1.set({u_aspectRatio: aspectRatioVec})
-    program2.set({u_aspectRatio: aspectRatioVec})
+    program1.setUniform({u_aspectRatio: aspectRatioVec})
+    program2.setUniform({u_aspectRatio: aspectRatioVec})
   })
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-    program1.set({u_mouse: [x, y]})
+    program1.setUniform({u_mouse: [x, y]})
   })
 
   const animation = new Loop({callback: () => {

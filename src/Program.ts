@@ -36,13 +36,7 @@ export class Program<T extends UniformName, K extends TextureName> {
     this.core.setAttLoc(attributeTypes)
     const parsed = this.#parseShader({vert, frag, attributeTypes, uniformTypes, texture})
 
-    if(texture) {
-      oForEach(texture, (([name, data], i) => {
-        const textureNum = core.setTexture(name, data)
-        this.uniforms[name] = {type: 'int', value: textureNum, dirty: true}
-        this.texture[i] = name
-      }))
-    }
+    if(texture) this.setTexture(texture)
 
     if (!core.program[this.id]) {
       this.core.setProgram(this.id, parsed.vert, parsed.frag)
@@ -50,11 +44,19 @@ export class Program<T extends UniformName, K extends TextureName> {
     }
   }
 
-  set(uniformValues: PartialRecord<T, number | number[]>) {
+  setUniform(uniformValues: PartialRecord<T, number | number[]>) {
     oForEach(uniformValues as Record<T, number | number[]>, ([k, v]) => {
       this.uniforms[k].value = v
       this.uniforms[k].dirty = true
     })
+  }
+
+  setTexture(texture: Record<K, WebGLTexture>){
+    oForEach(texture, (([name, data], i) => {
+      const textureNum = this.core.setTexture(name, data)
+      this.uniforms[name] = {type: 'int', value: textureNum, dirty: true}
+      this.texture[i] = name
+    }))
   }
 
   #parseShader({vert, frag, attributeTypes, uniformTypes, texture}: {

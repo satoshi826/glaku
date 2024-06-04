@@ -32,12 +32,12 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const vao = triangle(core)
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-    program.set({u_mouse: [x, y]})
+    program.setUniform({u_mouse: [x, y]})
   })
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
-    program.set({u_elapsed: elapsed})
+    program.setUniform({u_elapsed: elapsed})
     renderer.render(vao, program)
   }})
 

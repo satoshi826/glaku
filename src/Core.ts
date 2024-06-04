@@ -12,7 +12,7 @@ export class Core {
   uniLoc: Record<ProgramId, Record<UniformName | TextureName, WebGLUniformLocation>> = {}
   attLoc: Record<AttributeName, number> = {}
   stride: Record<AttributeName, number | number[]> = {}
-  texture: Record<string, {data: WebGLTexture, number: number, active: boolean}> = {}
+  texture: Record<string, {data: WebGLTexture, number: number}> = {}
   currentProgram: ProgramId | null = null
   currentVao: VaoId | null = null
   currentRenderer: RendererId | null = null
@@ -156,9 +156,7 @@ export class Core {
       this.gl.vertexAttribDivisor(attLoc, 1)
     }else{
       const [row] = stride
-      times(row, (i) => {
-        this.gl.vertexAttribDivisor(attLoc + i, 1)
-      })
+      times(row, (i) => this.gl.vertexAttribDivisor(attLoc + i, 1))
     }
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null)
     if (!vbo) throw new Error('createInstancedVbo failed')
@@ -190,7 +188,6 @@ export class Core {
   setUniforms(uniforms: Uniforms) {
     oForEach(uniforms, ([k, {type, value, dirty}]) => {
       if(value == null || dirty === false) return
-      if(value == null) return
       const [method, isMat, isArray] = this.uniMethod[type]
       if (isMat) this.gl[method](this.uniLoc[this.currentProgram!][k], false, value as number[])
       else if (isArray) this.gl[method](this.uniLoc[this.currentProgram!][k], value as number[])
@@ -245,18 +242,15 @@ export class Core {
       return this.texture[key].number
     }
     const textureNum = keys(this.texture).length
-    this.texture[key] = {data, number: textureNum, active: false}
+    this.texture[key] = {data, number: textureNum}
     return textureNum
   }
 
   useTexture(key: TextureName) {
-    const {data, number, active} = this.texture[key]
+    const {data, number} = this.texture[key]
     if (data) {
       const attr = `TEXTURE${number}` as WebGLConstants
-      if (!active) {
-        this.gl.activeTexture(this.gl[attr])
-        this.texture[key].active = true
-      }
+      this.gl.activeTexture(this.gl[attr])
       this.gl.bindTexture(this.gl.TEXTURE_2D, data)
     }
   }

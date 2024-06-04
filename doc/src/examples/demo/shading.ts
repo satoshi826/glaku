@@ -50,8 +50,6 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float isLighted = isWindow * step(0.8, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
 
           float window = 0.2 * isWindow + 0.001;
-
-
           vec3 viewVec = normalize(u_cameraPosition - position);
 
           vec3 lightVec;
@@ -68,11 +66,11 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -1.2);
+            lightDecay = pow(lightDis, -0.5);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 300.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 10.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 2.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.01);

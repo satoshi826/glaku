@@ -71,17 +71,17 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
     camera.update()
-    program.set({u_vpMatrix: camera.matrix.vp})
+    program.setUniform({u_vpMatrix: camera.matrix.vp})
   })
 
-  program.set({u_lightPosition: [100, 0, 0]})
+  program.setUniform({u_lightPosition: [100, 0, 0]})
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
 
     camera.position = [80 * Math.cos(elapsed / 4000), 10, 30 * Math.sin(elapsed / 4000)]
     camera.update()
-    program.set({
+    program.setUniform({
       u_vpMatrix      : camera.matrix.vp,
       u_cameraPosition: camera.position
     })

@@ -30,19 +30,19 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   renderer.clear()
 
-  program.set({
+  program.setUniform({
     u_color : [1, 0, 0],
     u_offset: [0.2, -0.2]
   })
   renderer.render(vao, program)
 
-  program.set({
+  program.setUniform({
     u_color : [0, 1, 0],
     u_offset: [-0.2, -0.2]
   })
   renderer.render(vao, program)
 
-  program.set({
+  program.setUniform({
     u_color : [0, 0, 1],
     u_offset: [0, 0.2]
   })

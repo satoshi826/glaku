@@ -59,14 +59,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
     camera.aspect = width / height
     camera.update()
-    program.set({u_vpMatrix: camera.matrix.vp})
+    program.setUniform({u_vpMatrix: camera.matrix.vp})
   })
 
   setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
-    program.set({u_lightPosition: [5 * x, 5 * y, 2]})
+    program.setUniform({u_lightPosition: [5 * x, 5 * y, 2]})
   })
 
-  program.set({
+  program.setUniform({
     u_lightPosition : [2, 2, 2],
     u_cameraPosition: camera.position
   })
@@ -75,7 +75,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     renderer.clear()
     model.rotation.angle = elapsed / 800
     model.update()
-    program.set({u_mMatrix: model.matrix.m})
+    program.setUniform({u_mMatrix: model.matrix.m})
     renderer.render(vao, program)
   }})
 

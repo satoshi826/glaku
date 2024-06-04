@@ -4,9 +4,8 @@ import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
 
-type TextureWithInfo = (WebGLTexture & {
+export type TextureWithInfo = (WebGLTexture & {
   internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants
-  dirty: boolean
 })
 
 export class Renderer {

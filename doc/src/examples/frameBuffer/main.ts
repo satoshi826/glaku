@@ -62,13 +62,13 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         float rand(vec2 co){
           return fract(sin(dot(co ,vec2(12.9898,78.233))) * 43758.5453) * 2.0 - 1.0;
         }
-        float offset(float blocks, vec2 uv) {
+        float offsetUniform(float blocks, vec2 uv) {
           return rand(vec2(0, floor(uv.y * blocks)));
         }
         void main() {
           vec3 framebufferColor = texture(t_texture, v_textureCoord).rgb;
           vec2 uv = vec2(gl_FragCoord.xy / u_resolution);
-          float effectedR = texture(t_texture, uv + vec2(offset(64.0, uv) * 0.1, 0.0)).r;
+          float effectedR = texture(t_texture, uv + vec2(offsetUniform(64.0, uv) * 0.1, 0.0)).r;
           vec3 result = uv.x < 0.5 ? framebufferColor : vec3(effectedR, framebufferColor.gb);
           o_color = vec4(result, 1.0);
         }`
@@ -76,8 +76,8 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const planeVao = plane(core)
 
   setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
-    program.set({u_aspectRatio: calcAspectRatioVec(width, height)})
-    glitchEffect.set({u_resolution: [width, height]})
+    program.setUniform({u_aspectRatio: calcAspectRatioVec(width, height)})
+    glitchEffect.setUniform({u_resolution: [width, height]})
   })
 
   const animation = new Loop({callback: ({elapsed}) => {
@@ -85,7 +85,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     rendererToFrameBuffer.clear()
 
     rendererToFrameBuffer.render(planeVao, program)
-    program.set({u_elapsed: elapsed})
+    program.setUniform({u_elapsed: elapsed})
 
     renderer.render(planeVao, glitchEffect)
   }})
