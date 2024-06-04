@@ -12,7 +12,7 @@ export class Core {
   uniLoc: Record<ProgramId, Record<UniformName | TextureName, WebGLUniformLocation>> = {}
   attLoc: Record<AttributeName, number> = {}
   stride: Record<AttributeName, number | number[]> = {}
-  texture: Record<string, {data: WebGLTexture, number: number}> = {}
+  texture: Record<string, {data: WebGLTexture, number: number, active: boolean}> = {}
   currentProgram: ProgramId | null = null
   currentVao: VaoId | null = null
   currentRenderer: RendererId | null = null
@@ -188,12 +188,14 @@ export class Core {
   }
 
   setUniforms(uniforms: Uniforms) {
-    oForEach(uniforms, ([k, {type, value}]) => {
+    oForEach(uniforms, ([k, {type, value, dirty}]) => {
+      if(value == null || dirty === false) return
       if(value == null) return
       const [method, isMat, isArray] = this.uniMethod[type]
       if (isMat) this.gl[method](this.uniLoc[this.currentProgram!][k], false, value as number[])
       else if (isArray) this.gl[method](this.uniLoc[this.currentProgram!][k], value as number[])
       else this.gl[method](this.uniLoc[this.currentProgram!][k], value as number)
+      uniforms[k].dirty = false
     })
   }
 
@@ -243,15 +245,18 @@ export class Core {
       return this.texture[key].number
     }
     const textureNum = keys(this.texture).length
-    this.texture[key] = {data, number: textureNum}
+    this.texture[key] = {data, number: textureNum, active: false}
     return textureNum
   }
 
   useTexture(key: TextureName) {
-    const {data, number} = this.texture[key]
+    const {data, number, active} = this.texture[key]
     if (data) {
       const attr = `TEXTURE${number}` as WebGLConstants
-      this.gl.activeTexture(this.gl[attr])
+      if (!active) {
+        this.gl.activeTexture(this.gl[attr])
+        this.texture[key].active = true
+      }
       this.gl.bindTexture(this.gl.TEXTURE_2D, data)
     }
   }

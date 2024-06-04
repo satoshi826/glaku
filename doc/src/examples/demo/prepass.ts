@@ -1,5 +1,6 @@
-import {Program, Core} from 'glaku'
-import {CUBE_NUM, MAX_HEIGHT} from './main'
+import {Core} from 'glaku'
+import {MAX_HEIGHT} from './main'
+import {Program} from '../../../../src'
 
 export const prepass = (core: Core) => new Program(core, {
   id            : 'prepass',

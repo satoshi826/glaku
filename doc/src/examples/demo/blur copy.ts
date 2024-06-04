@@ -1,5 +1,4 @@
-import {Core, Renderer} from 'glaku'
-import {Program} from '../../../../src'
+import {Program, Core, Renderer} from 'glaku'
 
 export const blurEffect = (core: Core, shadeRenderer: Renderer) => new Program(core, {
   id            : 'blurEffect',

@@ -1,5 +1,6 @@
-import {Core, GPGPU, Loop, Program, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'glaku'
+import {Core, Loop, Program, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'glaku'
 import {random, range} from 'jittoku'
+import {GPGPU} from '../../../../src'
 
 
 const PARTICLE_NUM = 500000

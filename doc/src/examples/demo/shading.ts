@@ -75,7 +75,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
             specular += 300.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
-          float result = (ambient + diffuse + specular) * color;
-          o_color = vec4(result) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
+          float result = max((ambient + diffuse + specular) * color, 0.01);
+          o_color = vec4(vec3(result), 1.0) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
         }`
 })

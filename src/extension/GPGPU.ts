@@ -9,7 +9,7 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
   vert: string
   attributeTypes: AttributeTypes
   vaoArray: [Vao, Vao]
-  uniforms: Record<T, {type: UniformType, value: null | number | number []}>
+  uniforms: Record<T, {type: UniformType, value: null | number | number [], dirty: boolean}>
   indexR: 0 | 1
   indexW: 0 | 1
   vboArray: { vbo: Record<`a_${string}`, WebGLBuffer | null>; transformFeedback: WebGLTransformFeedback | null }[]
@@ -58,7 +58,7 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
       core.gl.bindTransformFeedback(core.gl.TRANSFORM_FEEDBACK, null)
       return {vbo, transformFeedback}
     })
-    this.uniforms = oMapO(uniformTypes, ([key, type]) => [key, {type, value: null}]) as Record<T, {type: UniformType, value: null | number | number []}>
+    this.uniforms = oMapO(uniformTypes, ([key, type]) => [key, {type, value: null, dirty: false}]) as Record<T, {type: UniformType, value: null, dirty: false}>
   }
 
   get vao() {
@@ -100,6 +100,7 @@ export class GPGPU <T extends UniformName = 'u_resolution'> {
   set(uniformValues: PartialRecord<T, number | number[]>) {
     oForEach(uniformValues as Record<T, number | number[]>, ([k, v]) => {
       this.uniforms[k].value = v
+      this.uniforms[k].dirty = true
     })
   }
 

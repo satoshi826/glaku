@@ -1,4 +1,5 @@
-import {Program, Core, Renderer} from 'glaku'
+import {Core, Renderer} from 'glaku'
+import {Program} from '../../../../src'
 
 export const postEffect = (core: Core, shadeRenderer: Renderer) => new Program(core, {
   id            : 'postEffect',
@@ -7,7 +8,7 @@ export const postEffect = (core: Core, shadeRenderer: Renderer) => new Program(c
     a_textureCoord: 'vec2'
   },
   texture: {
-    t_shadeTexture: shadeRenderer.renderTexture[0]
+    t_blurTexture: shadeRenderer.renderTexture[0]
   },
   vert: /* glsl */ `
         out vec2 v_uv;
@@ -19,7 +20,7 @@ export const postEffect = (core: Core, shadeRenderer: Renderer) => new Program(c
         in vec2 v_uv;
         out vec4 o_color;
         void main() {
-          vec3 color = texture(t_shadeTexture, v_uv).rgb;
+          vec3 color = texture(t_blurTexture, v_uv).rgb;
           if (color == vec3(0.0)) {
             discard;
           }

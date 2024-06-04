@@ -4,7 +4,10 @@ import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
 
-type TextureWithInfo = (WebGLTexture & {internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants})
+type TextureWithInfo = (WebGLTexture & {
+  internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants
+  dirty: boolean
+})
 
 export class Renderer {
   static idCounter = 0
@@ -43,6 +46,7 @@ export class Renderer {
 
     if (frameBuffer) this.#setFrameBuffer(frameBuffer)
     if (screenFit) this.core.resizeListener?.((args) => this.resizeQueue = args)
+    this.resize()
   }
 
   resize({width = this.width, height = this.height, pixelRatio = this.pixelRatio}: ResizeArgs = {}) {

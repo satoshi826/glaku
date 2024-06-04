@@ -81,13 +81,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
 
   const animation = new Loop({callback: ({elapsed}) => {
-    rendererToFrameBuffer.clear()
     renderer.clear()
-    program.set({u_elapsed: elapsed})
+    rendererToFrameBuffer.clear()
+
     rendererToFrameBuffer.render(planeVao, program)
+    program.set({u_elapsed: elapsed})
+
     renderer.render(planeVao, glitchEffect)
   }})
-
   animation.start()
 }
 

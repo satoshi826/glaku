@@ -13,7 +13,7 @@ export class Program<T extends UniformName, K extends TextureName> {
   id: ProgramId
   vert: string
   frag: string
-  uniforms: Record<T | K, {type: UniformTypeWithArray, value: null | number | number []}>
+  uniforms: Record<T | K, {type: UniformTypeWithArray, value: null | number | number [], dirty: boolean}>
   texture: K[]
   primitive: PrimitiveTypes
   constructor(core: Core, {
@@ -29,7 +29,7 @@ export class Program<T extends UniformName, K extends TextureName> {
     this.vert = vert
     this.frag = frag
     this.uniforms = oMapO(uniformTypes, ([key, type]) =>
-      [key, {type: type.replace(/\[\d+\]$/, ''), value: null}]) as Record<T | K, {type: UniformTypeWithArray, value: null | number | number []}>
+      [key, {type: type.replace(/\[\d+\]$/, ''), value: null, dirty: false}]) as Record<T | K, {type: UniformTypeWithArray, value: null, dirty: false}>
     this.texture = []
     this.primitive = primitive
 
@@ -39,7 +39,7 @@ export class Program<T extends UniformName, K extends TextureName> {
     if(texture) {
       oForEach(texture, (([name, data], i) => {
         const textureNum = core.setTexture(name, data)
-        this.uniforms[name] = {type: 'int', value: textureNum}
+        this.uniforms[name] = {type: 'int', value: textureNum, dirty: true}
         this.texture[i] = name
       }))
     }
@@ -53,6 +53,7 @@ export class Program<T extends UniformName, K extends TextureName> {
   set(uniformValues: PartialRecord<T, number | number[]>) {
     oForEach(uniformValues as Record<T, number | number[]>, ([k, v]) => {
       this.uniforms[k].value = v
+      this.uniforms[k].dirty = true
     })
   }
 
