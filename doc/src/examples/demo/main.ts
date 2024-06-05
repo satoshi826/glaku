@@ -6,7 +6,8 @@ import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
 
 export const CUBE_NUM = 10000
-export const LIGHT_NUM = 10
+export const LIGHT_NUM = 50
+export const LIGHT_RANGE = 3000
 export const MAX_HEIGHT = 200
 
 const buildings = range(CUBE_NUM).map(() => {
@@ -24,7 +25,7 @@ const floor = new Model({
   rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
 })
 
-const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-1500, 1500), random(50, 100), random(-1500, 1500)])
+const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-LIGHT_RANGE, LIGHT_RANGE), random(50, 100), random(-LIGHT_RANGE, LIGHT_RANGE)])
 
 const camera = new Camera({lookAt: [0, 120, 0], position: [0, 200, 0], near: 100, far: 8000, fov: 60})
 

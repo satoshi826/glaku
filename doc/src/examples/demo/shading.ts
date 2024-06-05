@@ -60,20 +60,22 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          float specIntensity = isBuilding ? isWindow * 10.0 : 5.0;
-          float color = isBuilding ? 0.25: 0.1;
+          // float specIntensity = isBuilding ? isWindow * 10.0 : 5.0;
+          float specIntensity = 20.0;
+          float color = isBuilding ? 0.1: 0.05;
 
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -0.5);
+            lightDecay = pow(lightDis, -1.1);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 10.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 2.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 200.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 1000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.01);
-          o_color = vec4(vec3(result), 1.0) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
+          // o_color = vec4(vec3(result), 1.0) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
+          o_color = vec4(vec3(result), 1.0);
         }`
 })

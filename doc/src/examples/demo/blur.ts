@@ -1,8 +1,8 @@
 import {Core, Program, RGBA16F, Renderer, TextureWithInfo, Vao, plane} from 'glaku'
 
 export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
-  const rendererH = new Renderer(core, {frameBuffer: [RGBA16F]})
-  const rendererV = new Renderer(core, {frameBuffer: [RGBA16F]})
+  const rendererH = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
+  const rendererV = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
 
   const blurProgram = blurEffect(core, targetTex)
   const planeVao = new Vao(core, {
@@ -15,8 +15,8 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
       rendererH.clear()
       rendererV.clear()
 
-      blurProgram.setTexture({t_preBlurTexture: targetTex})
       blurProgram.setUniform({u_isHorizontal: 1})
+      blurProgram.setTexture({t_preBlurTexture: targetTex})
       rendererH.render(planeVao, blurProgram)
 
       blurProgram.setUniform({u_isHorizontal: 0})
@@ -57,10 +57,10 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
         }
 
         void main() {
-          int invPixelRatio = 1;
+          int invPixelRatio = 2;
           int sampleStep = 2;
 
-          ivec2 coord =  invPixelRatio * ivec2(gl_FragCoord.xy);
+          ivec2 coord =  1 * ivec2(gl_FragCoord.xy);
           ivec2 size = textureSize(t_preBlurTexture, 0);
           vec3 sum = weights[0] * texelFetch(t_preBlurTexture, coord, 0).rgb;
 
