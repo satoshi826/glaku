@@ -72,7 +72,8 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.01);
-          vec3 resultColored = vec3(result*0.8, result*1.2, result*1.5);
-          o_color = vec4(resultColored, 1.0) + isLighted * vec4(4.0, 1.0, 0.2, 1.0);
+
+          vec3 resultColor = isBuilding ? vec3(0.8, 1.2, 1.5) : vec3(0.9, 0.8, 0.8);
+          o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(4.0, 1.0, 0.2, 1.0);
         }`
 })

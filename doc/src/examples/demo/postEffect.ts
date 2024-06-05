@@ -24,11 +24,10 @@ export const postEffect = (core: Core, rawTexture: TextureWithInfo, blurTexture:
           vec3 toneMapRaw = raw / (1.0 + raw);
 
           vec3 blur = texture(t_blurTexture, v_uv).rgb;
-          vec3 bloom = 0.2 * (blur);
+          vec3 bloom = 0.15 * (blur);
           vec3 toneMapBloom = 4.0 * bloom / (1.0 + bloom);
 
           vec3 result = toneMapRaw + toneMapBloom;
-          // o_color = vec4(blur, 1.0);
           o_color = vec4(result, 1.0);
         }`
 })
