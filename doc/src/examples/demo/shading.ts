@@ -22,7 +22,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           gl_Position = vec4(a_position, 1.0);
         }`,
   frag: /* glsl */`
-        #define MAX_LIGHTS 100
+        #define MAX_LIGHTS ${lightNum}
 
         float rand(vec2 co){
           return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -34,20 +34,18 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
           vec3 position = texture(t_positionTexture, v_uv).xyz;
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
-          vec4 w = texture(t_colorTexture, v_uv).xyzw;
+          vec4 localPos = texture(t_colorTexture, v_uv).xyzw;
 
-          float tmp = step(0.5, fract(20.0 * w.x)) + step(0.5, fract(30.0 * w.y)) + step(0.5, fract(20.0 * w.z));
+          float tmp = step(0.3, fract(20.0 * localPos.x)) + step(0.3, fract(40.0 * localPos.y)) + step(0.3, fract(20.0 * localPos.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
-
-          bool isBuilding = w.w > 0.1;
+          bool isBuilding = localPos.w > 0.1;
           float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
 
-
-          int tmpx = int(20.0 * w.x);
-          int tmpy = int(10.0 * w.y);
-          int tmpz = int(20.0 * w.z);
-          float isLighted = isWindow * step(0.8, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
+          int tmpx = int(20.0 * localPos.x);
+          int tmpy = int(10.0 * localPos.y);
+          int tmpz = int(20.0 * localPos.z);
+          float isLighted = isWindow * step(0.85, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);
@@ -60,9 +58,8 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          // float specIntensity = isBuilding ? isWindow * 10.0 : 5.0;
-          float specIntensity = 20.0;
-          float color = isBuilding ? 0.1: 0.05;
+          float specIntensity = isWindow > 0.0 ? 40.0 : 10.0;
+          float color = isBuilding ? 0.1 : 0.05;
 
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
@@ -75,7 +72,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.01);
-          // o_color = vec4(vec3(result), 1.0) + isLighted * vec4(0.4, 0.1, 0.0, 1.0);
-          o_color = vec4(vec3(result), 1.0);
+          vec3 resultColored = vec3(result*0.8, result*1.2, result*1.5);
+          o_color = vec4(resultColored, 1.0) + isLighted * vec4(4.0, 1.0, 0.2, 1.0);
         }`
 })

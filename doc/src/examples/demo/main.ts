@@ -5,9 +5,9 @@ import {shade} from './shading'
 import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
 
-export const CUBE_NUM = 10000
+export const CUBE_NUM = 8000
 export const LIGHT_NUM = 20
-export const LIGHT_RANGE = 1500
+export const LIGHT_RANGE = 2000
 export const MAX_HEIGHT = 200
 
 const buildings = range(CUBE_NUM).map(() => {
