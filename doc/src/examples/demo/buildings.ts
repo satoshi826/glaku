@@ -11,7 +11,7 @@ const cubeType = range(CUBE_NUM_OF_SIDE).flatMap((n) =>
     const x = n * CUBE_MARGIN - AREA_SIZE / 2
     const y = m * CUBE_MARGIN - AREA_SIZE / 2
     const r = Math.sqrt(x * x + y * y)
-    if (r < 3000 && random(0, 10) > 5) return {[`${x}_${y}`]: true}
+    if (r < 3000 && random(0, 10) > 6) return {[`${x}_${y}`]: true}
     else if (r > 4000 && random(0, 10) > 3) return {[`${x}_${y}`]: false}
   })
 ).reduce((acc, cur) => {
