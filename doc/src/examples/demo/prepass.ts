@@ -1,5 +1,5 @@
 import {Core, Program} from 'glaku'
-import {MAX_HEIGHT} from './main'
+import {MAX_HEIGHT} from './buildings'
 
 export const prepass = (core: Core) => new Program(core, {
   id            : 'prepass',

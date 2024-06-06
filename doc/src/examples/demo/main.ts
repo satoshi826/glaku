@@ -4,24 +4,17 @@ import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
+import {buildings} from './buildings'
 
-export const CUBE_NUM = 8000
 export const LIGHT_NUM = 20
-export const LIGHT_RANGE = 2000
-export const MAX_HEIGHT = 200
+export const LIGHT_RANGE = 1000
+const CUBE_NUM = buildings.length
 
-const buildings = range(CUBE_NUM).map(() => {
-  let zScale = random(10, MAX_HEIGHT * 0.5)
-  zScale = zScale > MAX_HEIGHT * 0.5 * 0.99 ? zScale + random(0, 100) : zScale
-  return new Model({
-    position: [random(-5000, 5000), zScale, random(-5000, 5000)],
-    scale   : [random(10, 50), zScale, random(10, 50)]
-  })
-})
+console.log(CUBE_NUM)
 
 const floor = new Model({
-  scale   : [10000, 10000, 1000],
-  position: [0, 10, 0],
+  scale   : [10000, 10000, 1],
+  position: [0, 0, 0],
   rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
 })
 
