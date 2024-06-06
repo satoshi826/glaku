@@ -11,11 +11,8 @@ const cubeType = range(CUBE_NUM_OF_SIDE).flatMap((n) =>
     const x = n * CUBE_MARGIN - AREA_SIZE / 2
     const y = m * CUBE_MARGIN - AREA_SIZE / 2
     const r = Math.sqrt(x * x + y * y)
-    if (r < 3000 && random(0, 10) > 6) {
-      return {[`${x}_${y}`]: true}
-    }else if (r > 3000 && random(0, 10) > 4) {
-      return {[`${x}_${y}`]: false}
-    }
+    if (r < 3000 && random(0, 10) > 5) return {[`${x}_${y}`]: true}
+    else if (r > 4000 && random(0, 10) > 3) return {[`${x}_${y}`]: false}
   })
 ).reduce((acc, cur) => {
   if (cur) acc = {...acc, ...cur}
@@ -31,11 +28,8 @@ export const buildings = range(CUBE_NUM_OF_SIDE).flatMap((n) =>
     const isBig = random(0, 10) > 9.8
     const isSmall = cubeType![`${x}_${y}`] === true
     const isVoid = cubeType![`${x}_${y}`] === false
-
     if (isVoid) return []
-
-    zScale = random(10, isBig ? (Math.abs(x) + Math.abs(y)) / 12 : 100)
-
+    zScale = random(10, isBig ? (Math.abs(x) + Math.abs(y)) / 10 : 100)
     if (isSmall) {
       return [
         new Model({
@@ -58,7 +52,7 @@ export const buildings = range(CUBE_NUM_OF_SIDE).flatMap((n) =>
     }
     return new Model({
       position: [x, zScale, y],
-      scale   : [random(20, 50), zScale, random(20, 50)]
+      scale   : [random(20, isBig ? 100 : 40), zScale, random(20, isBig ? 100 : 40)]
     })
   })
 )
