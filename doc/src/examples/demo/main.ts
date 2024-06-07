@@ -4,27 +4,26 @@ import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
-import {buildings} from './buildings'
+import {getBuildings} from './buildings'
 
 export const LIGHT_NUM = 20
 export const LIGHT_RANGE = 1000
-const CUBE_NUM = buildings.length
-
-console.log(CUBE_NUM)
-
-const floor = new Model({
-  scale   : [10000, 10000, 1],
-  position: [0, 0, 0],
-  rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
-})
-
-const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-LIGHT_RANGE, LIGHT_RANGE), random(50, 100), random(-LIGHT_RANGE, LIGHT_RANGE)])
-
-const camera = new Camera({lookAt: [0, 120, 0], position: [0, 200, 0], near: 100, far: 8000, fov: 60})
 
 //----------------------------------------------------------------
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
+
+  const buildings = getBuildings()
+  const CUBE_NUM = buildings.length
+  const floor = new Model({
+    scale   : [10000, 10000, 1],
+    position: [0, 0, 0],
+    rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
+  })
+
+  const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-LIGHT_RANGE, LIGHT_RANGE), random(50, 100), random(-LIGHT_RANGE, LIGHT_RANGE)])
+  const camera = new Camera({lookAt: [0, 120, 0], position: [0, 200, 0], near: 100, far: 8000, fov: 60})
+
   const core = new Core({
     canvas,
     pixelRatio,
@@ -34,7 +33,6 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F]})
   const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
-
   const renderer = new Renderer(core, {backgroundColor: [0.08, 0.14, 0.2, 1.0]})
 
   const planeVao = new Vao(core, {id: 'plane', ...plane()})
