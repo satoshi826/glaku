@@ -10,18 +10,18 @@ export const getBuildings = () => {
 
   const rangeCube = range(CUBE_NUM_OF_SIDE)
 
-  const cubeType = rangeCube.flatMap((n) =>
-    rangeCube.map((m) => {
+  const cubeType = rangeCube.reduce((acc, n) => {
+    rangeCube.forEach((m) => {
       const x = n * CUBE_MARGIN - AREA_SIZE / 2
       const y = m * CUBE_MARGIN - AREA_SIZE / 2
       const r = Math.sqrt(x * x + y * y)
-      if (r < 3000 * SCALE && random(0, 10) > 6) return {[`${x}_${y}`]: true}
-      else if (r > 4000 * SCALE && random(0, 10) > 3) return {[`${x}_${y}`]: false}
+      if (r < 3000 * SCALE && random(0, 10) > 6) acc[`${x}_${y}`] = true
+      else if (r > 4000 * SCALE && random(0, 10) > 3) acc[`${x}_${y}`] = false
     })
-  ).reduce((acc, cur) => {
-    if (cur) acc = {...acc, ...cur}
     return acc
-  }, {})
+  }
+  , {} as Record<string, boolean>)
+
 
   const smallScale = () => [
     random(5 * SCALE, 30 * SCALE),
