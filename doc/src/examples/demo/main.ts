@@ -9,7 +9,7 @@ import {getBuildings} from './buildings'
 export const SCALE = 0.2
 export const MAX_HEIGHT = 100 * SCALE
 
-export const LIGHT_NUM = 10
+export const LIGHT_NUM = 8
 export const LIGHT_RANGE = 3000 * SCALE
 
 // 1 = 100m
@@ -34,10 +34,10 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     random(-LIGHT_RANGE, LIGHT_RANGE
     )])
   const camera = new Camera({
-    lookAt  : [0, 120 * SCALE, 0],
+    lookAt  : [0, -200 * SCALE, 0],
     position: [0, 200 * SCALE, 0],
-    near    : 100 * SCALE,
-    far     : 10000 * SCALE,
+    near    : 150 * SCALE,
+    far     : 12000 * SCALE,
     fov     : 60
   })
 
