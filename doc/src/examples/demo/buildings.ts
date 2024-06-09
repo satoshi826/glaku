@@ -14,9 +14,10 @@ export const getBuildings = () => {
     rangeCube.forEach((m) => {
       const x = n * CUBE_MARGIN - AREA_SIZE / 2
       const y = m * CUBE_MARGIN - AREA_SIZE / 2
-      const r = Math.sqrt(x * x + y * y)
-      if (r < 3000 * SCALE && random(0, 10) > 6) acc[`${x}_${y}`] = true
-      else if (r > 4000 * SCALE && random(0, 10) > 3) acc[`${x}_${y}`] = false
+      // const r = Math.sqrt(x * x + y * y)
+      if (random(0, 10) > 7) acc[`${x}_${y}`] = true
+      // if (r < 3000 * SCALE && random(0, 10) > 6) acc[`${x}_${y}`] = true
+      // else if (r > 4000 * SCALE && random(0, 10) > 3) acc[`${x}_${y}`] = false
     })
     return acc
   }
@@ -24,15 +25,17 @@ export const getBuildings = () => {
 
 
   const smallScale = () => [
-    random(5 * SCALE, 30 * SCALE),
-    random(5 * SCALE, 40 * SCALE),
-    random(5 * SCALE, 30 * SCALE)
+    random(8 * SCALE, 30 * SCALE),
+    random(8 * SCALE, 40 * SCALE),
+    random(8 * SCALE, 30 * SCALE)
   ]
 
   return rangeCube.flatMap((n) =>
     rangeCube.flatMap((m) => {
       const x = n * CUBE_MARGIN - AREA_SIZE / 2
       const y = m * CUBE_MARGIN - AREA_SIZE / 2
+
+      if (n % 10 === 0 || m % 10 === 0)return []
 
       const isBig = random(0, 10) > 9.9
       const isSmall = cubeType![`${x}_${y}`] === true
@@ -62,7 +65,11 @@ export const getBuildings = () => {
       }
       return new Model({
         position: [x, zScale, y],
-        scale   : [random(20 * SCALE, isBig ? 100 * SCALE : 40 * SCALE), zScale, random(20 * SCALE, isBig ? 100 * SCALE : 40 * SCALE)]
+        scale   : [
+          random(20 * SCALE, isBig ? 160 * SCALE : 40 * SCALE),
+          zScale,
+          random(20 * SCALE, isBig ? 160 * SCALE : 40 * SCALE)
+        ]
       })
     })
   )

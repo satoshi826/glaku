@@ -7,10 +7,10 @@ import {getBlurPass} from './blur'
 import {getBuildings} from './buildings'
 
 export const SCALE = 0.2
-export const MAX_HEIGHT = 100 * SCALE
+export const MAX_HEIGHT = 120 * SCALE
 
-export const LIGHT_NUM = 8
-export const LIGHT_RANGE = 3000 * SCALE
+export const LIGHT_NUM = 10
+export const LIGHT_RANGE = 4000 * SCALE
 
 // 1 = 100m
 
@@ -23,10 +23,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   const buildings = getBuildings()
   const CUBE_NUM = buildings.length
   const floor = new Model({
-    scale   : [10000 * SCALE, 1, 10000 * SCALE],
+    scale   : [10000 * SCALE, 10000 * SCALE, 10000 * SCALE],
     position: [0, 0, 0],
     rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
   })
+
+  console.log(buildings.length)
 
   const lightPositions = range(LIGHT_NUM).flatMap(() => [
     random(-LIGHT_RANGE, LIGHT_RANGE),
