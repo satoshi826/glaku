@@ -36,15 +36,15 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
           vec4 localPos = texture(t_colorTexture, v_uv).xyzw;
 
-          float tmp = step(0.3, fract(20.0 * localPos.x)) + step(0.3, fract(40.0 * localPos.y)) + step(0.3, fract(20.0 * localPos.z));
+          float tmp = step(0.5, fract(5.0 * localPos.x)) + step(0.5, fract(10.0 * localPos.y)) + step(0.5, fract(5.0 * localPos.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
           bool isBuilding = localPos.w > 0.1;
           float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
 
-          int tmpx = int(20.0 * localPos.x);
+          int tmpx = int(5.0 * localPos.x);
           int tmpy = int(10.0 * localPos.y);
-          int tmpz = int(20.0 * localPos.z);
+          int tmpz = int(5.0 * localPos.z);
           float isLighted = isWindow * step(0.85, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
 
           float window = 0.2 * isWindow + 0.001;
@@ -64,11 +64,11 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -1.1);
+            lightDecay = pow(lightDis, -1.0);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 200.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 1000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 400.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.01);

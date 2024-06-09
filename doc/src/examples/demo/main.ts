@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA16F, Core, Renderer} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, TextureType, Renderer} from 'glaku'
 import {random, range} from 'jittoku'
 import {prepass} from './prepass'
 import {shade} from './shading'
@@ -6,8 +6,15 @@ import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
 import {getBuildings} from './buildings'
 
-export const LIGHT_NUM = 20
-export const LIGHT_RANGE = 1000
+export const SCALE = 0.2
+export const MAX_HEIGHT = 100 * SCALE
+
+export const LIGHT_NUM = 10
+export const LIGHT_RANGE = 3000 * SCALE
+
+// 1 = 100m
+
+export const INT: TextureType = ['R32I', 'RED_INTEGER', 'INT', 'NEAREST', 'REPEAT']
 
 //----------------------------------------------------------------
 
@@ -16,13 +23,23 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   const buildings = getBuildings()
   const CUBE_NUM = buildings.length
   const floor = new Model({
-    scale   : [10000, 10000, 1],
+    scale   : [10000 * SCALE, 1, 10000 * SCALE],
     position: [0, 0, 0],
     rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
   })
 
-  const lightPositions = range(LIGHT_NUM).flatMap(() => [random(-LIGHT_RANGE, LIGHT_RANGE), random(50, 100), random(-LIGHT_RANGE, LIGHT_RANGE)])
-  const camera = new Camera({lookAt: [0, 120, 0], position: [0, 200, 0], near: 100, far: 8000, fov: 60})
+  const lightPositions = range(LIGHT_NUM).flatMap(() => [
+    random(-LIGHT_RANGE, LIGHT_RANGE),
+    random(50 * SCALE, 100 * SCALE),
+    random(-LIGHT_RANGE, LIGHT_RANGE
+    )])
+  const camera = new Camera({
+    lookAt  : [0, 120 * SCALE, 0],
+    position: [0, 200 * SCALE, 0],
+    near    : 100 * SCALE,
+    far     : 10000 * SCALE,
+    fov     : 60
+  })
 
   const core = new Core({
     canvas,
@@ -31,8 +48,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
 
-  const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F]})
-  const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
+  const preRenderer = new Renderer(core, {frameBuffer: [RGBA32F, RGBA32F, RGBA32F]})
+  const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA32F]})
   const renderer = new Renderer(core, {backgroundColor: [0.08, 0.14, 0.2, 1.0]})
 
   const planeVao = new Vao(core, {id: 'plane', ...plane()})
@@ -66,7 +83,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
     [preRenderer, shadeRenderer, renderer].forEach(r => r.clear())
 
-    camera.position = [2000 * Math.cos(elapsed / 3000), 400, 1000 * Math.sin(elapsed / 3000)]
+    camera.position = [4000 * Math.cos(elapsed / 6000) * SCALE, 800 * SCALE, 4000 * Math.sin(elapsed / 6000) * SCALE]
     camera.update()
 
     // set Camera and view-projection-matrix

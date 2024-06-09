@@ -73,6 +73,7 @@ export class Renderer {
     this.core.useRenderer(this)
     this.core.gl.clearColor(...this.backgroundColor)
     this.core.gl.clearDepth(1.0)
+    this.core.gl.clearBufferuiv(this.core.gl.COLOR, 0, [0, 0, 0, 0])
     this.core.gl.clear(this.core.gl.COLOR_BUFFER_BIT | this.core.gl.DEPTH_BUFFER_BIT)
   }
 
