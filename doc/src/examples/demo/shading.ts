@@ -28,15 +28,20 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
         }
 
+        float randInt(float seed){
+          return mod(seed * (seed + 1234.0), 100.0);
+        }
+
         in vec2 v_uv;
         out vec4 o_color;
         void main() {
-
-          vec3 position = texture(t_positionTexture, v_uv).xyz;
+          vec4 t_pos = texture(t_positionTexture, v_uv);
+          vec3 position = t_pos.xyz;
+          int id = int(t_pos.a);
           vec3 normal = texture(t_normalTexture, v_uv).xyz;
           vec4 localPos = texture(t_colorTexture, v_uv).xyzw;
 
-          float tmp = step(0.5, fract(5.0 * localPos.x)) + step(0.5, fract(10.0 * localPos.y)) + step(0.5, fract(5.0 * localPos.z));
+          float tmp = step(0.2, fract(5.0 * localPos.x)) + step(0.2, fract(10.0 * localPos.y)) + step(0.2, fract(5.0 * localPos.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
           bool isBuilding = localPos.w > 0.1;
@@ -45,7 +50,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           int tmpx = int(5.0 * localPos.x);
           int tmpy = int(10.0 * localPos.y);
           int tmpz = int(5.0 * localPos.z);
-          float isLighted = isWindow * step(0.88, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
+          float isLighted = isWindow * step(0.86, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);
@@ -74,6 +79,6 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float result = max((ambient + diffuse + specular) * color, 0.01);
 
           vec3 resultColor = isBuilding ? vec3(0.8, 1.2, 1.5) : vec3(0.9, 0.8, 0.8);
-          o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(3.0, 1.0, 0.2, 1.0);
+          o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(5.0, 1.0, 0.2, 1.0);
         }`
 })
