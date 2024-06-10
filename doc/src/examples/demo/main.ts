@@ -12,10 +12,6 @@ export const MAX_HEIGHT = 120 * SCALE
 export const LIGHT_NUM = 10
 export const LIGHT_RANGE = 4000 * SCALE
 
-// 1 = 100m
-
-export const INT: TextureType = ['R32I', 'RED_INTEGER', 'INT', 'NEAREST', 'REPEAT']
-
 //----------------------------------------------------------------
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {

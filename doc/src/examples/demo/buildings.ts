@@ -26,7 +26,7 @@ export const getBuildings = () => {
 
   const smallScale = () => [
     random(8 * SCALE, 30 * SCALE),
-    random(8 * SCALE, 40 * SCALE),
+    random(4 * SCALE, 50 * SCALE),
     random(8 * SCALE, 30 * SCALE)
   ]
 
@@ -41,25 +41,25 @@ export const getBuildings = () => {
       const isSmall = cubeType![`${x}_${y}`] === true
       const isVoid = cubeType![`${x}_${y}`] === false
       if (isVoid) return []
-      let zScale = random(10 * SCALE, isBig ? (Math.abs(x) + Math.abs(y)) / 8 : MAX_HEIGHT)
+      const zScale = random(8 * SCALE, isBig ? (Math.abs(x) + Math.abs(y)) / 8 : MAX_HEIGHT)
       if (isSmall) {
-        zScale = random(10 * SCALE, MAX_HEIGHT * 0.5)
+        const scales = range(4).map(smallScale)
         return [
           new Model({
-            position: [x, zScale / 2, y],
-            scale   : smallScale()
+            position: [x, scales[0][1], y],
+            scale   : scales[0]
           }),
           new Model({
-            position: [x + CUBE_MARGIN / 2, zScale / 2, y],
-            scale   : smallScale()
+            position: [x + CUBE_MARGIN / 2, scales[1][1], y],
+            scale   : scales[1]
           }),
           new Model({
-            position: [x, zScale / 2, y + CUBE_MARGIN / 2],
-            scale   : smallScale()
+            position: [x, scales[2][1], y + CUBE_MARGIN / 2],
+            scale   : scales[3]
           }),
           new Model({
-            position: [x + CUBE_MARGIN / 2, zScale / 2, y + CUBE_MARGIN / 2],
-            scale   : smallScale()
+            position: [x + CUBE_MARGIN / 2, scales[3][2], y + CUBE_MARGIN / 2],
+            scale   : scales[3]
           })
         ]
       }
