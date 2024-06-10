@@ -30,7 +30,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
         float randInt(float seed){
           float seedFloor = floor(seed);
-          return mod(floor((seedFloor + 100.0) * (seedFloor + 1000.0) / 100.0), 100.0);
+          return mod((seedFloor * seedFloor / 100.0), 100.0);
         }
 
         vec3 hsvToRgb(vec3 c){
@@ -52,14 +52,14 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float tmp = step(windowSize, fract(5.0 * localPos.x)) + step(windowSize, fract(10.0 * localPos.y)) + step(windowSize, fract(5.0 * localPos.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
-          bool isBuilding = localPos.w > 0.1;
+          bool isBuilding = localPos.w > 0.75;
           float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
 
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
           float tmpz = floor(5.0 * localPos.z);
           // float isLighted = isWindow * step(0.86, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
-          float isLighted = isWindow * step(82.0, randInt((tmpx + 1.0) * (tmpy + 1.0)  * tmpz));
+          float isLighted = isWindow * step(83.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);

@@ -8,16 +8,15 @@ export const getBuildings = () => {
   const CUBE_MARGIN = 100 * SCALE
   const AREA_SIZE = CUBE_NUM_OF_SIDE * CUBE_MARGIN
 
+  const lightPositions : number[] = []
+
   const rangeCube = range(CUBE_NUM_OF_SIDE)
 
   const cubeType = rangeCube.reduce((acc, n) => {
     rangeCube.forEach((m) => {
       const x = n * CUBE_MARGIN - AREA_SIZE / 2
       const y = m * CUBE_MARGIN - AREA_SIZE / 2
-      // const r = Math.sqrt(x * x + y * y)
       if (random(0, 10) > 7) acc[`${x}_${y}`] = true
-      // if (r < 3000 * SCALE && random(0, 10) > 6) acc[`${x}_${y}`] = true
-      // else if (r > 4000 * SCALE && random(0, 10) > 3) acc[`${x}_${y}`] = false
     })
     return acc
   }
@@ -30,7 +29,7 @@ export const getBuildings = () => {
     random(8 * SCALE, 30 * SCALE)
   ]
 
-  return rangeCube.flatMap((n) =>
+  return [rangeCube.flatMap((n) =>
     rangeCube.flatMap((m) => {
       const x = n * CUBE_MARGIN - AREA_SIZE / 2
       const y = m * CUBE_MARGIN - AREA_SIZE / 2
@@ -38,7 +37,7 @@ export const getBuildings = () => {
       if (n % 10 === 0 || m % 10 === 0)return []
 
       const isBig = random(0, 10) > 9.9
-      const isSmall = cubeType![`${x}_${y}`] === true
+      const isSmall = !isBig && cubeType![`${x}_${y}`] === true
       const isVoid = cubeType![`${x}_${y}`] === false
       if (isVoid) return []
       const zScale = random(8 * SCALE, isBig ? (Math.abs(x) + Math.abs(y)) / 8 : MAX_HEIGHT)
@@ -63,7 +62,10 @@ export const getBuildings = () => {
           })
         ]
       }
-      return new Model({
+
+      const isLighted = isBig && random(0, 10) > 8
+
+      const model = new Model({
         position: [x, zScale, y],
         scale   : [
           random(20 * SCALE, isBig ? 160 * SCALE : 40 * SCALE),
@@ -71,8 +73,24 @@ export const getBuildings = () => {
           random(20 * SCALE, isBig ? 160 * SCALE : 40 * SCALE)
         ]
       })
+
+      if (isLighted) {
+        const lightPosition = [model.position![0], 2 * zScale + 55 * SCALE, model.position![2]]
+        const light = new Model({
+          position: lightPosition,
+          scale   : [
+            model.scale![0],
+            50 * SCALE,
+            model.scale![2]
+          ]
+        })
+        lightPositions.push(...lightPosition)
+        return [model, light]
+      }
+
+      return model
     })
-  )
+  ), lightPositions] as const
 
 
 }

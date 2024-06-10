@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, TextureType, Renderer} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, Renderer} from 'glaku'
 import {random, range} from 'jittoku'
 import {prepass} from './prepass'
 import {shade} from './shading'
@@ -16,7 +16,7 @@ export const LIGHT_RANGE = 4000 * SCALE
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
 
-  const buildings = getBuildings()
+  const [buildings, lightPos] = getBuildings()
   const CUBE_NUM = buildings.length
   const floor = new Model({
     scale   : [10000 * SCALE, 10000 * SCALE, 10000 * SCALE],
@@ -31,6 +31,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     random(50 * SCALE, 100 * SCALE),
     random(-LIGHT_RANGE, LIGHT_RANGE
     )])
+
+
   const camera = new Camera({
     lookAt  : [0, -200 * SCALE, 0],
     position: [0, 200 * SCALE, 0],
@@ -71,7 +73,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   floorVao.setInstancedValues({a_mMatrix: floor.matrix.m})
 
   const shadeProgram = shade(core, LIGHT_NUM, preRenderer)
-  shadeProgram.setUniform({u_lightPosition: lightPositions})
+  shadeProgram.setUniform({u_lightPosition: lightPos})
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
 
