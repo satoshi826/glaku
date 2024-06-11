@@ -3,6 +3,8 @@ import {Core, Program, RGBA16F, Renderer, TextureWithInfo, Vao, plane} from 'gla
 export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
   const rendererH = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
   const rendererV = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
+  // const rendererH = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 0.5})
+  // const rendererV = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 0.5})
 
   const blurProgram = blurEffect(core, targetTex)
   const planeVao = new Vao(core, {
@@ -15,6 +17,7 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
       rendererH.clear()
       rendererV.clear()
 
+      blurProgram.setUniform({u_invPixelRatio: 1})
       blurProgram.setUniform({u_isHorizontal: 1})
       blurProgram.setTexture({t_preBlurTexture: targetTex})
       rendererH.render(planeVao, blurProgram)
@@ -23,8 +26,8 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
       blurProgram.setTexture({t_preBlurTexture: rendererH.renderTexture[0]})
       rendererV.render(planeVao, blurProgram)
     },
-    result: rendererV.renderTexture[0],
-    blurProgram
+    result : rendererV.renderTexture[0],
+    result2: rendererV.renderTexture[0]
   }
 }
 
@@ -35,7 +38,8 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
     a_textureCoord: 'vec2'
   },
   uniformTypes: {
-    u_isHorizontal: 'bool'
+    u_isHorizontal : 'bool',
+    u_invPixelRatio: 'int'
   },
   texture: {
     t_preBlurTexture: texture
@@ -57,8 +61,7 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
         }
 
         void main() {
-          int invPixelRatio = 2;
-          int sampleStep = 2;
+          int sampleStep = 2 * u_invPixelRatio;
 
           ivec2 coord =  1 * ivec2(gl_FragCoord.xy);
           ivec2 size = textureSize(t_preBlurTexture, 0);

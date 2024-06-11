@@ -52,8 +52,10 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float tmp = step(windowSize, fract(5.0 * localPos.x)) + step(windowSize, fract(10.0 * localPos.y)) + step(windowSize, fract(5.0 * localPos.z));
           float window1 = 1.0 - tmp;
           float window2 = 3.0 * tmp - 6.0;
-          bool isBuilding = localPos.w > 0.75;
+          bool isBuilding = localPos.w > 0.5 && localPos.w < 1.5;
+
           float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
+          vec3 isLight = localPos.w > 1.5 ? vec3(0.95, 0.95, 8.0) : vec3(0.0);
 
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
@@ -78,11 +80,11 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -0.8);
+            lightDecay = pow(lightDis, -1.2);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 20.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 150.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 3000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.02);
@@ -90,7 +92,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           vec3 resultColor = isBuilding ? vec3(0.9, 1.2, 1.8) : vec3(0.9, 0.8, 0.8);
 
           vec3 lightColor = hsvToRgb(vec3(0.025, 1.0, 1.0));
-          // o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(5.0, 1.0, 0.2, 1.0);
-          o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(lightColor * 5.0, 1.0);
+          o_color = vec4(result * resultColor, 1.0) +
+                     isLighted * vec4(hsvToRgb(vec3(0.025, 1.0, 1.0)) * 5.0, 1.0) + vec4(isLight, 1.0);
         }`
 })

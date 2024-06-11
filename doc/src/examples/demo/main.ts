@@ -1,5 +1,4 @@
 import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, Renderer} from 'glaku'
-import {random, range} from 'jittoku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
@@ -9,15 +8,14 @@ import {getBuildings} from './buildings'
 export const SCALE = 0.2
 export const MAX_HEIGHT = 120 * SCALE
 
-export const LIGHT_NUM = 10
-export const LIGHT_RANGE = 4000 * SCALE
-
 //----------------------------------------------------------------
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
 
-  const [buildings, lightPos] = getBuildings()
+  const [buildings, lightCubes] = getBuildings()
   const CUBE_NUM = buildings.length
+  const LIGHT_CUBE_NUM = lightCubes.length
+
   const floor = new Model({
     scale   : [10000 * SCALE, 10000 * SCALE, 10000 * SCALE],
     position: [0, 0, 0],
@@ -26,12 +24,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   console.log(buildings.length)
 
-  const lightPositions = range(LIGHT_NUM).flatMap(() => [
-    random(-LIGHT_RANGE, LIGHT_RANGE),
-    random(50 * SCALE, 100 * SCALE),
-    random(-LIGHT_RANGE, LIGHT_RANGE
-    )])
-
+  const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
   const camera = new Camera({
     lookAt  : [0, -200 * SCALE, 0],
@@ -54,11 +47,18 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const planeVao = new Vao(core, {id: 'plane', ...plane()})
 
-  const boxVao = new Vao(core, {
-    id                 : 'box',
+  const cubeVao = new Vao(core, {
+    id                 : 'cube',
     ...box(),
     instancedAttributes: ['a_mMatrix'],
     maxInstance        : CUBE_NUM
+  })
+
+  const lightCubeVao = new Vao(core, {
+    id                 : 'lightCube',
+    ...box(),
+    instancedAttributes: ['a_mMatrix'],
+    maxInstance        : LIGHT_CUBE_NUM
   })
 
   const floorVao = new Vao(core, {
@@ -69,21 +69,21 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   })
 
   const prepassProgram = prepass(core)
-  boxVao.setInstancedValues({a_mMatrix: buildings.flatMap(({matrix: {m}}) => m)})
+  cubeVao.setInstancedValues({a_mMatrix: buildings.flatMap(({matrix: {m}}) => m)})
+  lightCubeVao.setInstancedValues({a_mMatrix: lightCubes.flatMap(({matrix: {m}}) => m)})
   floorVao.setInstancedValues({a_mMatrix: floor.matrix.m})
 
-  const shadeProgram = shade(core, LIGHT_NUM, preRenderer)
+  const shadeProgram = shade(core, LIGHT_CUBE_NUM, preRenderer)
   shadeProgram.setUniform({u_lightPosition: lightPos})
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
-
   const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass.result)
 
   const animation = new Loop({callback: ({elapsed}) => {
 
     [preRenderer, shadeRenderer, renderer].forEach(r => r.clear())
 
-    camera.position = [4000 * Math.cos(elapsed / 6000) * SCALE, 800 * SCALE, 4000 * Math.sin(elapsed / 6000) * SCALE]
+    camera.position = [4000 * Math.cos(elapsed / 6000) * SCALE, 850 * SCALE, 4000 * Math.sin(elapsed / 6000) * SCALE]
     camera.update()
 
     // set Camera and view-projection-matrix
@@ -91,10 +91,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     shadeProgram.setUniform({u_cameraPosition: camera.position})
 
     // render buildings
-    prepassProgram.setUniform({u_isBuilding: 0})
+    prepassProgram.setUniform({u_material_type: 0})
     preRenderer.render(floorVao, prepassProgram)
-    prepassProgram.setUniform({u_isBuilding: 1})
-    preRenderer.render(boxVao, prepassProgram)
+    prepassProgram.setUniform({u_material_type: 1})
+    preRenderer.render(cubeVao, prepassProgram)
+    prepassProgram.setUniform({u_material_type: 2})
+    preRenderer.render(lightCubeVao, prepassProgram)
 
     shadeRenderer.render(planeVao, shadeProgram)
     blurPass.render()

@@ -2,13 +2,14 @@ import {Model} from 'glaku'
 import {range, random} from 'jittoku'
 import {MAX_HEIGHT, SCALE} from './main'
 
+const MAX_LIGHTS = 20
+
 export const getBuildings = () => {
 
   const CUBE_NUM_OF_SIDE = 100
   const CUBE_MARGIN = 100 * SCALE
   const AREA_SIZE = CUBE_NUM_OF_SIDE * CUBE_MARGIN
-
-  const lightPositions : number[] = []
+  const lightCubes : Model[] = []
 
   const rangeCube = range(CUBE_NUM_OF_SIDE)
 
@@ -36,7 +37,7 @@ export const getBuildings = () => {
 
       if (n % 10 === 0 || m % 10 === 0)return []
 
-      const isBig = random(0, 10) > 9.9
+      const isBig = random(0, 10) > 9.85
       const isSmall = !isBig && cubeType![`${x}_${y}`] === true
       const isVoid = cubeType![`${x}_${y}`] === false
       if (isVoid) return []
@@ -63,7 +64,7 @@ export const getBuildings = () => {
         ]
       }
 
-      const isLighted = isBig && random(0, 10) > 8
+      const isLighted = isBig && random(0, 10) > 9 && lightCubes.length < MAX_LIGHTS
 
       const model = new Model({
         position: [x, zScale, y],
@@ -75,22 +76,21 @@ export const getBuildings = () => {
       })
 
       if (isLighted) {
-        const lightPosition = [model.position![0], 2 * zScale + 55 * SCALE, model.position![2]]
-        const light = new Model({
+        const lightPosition = [model.position![0], 2 * zScale + 52 * SCALE, model.position![2]]
+        const lightCube = new Model({
           position: lightPosition,
           scale   : [
             model.scale![0],
-            50 * SCALE,
+            40 * SCALE,
             model.scale![2]
           ]
         })
-        lightPositions.push(...lightPosition)
-        return [model, light]
+        lightCubes.push(lightCube)
       }
 
       return model
     })
-  ), lightPositions] as const
+  ), lightCubes] as const
 
 
 }

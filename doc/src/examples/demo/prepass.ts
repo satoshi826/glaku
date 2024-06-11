@@ -10,8 +10,8 @@ export const prepass = (core: Core) => new Program(core, {
     a_mMatrix : 'mat4'
   },
   uniformTypes: {
-    u_vpMatrix  : 'mat4',
-    u_isBuilding: 'bool'
+    u_vpMatrix     : 'mat4',
+    u_material_type: 'int' // 0: ground, 1: building, 2: light
   },
   vert: /* glsl */ `
         out vec3 v_position;
@@ -40,7 +40,7 @@ export const prepass = (core: Core) => new Program(core, {
         void main() {
           o_position = vec4(v_position, float(v_id));
           o_normal = v_normal;
-          o_color = vec4(v_pos_local, float(u_isBuilding));
+          o_color = vec4(v_pos_local, float(u_material_type));
         }`
 })
 
