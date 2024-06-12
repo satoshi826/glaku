@@ -77,7 +77,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   shadeProgram.setUniform({u_lightPosition: lightPos})
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
-  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass.result)
+  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass)
 
   const animation = new Loop({callback: ({elapsed}) => {
 

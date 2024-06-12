@@ -9,7 +9,7 @@ export class Vao<T extends AttributeName = 'a_'> {
   attributes: Record<AttributeName, number[]>
   index?: number[]
   maxInstance: number
-  instancedAttributes: Record<T, {array: Float32Array | null, vbo: WebGLBuffer | null, dirtyFlag: boolean}>
+  instancedAttributes: Record<T, {array: Float32Array | null, vbo: WebGLBuffer | null, dirty: boolean}>
   instancedCount: null | number
 
   constructor(core: Core, {id, attributes, index, instancedAttributes, maxInstance}:
@@ -21,7 +21,7 @@ export class Vao<T extends AttributeName = 'a_'> {
     this.index = index
 
     this.maxInstance = maxInstance ?? 1000
-    this.instancedAttributes = aToO(instancedAttributes ?? [], (att) => [att, {array: null, vbo: null, dirtyFlag: false}])
+    this.instancedAttributes = aToO(instancedAttributes ?? [], (att) => [att, {array: null, vbo: null, dirty: false}])
     this.instancedCount = null
   }
 
@@ -40,7 +40,7 @@ export class Vao<T extends AttributeName = 'a_'> {
       this.instancedCount = value.length / strideSize
       for (let i = 0; i < value.length; i++) {
         this.instancedAttributes![att].array![i] = value[i]
-        this.instancedAttributes![att].dirtyFlag = true
+        this.instancedAttributes![att].dirty = true
       }
     }))
   }
@@ -48,9 +48,9 @@ export class Vao<T extends AttributeName = 'a_'> {
   updateInstancedVbo(){
     this.instancedAttributes && oForEach(this.instancedAttributes, ([att, o]) => {
       o.vbo ??= this.core.createInstancedVbo(this.id, att, o.array!)
-      if (o.dirtyFlag){
+      if (o.dirty){
         this.core.updateVbo(this.id, att, o.array!, o.vbo)
-        o.dirtyFlag = false
+        o.dirty = false
       }
     })
   }

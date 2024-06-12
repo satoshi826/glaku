@@ -1,10 +1,15 @@
 import {Core, Program, RGBA16F, Renderer, TextureWithInfo, Vao, plane} from 'glaku'
 
+export type BlurPass = ReturnType<typeof getBlurPass>
+
 export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
-  const rendererH = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
-  const rendererV = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 1})
-  // const rendererH = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 0.5})
-  // const rendererV = new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio: 0.5})
+
+  const pixelRatios = [1, 0.5, 0.25]
+
+  const renderers = pixelRatios.map(pixelRatio => [
+    new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio}),
+    new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio})
+  ])
 
   const blurProgram = blurEffect(core, targetTex)
   const planeVao = new Vao(core, {
@@ -14,20 +19,24 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
 
   return {
     render: () => {
-      rendererH.clear()
-      rendererV.clear()
+      renderers.forEach(renderer => {
+        renderer[0].clear()
+        renderer[1].clear()
 
-      blurProgram.setUniform({u_invPixelRatio: 1})
-      blurProgram.setUniform({u_isHorizontal: 1})
-      blurProgram.setTexture({t_preBlurTexture: targetTex})
-      rendererH.render(planeVao, blurProgram)
+        blurProgram.setUniform({u_invPixelRatio: 1 / renderer[0].pixelRatio})
+        blurProgram.setUniform({u_isHorizontal: 1})
+        blurProgram.setTexture({t_preBlurTexture: targetTex})
+        renderer[0].render(planeVao, blurProgram)
 
-      blurProgram.setUniform({u_isHorizontal: 0})
-      blurProgram.setTexture({t_preBlurTexture: rendererH.renderTexture[0]})
-      rendererV.render(planeVao, blurProgram)
+        blurProgram.setUniform({u_invPixelRatio: 1})
+        blurProgram.setUniform({u_isHorizontal: 0})
+        blurProgram.setTexture({t_preBlurTexture: renderer[0].renderTexture[0]})
+        renderer[1].render(planeVao, blurProgram)
+      })
     },
-    result : rendererV.renderTexture[0],
-    result2: rendererV.renderTexture[0]
+    result0: renderers[0][1].renderTexture[0],
+    result1: renderers[1][1].renderTexture[0],
+    result2: renderers[2][1].renderTexture[0]
   }
 }
 
@@ -63,7 +72,7 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
         void main() {
           int sampleStep = 2 * u_invPixelRatio;
 
-          ivec2 coord =  1 * ivec2(gl_FragCoord.xy);
+          ivec2 coord =  u_invPixelRatio * ivec2(gl_FragCoord.xy);
           ivec2 size = textureSize(t_preBlurTexture, 0);
           vec3 sum = weights[0] * texelFetch(t_preBlurTexture, coord, 0).rgb;
 
