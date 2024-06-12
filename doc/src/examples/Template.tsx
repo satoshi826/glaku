@@ -3,7 +3,7 @@ import {useCanvas} from './useCanvas'
 import {useEffect} from 'react'
 import {resizeObserver, screenToViewPort} from 'glaku'
 
-export function Template({src, state}: {src: string, state?: object}) {
+export function Template({src, state, sendMouse = true}: {src: string, state?: object, sendMouse?: boolean}) {
   const {canvas, post, ref} = useCanvas()
 
   useEffect(() => {
@@ -22,12 +22,12 @@ export function Template({src, state}: {src: string, state?: object}) {
   useEffect(() => {
     if (ref.current) {
       sendResize.observe(ref.current)
-      ref.current.addEventListener('mousemove', handleMouseMove)
+      if (sendMouse) ref.current.addEventListener('mousemove', handleMouseMove)
     }
     return () => {
       if (ref.current) {
         sendResize.unobserve(ref.current)
-        ref.current.removeEventListener('mousemove', handleMouseMove)
+        if (sendMouse) ref.current.removeEventListener('mousemove', handleMouseMove)
       }
     }
   }, [ref])
@@ -37,7 +37,7 @@ export function Template({src, state}: {src: string, state?: object}) {
     <>
       {canvas}
       <Fab sx={{position: 'absolute', right: 16, bottom: 16}}
-        LinkComponent={'a'} 
+        LinkComponent={'a'}
         href={`https://github.com/satoshi826/glaku/blob/main/doc/src/examples/${src}/main.ts`}
         target="_blank"
       >

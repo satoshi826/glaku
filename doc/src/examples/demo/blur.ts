@@ -17,6 +17,8 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
     ...plane()
   })
 
+  blurProgram.setUniform({u_blurPower: core.pixelRatio})
+
   return {
     render: () => {
       renderers.forEach(renderer => {
@@ -48,6 +50,7 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
   },
   uniformTypes: {
     u_isHorizontal : 'bool',
+    u_blurPower    : 'int',
     u_invPixelRatio: 'int'
   },
   texture: {
@@ -70,13 +73,13 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
         }
 
         void main() {
-          int sampleStep = 2 * u_invPixelRatio;
+          int sampleStep = 2 * u_blurPower * u_invPixelRatio;
 
           ivec2 coord =  u_invPixelRatio * ivec2(gl_FragCoord.xy);
           ivec2 size = textureSize(t_preBlurTexture, 0);
           vec3 sum = weights[0] * texelFetch(t_preBlurTexture, coord, 0).rgb;
 
-          ivec2 offsetUnit = true ? ivec2(1, 0) : ivec2(0, 1);
+          ivec2 offsetUnit = u_isHorizontal ? ivec2(1, 0) : ivec2(0, 1);
           ivec2 offset;
 
           offset = offsetUnit * sampleStep * 1;
