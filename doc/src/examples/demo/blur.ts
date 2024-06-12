@@ -5,6 +5,7 @@ export type BlurPass = ReturnType<typeof getBlurPass>
 export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
 
   const pixelRatios = [1, 0.5, 0.25]
+  const basePixelRatio = core.pixelRatio
 
   const renderers = pixelRatios.map(pixelRatio => [
     new Renderer(core, {frameBuffer: [RGBA16F], pixelRatio}),
@@ -17,7 +18,7 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
     ...plane()
   })
 
-  blurProgram.setUniform({u_blurPower: core.pixelRatio})
+  blurProgram.setUniform({u_blurPower: basePixelRatio})
 
   return {
     render: () => {
@@ -25,7 +26,7 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
         renderer[0].clear()
         renderer[1].clear()
 
-        blurProgram.setUniform({u_invPixelRatio: 1 / renderer[0].pixelRatio})
+        blurProgram.setUniform({u_invPixelRatio: basePixelRatio / renderer[0].pixelRatio})
         blurProgram.setUniform({u_isHorizontal: 1})
         blurProgram.setTexture({t_preBlurTexture: targetTex})
         renderer[0].render(planeVao, blurProgram)
@@ -73,7 +74,7 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
         }
 
         void main() {
-          int sampleStep = 2 * u_blurPower * u_invPixelRatio;
+          int sampleStep = 2 * u_invPixelRatio;
 
           ivec2 coord =  u_invPixelRatio * ivec2(gl_FragCoord.xy);
           ivec2 size = textureSize(t_preBlurTexture, 0);
