@@ -73,7 +73,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          float specIntensity = isWindow > 0.0 ? 40.0 : 10.0;
+          float specIntensity = isWindow > 0.0 ? 50.0 : 20.0;
           float color = isBuilding ? 0.1 : 0.4;
 
           for(int i = 0; i < ${lightNum}; i++){
@@ -82,8 +82,8 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
             lightDecay = pow(lightDis, -1.2);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 3000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 150.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 4000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.05;
           float result = max((ambient + diffuse + specular) * color, 0.02);
