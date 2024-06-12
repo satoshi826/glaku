@@ -55,12 +55,11 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           bool isBuilding = localPos.w > 0.5 && localPos.w < 1.5;
 
           float isWindow = isBuilding ? step(0.5, window1) + step(0.5, window2) : 0.0;
-          vec3 isLight = localPos.w > 1.5 ? vec3(0.95, 0.95, 8.0) : vec3(0.0);
+          vec3 isLight = localPos.w > 1.5 ? vec3(4.0, 3.0, 6.0) : vec3(0.0);
 
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
           float tmpz = floor(5.0 * localPos.z);
-          // float isLighted = isWindow * step(0.86, rand(vec2(tmpx + tmpy + tmpz, tmpy + tmpx + tmpz)));
           float isLighted = isWindow * step(83.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
 
           float window = 0.2 * isWindow + 0.001;
@@ -91,8 +90,6 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
           vec3 resultColor = isBuilding ? vec3(0.9, 1.2, 1.8) : vec3(0.9, 0.8, 0.8);
 
-          vec3 lightColor = hsvToRgb(vec3(0.025, 1.0, 1.0));
-          o_color = vec4(result * resultColor, 1.0) +
-                     isLighted * vec4(hsvToRgb(vec3(0.025, 1.0, 1.0)) * 5.0, 1.0) + vec4(isLight, 1.0);
+          o_color = vec4(result * resultColor, 1.0) + isLighted * vec4(5.0, 1.0, 0.0, 0.0) + vec4(isLight, 1.0);
         }`
 })
