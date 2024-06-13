@@ -57,7 +57,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
           float tmpz = floor(5.0 * localPos.z);
-          float isLighted = isWindow * step(70.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
+          float isLighted = isWindow * step(82.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);
@@ -86,7 +86,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
 
           vec3 resultColor = isBuilding ?
             vec3(0.9, 1.2, 1.8) : isRoad ?
-            vec3(1.0 + 5.0 * (step(0.9, fract(0.005 * position.x - 0.05)) + step(0.9, fract(0.005 * position.z - 0.05)))) :
+            vec3(1.0 + 5.0 * (step(0.94, fract(0.005 * position.x - 0.05)) + step(0.9, fract(0.005 * position.z - 0.05)))) :
             vec3(0.9, 0.8, 0.8);
 
           o_color = vec4(localPos.z);

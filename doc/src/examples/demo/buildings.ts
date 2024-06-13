@@ -37,7 +37,7 @@ export const getBuildings = () => {
 
       if (n % 10 === 0 || m % 10 === 0)return []
 
-      const isBig = random(0, 10) > 9.85
+      const isBig = random(0, 10) > 9.8
       const isSmall = !isBig && cubeType![`${x}_${y}`] === true
       const isVoid = cubeType![`${x}_${y}`] === false
       if (isVoid) return []
