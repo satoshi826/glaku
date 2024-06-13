@@ -2,7 +2,7 @@ import {Model} from 'glaku'
 import {range, random} from 'jittoku'
 import {MAX_HEIGHT, SCALE} from './main'
 
-const MAX_LIGHTS = 20
+const MAX_LIGHTS = 25
 
 export const getBuildings = () => {
 
@@ -64,7 +64,7 @@ export const getBuildings = () => {
         ]
       }
 
-      const isLighted = isBig && random(0, 10) > 9 && lightCubes.length < MAX_LIGHTS
+      const isLighted = isBig && random(0, 10) > 8.5 && lightCubes.length < MAX_LIGHTS
 
       const model = new Model({
         position: [x, zScale, y],

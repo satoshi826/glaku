@@ -23,7 +23,7 @@ export const prepass = (core: Core) => new Program(core, {
           v_position = (a_mMatrix * position).xyz;
           mat3 normalMatrix = transpose(inverse(mat3(a_mMatrix)));
           v_normal = vec4(a_normal, 1.0);
-          v_pos_local = vec3(a_mMatrix[0][0], a_mMatrix[1][1], a_mMatrix[2][2]) * a_position * ${1 / MAX_HEIGHT};
+          v_pos_local = vec3(a_mMatrix[0][0], a_mMatrix[1][1], a_mMatrix[2][2]) * a_position * 0.025;
           mat4 mvpMatrix = u_vpMatrix * a_mMatrix;
           gl_Position = mvpMatrix * position;
           v_id = gl_InstanceID;

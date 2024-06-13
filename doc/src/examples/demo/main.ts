@@ -17,12 +17,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   const LIGHT_CUBE_NUM = lightCubes.length
 
   const floor = new Model({
-    scale   : [10000 * SCALE, 10000 * SCALE, 10000 * SCALE],
+    scale   : [7000 * SCALE, 7000 * SCALE, 1],
     position: [0, 0, 0],
     rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
   })
 
-  console.log(buildings.length)
+  console.log(CUBE_NUM, LIGHT_CUBE_NUM)
 
   const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
