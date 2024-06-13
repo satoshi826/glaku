@@ -70,7 +70,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          float specIntensity = isWindow > 0.0 ? 50.0 : 20.0;
+          float specIntensity = isWindow > 0.0 ? 40.0 : 20.0;
 
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
@@ -89,7 +89,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           vec3 constColor = isRoad ? vec3(6.0, 0.8, 1.0) * (
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.x) - 0.5)))) +
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.z) - 0.5))))
-           ) // step(0.94, fract(0.005 * position.z - 0.05))
+            )
            : isLighted * vec3(5.0, 1.0, 0.0) + isLight;
 
           o_color = vec4(result * resultColor, 1.0) + vec4(constColor, 1.0);
