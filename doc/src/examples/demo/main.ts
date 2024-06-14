@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, Renderer} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, Renderer, DEPTH, RGBA16F} from 'glaku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
@@ -41,8 +41,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
 
-  const preRenderer = new Renderer(core, {frameBuffer: [RGBA32F, RGBA32F, RGBA32F]})
-  const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA32F]})
+  const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F, DEPTH]})
+  const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
   const renderer = new Renderer(core, {backgroundColor: [0.08, 0.14, 0.2, 1.0]})
 
   const planeVao = new Vao(core, {id: 'plane', ...plane()})
@@ -77,7 +77,12 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   shadeProgram.setUniform({u_lightPosition: lightPos})
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
-  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass)
+  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass, preRenderer.depthTexture!)
+
+  postEffectProgram.setUniform({
+    u_near: camera.near,
+    u_far : camera.far
+  })
 
   const animation = new Loop({callback: ({elapsed}) => {
 
