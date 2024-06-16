@@ -30,7 +30,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     lookAt  : [0, -200 * SCALE, 0],
     position: [0, 200 * SCALE, 0],
     near    : 150 * SCALE,
-    far     : 12000 * SCALE,
+    far     : 10000 * SCALE,
     fov     : 60
   })
 

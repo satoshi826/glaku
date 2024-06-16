@@ -57,7 +57,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
           float tmpz = floor(5.0 * localPos.z);
-          float isLighted = isWindow * step(82.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
+          float isLighted = isWindow * step(80.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);
@@ -70,7 +70,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          float specIntensity = isWindow > 0.0 ? 40.0 : 20.0;
+          float specIntensity = isWindow > 0.0 ? 50.0 : 30.0;
 
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
@@ -90,7 +90,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.x) - 0.5)))) +
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.z) - 0.5))))
             )
-           : isLighted * vec3(5.0, 1.0, 0.0) + isLight;
+           : isLighted * vec3(5.0, 0.8, 0.1) + isLight;
 
           o_color = vec4(result * resultColor, 1.0) + vec4(constColor, 1.0);
         }`

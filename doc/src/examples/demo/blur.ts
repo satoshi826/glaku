@@ -22,13 +22,15 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
 
   return {
     render: () => {
-      renderers.forEach(renderer => {
+      renderers.forEach((renderer, index) => {
         renderer[0].clear()
         renderer[1].clear()
-
-        blurProgram.setUniform({u_invPixelRatio: basePixelRatio / renderer[0].pixelRatio})
+        const preRenderer = index === 0 ? null : renderers[index - 1]
+        const baseTex = preRenderer?.[1].renderTexture[0] ?? targetTex
+        const invPixelRatio = (preRenderer?.[0].pixelRatio ?? basePixelRatio) / renderer[0].pixelRatio
+        blurProgram.setUniform({u_invPixelRatio: invPixelRatio})
         blurProgram.setUniform({u_isHorizontal: 1})
-        blurProgram.setTexture({t_preBlurTexture: targetTex})
+        blurProgram.setTexture({t_preBlurTexture: baseTex})
         renderer[0].render(planeVao, blurProgram)
 
         blurProgram.setUniform({u_invPixelRatio: 1})
