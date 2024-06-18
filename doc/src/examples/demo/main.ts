@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, RGBA32F, Core, Renderer, DEPTH, RGBA16F} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, Core, Renderer, DEPTH, RGBA16F} from 'glaku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
@@ -30,7 +30,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     lookAt  : [0, -200 * SCALE, 0],
     position: [0, 200 * SCALE, 0],
     near    : 150 * SCALE,
-    far     : 10000 * SCALE,
+    far     : 12000 * SCALE,
     fov     : 60
   })
 
@@ -77,7 +77,9 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   shadeProgram.setUniform({u_lightPosition: lightPos})
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
-  const postEffectProgram = postEffect(core, shadeRenderer.renderTexture[0], blurPass, preRenderer.depthTexture!)
+  const postEffectProgram = postEffect(core,
+    shadeRenderer.renderTexture[0], blurPass, preRenderer.depthTexture!, preRenderer.renderTexture[1]
+  )
 
   postEffectProgram.setUniform({
     u_near: camera.near,
@@ -106,6 +108,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     shadeRenderer.render(planeVao, shadeProgram)
     blurPass.render()
 
+    postEffectProgram.setUniform({u_pMatrix: camera.matrix.p})
     renderer.render(planeVao, postEffectProgram)
 
 

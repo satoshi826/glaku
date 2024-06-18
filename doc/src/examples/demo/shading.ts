@@ -57,7 +57,7 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float tmpx = floor(5.0 * localPos.x);
           float tmpy = floor(10.0 * localPos.y);
           float tmpz = floor(5.0 * localPos.z);
-          float isLighted = isWindow * step(80.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
+          float isLighted = isWindow * step(78.0, randInt(15.0 * tmpx + 2.0 * tmpy * tmpz * id));
 
           float window = 0.2 * isWindow + 0.001;
           vec3 viewVec = normalize(u_cameraPosition - position);
@@ -70,23 +70,23 @@ export const shade = (core: Core, lightNum: number, preRenderer: Renderer) => ne
           float diffuse = 0.0;
           float specular = 0.0;
 
-          float specIntensity = isWindow > 0.0 ? 50.0 : 30.0;
+          float specIntensity = isWindow > 0.0 ? 50.0 : 20.0;
 
           for(int i = 0; i < ${lightNum}; i++){
             lightVec = normalize(u_lightPosition[i] - position);
             lightDis = distance(u_lightPosition[i], position);
-            lightDecay = pow(lightDis, -1.25);
+            lightDecay = pow(lightDis, -1.2);
 
             reflectVec = reflect(-lightVec, normal);
-            diffuse += 120.0 * lightDecay * max(0.0, dot(lightVec, normal));
-            specular += 5000.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
+            diffuse += 100.0 * lightDecay * max(0.0, dot(lightVec, normal));
+            specular += 5500.0 * lightDecay * pow(max(0.0, dot(viewVec, reflectVec)), specIntensity);
           }
           float ambient = 0.02;
-          float result = max((ambient + diffuse + specular) * 0.1, 0.02);
+          float result = max((ambient + diffuse + specular) * 0.1, 0.01);
 
           vec3 resultColor = isBuilding ? vec3(0.9, 1.2, 1.8) : vec3(0.9, 0.8, 0.8);
 
-          vec3 constColor = isRoad ? vec3(6.0, 0.8, 1.0) * (
+          vec3 constColor = isRoad ? vec3(10.0, 0.8, 1.0) * (
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.x) - 0.5)))) +
             step(0.996, 1.0 - abs(0.97 - (2.0 * abs(fract(0.005 * position.z) - 0.5))))
             )

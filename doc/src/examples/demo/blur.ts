@@ -18,7 +18,6 @@ export const getBlurPass = (core: Core, targetTex : TextureWithInfo) => {
     ...plane()
   })
 
-  blurProgram.setUniform({u_blurPower: basePixelRatio})
 
   return {
     render: () => {
@@ -53,7 +52,6 @@ export const blurEffect = (core: Core, texture: TextureWithInfo) => new Program(
   },
   uniformTypes: {
     u_isHorizontal : 'bool',
-    u_blurPower    : 'int',
     u_invPixelRatio: 'int'
   },
   texture: {

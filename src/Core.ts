@@ -32,9 +32,9 @@ export class Core {
     this.canvasWidth = this.gl.canvas.width
     this.canvasHeight = this.gl.canvas.height
     this.pixelRatio = pixelRatio
-    if (resizeListener) this.resizeListener = resizeListener
-    options?.forEach(o => this.gl.enable(this.gl[o]))
+    this.enable(options)
     extensions?.forEach(e => this.gl.getExtension(e))
+    if (resizeListener) this.resizeListener = resizeListener
   }
 
   #compile(txt: string, type: 'VERTEX' | 'FRAGMENT') {
@@ -60,6 +60,14 @@ export class Core {
     console.error(vert)
     console.error(frag)
     throw new Error(log ?? 'link error')
+  }
+
+  enable(options?: WebGLConstants[]) {
+    options?.forEach(o => this.gl.enable(this.gl[o]))
+  }
+
+  disable(options?: WebGLConstants[]) {
+    options?.forEach(o => this.gl.disable(this.gl[o]))
   }
 
   setProgram(id: ProgramId, vText: string, fText: string, transformFeedback?: string[]) {
@@ -187,7 +195,7 @@ export class Core {
 
   setUniforms(uniforms: Uniforms) {
     oForEach(uniforms, ([k, {type, value, dirty}]) => {
-      if(value == null || dirty === false) return
+      if(value == null || !dirty) return
       const [method, isMat, isArray] = this.uniMethod[type]
       if (isMat) this.gl[method](this.uniLoc[this.currentProgram!][k], false, value as number[])
       else if (isArray) this.gl[method](this.uniLoc[this.currentProgram!][k], value as number[])
