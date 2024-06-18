@@ -22,7 +22,6 @@ export const postEffect = (
   }
   // const noiseTextureData = imageToTexture(core, noise)
 
-
   const program = new Program(core, {
     id            : 'postEffect',
     attributeTypes: {
