@@ -1,4 +1,4 @@
-import {Camera, Loop, Model, Vao, box, setHandler, plane, Core, Renderer, DEPTH, RGBA16F} from 'glaku'
+import {Camera, Loop, Model, Vao, box, setHandler, plane, Core, Renderer, DEPTH, RGBA16F, inverse, create} from 'glaku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
@@ -22,7 +22,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     rotation: {axis: [1, 0, 0], angle: -Math.PI / 2}
   })
 
-  console.log(CUBE_NUM, LIGHT_CUBE_NUM)
+  // console.log(CUBE_NUM, LIGHT_CUBE_NUM)
 
   const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
@@ -41,7 +41,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
 
-  const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F, DEPTH]})
+  const preRenderer = new Renderer(core, {frameBuffer: [RGBA16F, RGBA16F, RGBA16F, RGBA16F, DEPTH]})
   const shadeRenderer = new Renderer(core, {frameBuffer: [RGBA16F]})
   const renderer = new Renderer(core, {backgroundColor: [0.08, 0.14, 0.2, 1.0]})
 
@@ -78,13 +78,19 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const blurPass = getBlurPass(core, shadeRenderer.renderTexture[0])
   const postEffectProgram = postEffect(core,
-    shadeRenderer.renderTexture[0], blurPass, preRenderer.depthTexture!, preRenderer.renderTexture[1]
+    shadeRenderer.renderTexture[0],
+    blurPass,
+    preRenderer.depthTexture!,
+    preRenderer.renderTexture[1],
+    preRenderer.renderTexture[3]
   )
 
   postEffectProgram.setUniform({
     u_near: camera.near,
     u_far : camera.far
   })
+
+  const inv_p_matrix = create()
 
   const animation = new Loop({callback: ({elapsed}) => {
 
@@ -95,6 +101,8 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
     // set Camera and view-projection-matrix
     prepassProgram.setUniform({u_vpMatrix: camera.matrix.vp})
+    prepassProgram.setUniform({u_vMatrix: camera.matrix.v})
+
     shadeProgram.setUniform({u_cameraPosition: camera.position})
 
     // render buildings
@@ -108,9 +116,9 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     shadeRenderer.render(planeVao, shadeProgram)
     blurPass.render()
 
-    postEffectProgram.setUniform({u_pMatrix: camera.matrix.p})
+    inverse(camera.matrix.p, inv_p_matrix)
+    postEffectProgram.setUniform({u_inv_pMatrix: inv_p_matrix})
     renderer.render(planeVao, postEffectProgram)
-
 
   }, interval: 0})
   animation.start()
