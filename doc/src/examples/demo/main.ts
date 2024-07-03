@@ -28,7 +28,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
-  let cameraR = 7500
+  let cameraR = 6000
   let cameraAngleH = Math.PI / 4
   let cameraAngleV = Math.PI / 12
 
@@ -155,7 +155,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
   setHandler('zoom', (zoom) => {
     if (!zoom) return
     cameraR -= zoom / 2
-    if (cameraR > 10000) cameraR = 10000
+    if (cameraR > 8000) cameraR = 8000
     if (cameraR < 100) cameraR = 100
     camera.position = calcCameraPosition()
     camera.update()

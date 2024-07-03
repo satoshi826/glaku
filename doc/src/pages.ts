@@ -15,6 +15,10 @@ export const pages: Page[] = [
     type: 'docs',
     name: 'introduction'
   },
+  {
+    type: 'docs',
+    name: 'program'
+  },
   ...oMap(srcRecord, (([name]) => ({
     type: 'examples',
     name

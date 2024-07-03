@@ -1,5 +1,5 @@
 import {List, ListItem, ListItemButton, ListItemText, Stack} from '@mui/material'
-import {Tabs} from './Tabs'
+import {Tabs} from '../../components/Tabs'
 import {Link, useLocation, useRoute} from 'wouter'
 import {Page, PageType, pageTypes, pages} from '../../pages'
 import {sidebarOpenAtom} from '..'
@@ -19,10 +19,14 @@ export function SidebarContent() {
     if(value === currentTab) return
     setLocation(`/${items[value][0].name}`)
   }
-
   return (
     <Stack>
-      <Tabs value={currentTab} options={pageTypes} onChange={handleChangeTab}/>
+      <Tabs
+        sx={({palette}) => ({px: 1, py: 0, borderBottom: `1px solid ${palette.divider}`})}
+        tabSx={{flexGrow: 1, padding: 0, width: 0}}
+        value={currentTab}
+        options={pageTypes}
+        onChange={handleChangeTab}/>
       <SidebarList items={items[currentTab]} currentPage={currentPage ?? ''}/>
     </Stack>
   )
@@ -50,8 +54,8 @@ function SidebarList({items, currentPage}: {items: Page[], currentPage: string})
             onClick={isXs ? handleClick : undefined}
           >
             <ListItemButton>
-              <ListItemText >
-                {name.charAt(0).toUpperCase() + name.slice(1)}
+              <ListItemText sx={{textTransform: 'capitalize'}}>
+                {name}
               </ListItemText>
             </ListItemButton>
           </ListItem>

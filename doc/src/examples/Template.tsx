@@ -45,9 +45,7 @@ export const Template = memo(({src, state, wrapper, sendMouse = true}: {
         href={`https://github.com/satoshi826/glaku/blob/main/doc/src/examples/${src}/main.ts`}
         target="_blank"
       >
-        <Icon >
-            code
-        </Icon>
+        <Icon >code</Icon>
       </Fab>
     </Wrapper>
   )
