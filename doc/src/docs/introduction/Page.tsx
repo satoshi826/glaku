@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {BodyText, SubTitleText, Syntax, TitleText} from '../components'
+import {BodyText, CaptionText, SubTitleText, Syntax, TitleText} from '../components'
 import {Tabs} from '../../components/Tabs'
 import {Template} from '../Template'
 
@@ -27,8 +27,26 @@ export default function Page() {
         onChange={setState}
         tabSx={{textTransform: 'unset'}}
       />
-      <Syntax lang='ts' sandbox={sandbox}>
+      <Syntax lang='tsx' sandbox={sandbox}>
         {code}
+      </Syntax>
+      <SubTitleText >Tutorial</SubTitleText>
+      <CaptionText>Core</CaptionText>
+      <BodyText >
+        なにはともあれ、Glakuを使うためにはまずCoreを初期化しましょう。
+        CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
+        CoreはwebGLでレンダリングするための様々な状態を保持/管理しますが、
+        ユーザーが直接操作することは少ないのでここでは詳細を割愛します。
+      </BodyText>
+      <Syntax lang='tsx'>
+        {tutorialCore}
+      </Syntax>
+      <CaptionText>Renderer</CaptionText>
+      <BodyText >
+        なにはともあれ、Glakuを使うためにはまずCoreを初期化しましょう。
+      </BodyText>
+      <Syntax lang='tsx'>
+        {tutorialRenderer}
       </Syntax>
     </Template>
   )
@@ -94,3 +112,11 @@ export default function App() {
   return <canvas ref={canvasRef} />;
 }
 `
+
+const tutorialCore =
+`const canvas = document.getElementById("c");
+const core = new Core({ canvas });
+`
+
+const tutorialRenderer =
+'const renderer = new Renderer(core);'

@@ -1,8 +1,9 @@
-import {Box, Button, Divider, Icon, Typography, styled} from '@mui/material'
-import {Light as SyntaxHighlighter} from 'react-syntax-highlighter'
-import ts from 'react-syntax-highlighter/dist/esm/languages/hljs/typescript'
-import {atomOneDarkReasonable} from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import {Box, Button, Divider, Icon, IconButton, Typography, styled} from '@mui/material'
+import {PrismLight as SyntaxHighlighter} from 'react-syntax-highlighter'
+import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
+import {nightOwl} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import {CSSProperties, useMemo} from 'react'
+import {useIsXs} from '../theme/hooks'
 
 const BodyTextTypography = styled(Typography)(({theme}) => ({color: theme.palette.grey[300]}))
 
@@ -32,7 +33,7 @@ export function BodyText({children}: React.PropsWithChildren) {
 }
 
 const useSyntaxHighlighter = () => useMemo(() => {
-  SyntaxHighlighter.registerLanguage('ts', ts)
+  SyntaxHighlighter.registerLanguage('tsx', tsx)
   return SyntaxHighlighter
 }, [])
 
@@ -42,26 +43,40 @@ const syntaxHighlighterStyle: CSSProperties = {
   padding     : '8px 16px 8px 16px'
 }
 
-type SyntaxArg = {children: string, lang?: 'ts' | undefined, sandbox?: string}
+type SyntaxArg = {children: string, lang?: 'tsx' | undefined, sandbox?: string}
 export function Syntax({children, lang, sandbox}: SyntaxArg) {
   const SyntaxHighlighter = useSyntaxHighlighter()
   return (
     <Box position='relative' >
-      <SyntaxHighlighter language={lang} style={atomOneDarkReasonable} customStyle={syntaxHighlighterStyle}>
+      <SyntaxHighlighter language={lang} style={nightOwl} customStyle={syntaxHighlighterStyle}>
         {children}
       </SyntaxHighlighter>
       {sandbox &&
-        <Button
-          sx={{position: 'absolute', bottom: 8, right: 8, textTransform: 'unset'}}
-          variant='outlined'
-          startIcon={<Icon >code</Icon>}
-          LinkComponent={'a'}
-          href={sandbox}
-          target="_blank"
-        >
-          CodeSandbox
-        </Button>
+        <SandboxButton >
+          {sandbox}
+        </SandboxButton>
       }
     </Box>
+  )
+}
+
+function SandboxButton({children}: {children: string}) {
+  const isXs = useIsXs()
+  return (
+    isXs ?
+      <IconButton sx={{position: 'absolute', bottom: 16, right: 12, backgroundColor: '#88888822'}} color="primary">
+        <Icon >code</Icon>
+      </IconButton>
+      :
+      <Button
+        sx={{position: 'absolute', bottom: 12, right: 12, fontSize: 12, textTransform: 'unset'}}
+        variant='outlined'
+        startIcon={<Icon >code</Icon>}
+        LinkComponent={'a'}
+        href={children}
+        target="_blank"
+      >
+        CodeSandbox
+      </Button>
   )
 }
