@@ -1,7 +1,7 @@
 import {Box, Button, Divider, Icon, IconButton, Typography, styled} from '@mui/material'
 import {PrismLight as SyntaxHighlighter} from 'react-syntax-highlighter'
 import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
-import {nightOwl} from 'react-syntax-highlighter/dist/esm/styles/prism'
+import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import {CSSProperties, useMemo} from 'react'
 import {useIsXs} from '../theme/hooks'
 
@@ -48,7 +48,7 @@ export function Syntax({children, lang, sandbox}: SyntaxArg) {
   const SyntaxHighlighter = useSyntaxHighlighter()
   return (
     <Box position='relative' >
-      <SyntaxHighlighter language={lang} style={nightOwl} customStyle={syntaxHighlighterStyle}>
+      <SyntaxHighlighter language={lang} style={vscDarkPlus} customStyle={syntaxHighlighterStyle}>
         {children}
       </SyntaxHighlighter>
       {sandbox &&
