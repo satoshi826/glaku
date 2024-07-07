@@ -54,7 +54,7 @@ export default function Page() {
       </Syntax>
       <CaptionText>VAO</CaptionText>
       <BodyText >
-        VAOとはVertexArrayObjectの略称で、各頂点で扱うattributesを格納するものです。ここではattributesとして、
+        VAOはVertexArrayObjectの略称で、各頂点で扱うattributesを格納するものです。ここではattributesとして、
         3つの2次元位置座標を定義しています。試しに <code>a_position</code> の値を変更して三角形の形が変わる様子を見てみましょう。
         attributeがどのように使われるかはシェーダ次第です。(3次元座標やRGBをセットするのも自由です)
       </BodyText>
@@ -63,7 +63,7 @@ export default function Page() {
       </Syntax>
       <CaptionText>Program</CaptionText>
       <BodyText >
-        本命のProgramです。Programには2つのGLSLシェーダ(vertex shader / fragment shader)と、
+        本命のProgramです。Programには2対のGLSLシェーダ(vertex shader / fragment shader)と、
         シェーダ内で扱う変数の名前と型(ここではa_position: "vec2")を定義します。
       </BodyText>
       <Syntax lang='tsx'>
