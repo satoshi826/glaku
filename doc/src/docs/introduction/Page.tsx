@@ -24,8 +24,9 @@ export default function Page() {
       </Syntax>
       <SubTitleText>Quick Start</SubTitleText>
       <BodyText >
-        動作確認のためにも、理解のためにも、まず手元で動かすのが良さそうですよね。以下のサンプルとなるコードを試してみましょう、青い三角形が表示されたら成功です！
-        補足としてReactで使用する場合のコードを付与しましたが、核となる処理は同一であることが分かると思います。
+        まずは手元で動かしてみるのが良さそうですよね。以下のサンプルコードを試してみましょう、青い三角形が表示されたら成功です！
+        レンダリングまでの流れはとてもシンプルで、"VAO"と"Program"を用意して"Renderer"に渡しているだけです。
+        発展的な実装を行う場合もこの流れから逸脱することはありません。
       </BodyText>
       <Tabs
         value={state}
@@ -38,42 +39,45 @@ export default function Page() {
       </Syntax>
       <SubTitleText >Tutorial</SubTitleText>
       <BodyText >
-        このチュートリアルでは上記のQuick Startの内容についてまず解説し、
-        その後実践的な機能(Animation/Resize/Texture/PostEffectなど)を付与していきながらGlakuの使い方に触れていきます。
-        レンダリングまでの流れはとてもシンプルで"VAO"と"Program"を用意して"Renderer"に渡すだけです。
-        発展的な実装を行う場合も基本はこの流れを逸脱することはありません。
+        このチュートリアルでは、まず上記のQuick Startの内容について解説し、
+        その後実践的な機能を付与していきながらGlakuの機能に触れていきます。
       </BodyText>
       <CaptionText>Core</CaptionText>
       <BodyText >
         まずCoreを準備しましょう。
         CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
-        CoreはwebGLでレンダリングするための様々な状態を管理します。ただしCoreのメソッドやフィールドは他クラスから参照されることがほとんとで、
-        直接を操作することは少ないかもしれません。
+        CoreはwebGLでレンダリングするための様々な状態を管理していますが、他クラスから参照して使われることがほとんとなので、
+        直接操作することは少ないかもしれません。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialCore}
       </Syntax>
       <CaptionText>VAO</CaptionText>
       <BodyText >
-        VAOとはVertexArrayObjectの略称で、各頂点で扱うattributeを格納するものです。ここではattributesとして、
+        VAOとはVertexArrayObjectの略称で、各頂点で扱うattributesを格納するものです。ここではattributesとして、
         3つの2次元位置座標を定義しています。試しに <code>a_position</code> の値を変更して三角形の形が変わる様子を見てみましょう。
-        attributeにセットした値をどのように使用するかはプログラマーの裁量になります。(つまりシェーダ次第です。)今回は2次元座標としてattributesを
-        使用していますが、3次元の座標や、頂点の色としてRGBをセットするのも自由です。
-        (一般的な3Dレンダリングでは、位置座標、UV座標、法線ベクトルなどを格納することが多いです。)
+        attributeがどのように使われるかはシェーダ次第です。(3次元座標やRGBをセットするのも自由です)
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialVAO}
       </Syntax>
       <CaptionText>Program</CaptionText>
       <BodyText >
-        いよいよ本命のProgramです。Programには2つのGLSLシェーダ(vertex shader / fragment shader)と、シェーダ内で扱う変数(ここではa_position)を定義します。
-        {/* (GLSLについて厳密な解説を始めるとキリがないので概要) */}
+        本命のProgramです。Programには2つのGLSLシェーダ(vertex shader / fragment shader)と、
+        シェーダ内で扱う変数の名前と型(ここではa_position: "vec2")を定義します。
       </BodyText>
       <Syntax lang='tsx'>
-        const renderResult = Vao.map(attributes)
-      </Syntax>
-      <Syntax lang='tsx'>
         {tutorialProgram}
+      </Syntax>
+      <BodyText sx={{pt: 2}}>
+        シェーダの働きについて丁寧な解説を行うには余白が狭すぎるので、Javascript風の疑似コードで大雑把に解説します。
+        まずattributesは頂点単位に分割されます。今回扱う <code>a_position</code> の要素数は6でしたが、2個の要素が1つの頂点に対応しているので頂点数は3ですね。(三角形として定義したので自明ですが)
+        <br></br>
+        次に、頂点の数だけvertexShaderを実行して、レンダリング対象の座標を決定します。
+        今回のシェーダではa_positionの位置をそのまま使いますが、
+      </BodyText>
+      <Syntax lang='tsx'>
+        {tutorialGLSL}
       </Syntax>
     </Template>
   )
@@ -166,6 +170,22 @@ const tutorialProgram =
         o_color = vec4(0.4, 0.4, 1.0, 1.0);
       }\`,
 });
+`
+
+const tutorialGLSL =
+`const vertexes = chunk(vao)
+
+const positions = vertexes.map(attributes => {
+  const position = vertexShader(attributes)
+  return position
+})
+
+const surfaces = rasterize(positions)
+
+const renderResult = surfaces.map(pixelPosition => {
+  const color = fragmentShader(pixelPosition)
+  return color
+})
 `
 
 const tutorialRenderer =

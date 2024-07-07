@@ -1,4 +1,4 @@
-import {Box, Button, Divider, Icon, IconButton, Typography, styled} from '@mui/material'
+import {Box, Button, Divider, Icon, IconButton, SxProps, Theme, Typography, styled} from '@mui/material'
 import {PrismLight as SyntaxHighlighter} from 'react-syntax-highlighter'
 import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
 import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -24,9 +24,9 @@ export function CaptionText({children}: React.PropsWithChildren) {
   return <Typography variant='h5' sx={{mt: 4, mb: 2}}>{children}</Typography>
 }
 
-export function BodyText({children}: React.PropsWithChildren) {
+export function BodyText({children, sx}: React.PropsWithChildren & {sx?: SxProps<Theme>}) {
   return (
-    <BodyTextTypography variant='body1' sx={{mb: 4}}>
+    <BodyTextTypography variant='body1' sx={{mb: 4, ...sx}}>
       {children}
     </BodyTextTypography>
   )
