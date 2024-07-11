@@ -26,7 +26,7 @@ export default function Page() {
 
       <SubTitleText>Quick Start</SubTitleText>
       <BodyText>
-        まずは手元で動かしてみるのが良さそうですよね。以下のサンプルコードを試してみましょう。青い三角形が表示されたら成功です！
+        以下のサンプルコードを試してみましょう。青い三角形が表示されたら成功です！
         コードの構造はとてもシンプルで、"VAO"と"Program"を用意して"Renderer"に渡しているだけです。
         発展的な実装を行う場合もこの流れから逸脱することはありません。
       </BodyText>
@@ -41,11 +41,11 @@ export default function Page() {
       </Syntax>
       <SubTitleText>Tutorial</SubTitleText>
       <BodyText>
-        このチュートリアルでは、まず上記のQuick Startの内容について解説し、その後実践的な機能を付与していきながらGlakuの機能に触れていきます。
+        まずQuick Startの内容について解説し、その後実践的な機能を付与していきながらGlakuの機能に触れていきます。
       </BodyText>
       <CaptionText>Core</CaptionText>
       <BodyText>
-        まずCoreを準備しましょう。CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
+        ともかくCoreを準備しましょう。CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
         CoreはWebGLでレンダリングするための様々な状態を管理していますが、他のクラスから参照して使われることがほとんどなので、直接操作することは少ないかもしれません。
       </BodyText>
       <Syntax lang='tsx'>
@@ -66,20 +66,24 @@ export default function Page() {
       <BodyText>
         Programは特に重要なので丁寧に見ていきましょう。Programには2つのGLSLシェーダー(VertexShader / FragmentShader)と、シェーダー内で扱う変数を定義します。
         <br />
-        ここでは <code>a_position: "vec2"</code> とすることで、a_position を2次元ベクトルとして扱うことをシェーダーに伝えています。
+        ここでは <code>a_position: "vec2"</code> とすることで、a_position が2次元ベクトルであることをシェーダーに伝えています。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialProgram}
       </Syntax>
 
       <BodyText sx={{pt: 2}}>
-        GLSLシェーダーについて解説を行うには余白が狭すぎるので、JavaScript風の疑似コードを元に概要を説明します。
-        <br />
+        GLSLシェーダーの解説を行うには余白が狭すぎるので、JavaScript風の疑似コードを元に概要を説明します。
+      </BodyText>
+      <Syntax lang='tsx'>
+        {tutorialGLSL}
+      </Syntax>
+      <BodyText sx={{pt: 2}}>
         まずattributesは頂点単位に分割されます。
         今回の例では、<code>a_position = [[0, 1], [1, -1], [-1, -1]]</code> となるイメージです。
         <br />
         次に、頂点に対応する数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
-        今回のシェーダーでは a_position の値をそのまま頂点位置に指定していますね。
+        今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
         試しにコードを <code>gl_Position = vec4(a_position.yx, 1.0, 1.0)</code> のように変更して、xy軸が入れ替わる様子を見てみましょう。
         <br />
         そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、このままでは点の集合である「面」を表現することができません。
@@ -89,10 +93,6 @@ export default function Page() {
         今回は青色を指定しているだけなので、青い三角形が表示されます。
         試しにコードを <code> o_color = vec4(1.0, 0.4, 0.4, 1.0)</code> のように変更して、三角形の色が変わる様子を見てみましょう。
       </BodyText>
-      <Syntax lang='tsx'>
-        {tutorialGLSL}
-      </Syntax>
-
       <CaptionText>Renderer</CaptionText>
       <BodyText>
         Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、レンダリング結果をTextureにしたりすることができますが、(FrameBuffer)
