@@ -1,6 +1,6 @@
-import {oForEach, keys, times, isNullish, firstEntry, oReduce} from 'jittoku'
 import {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants, ResizeArgs, AttributeName, AttributeType, PrimitiveTypes, TextureName} from './types'
 import {TextureFilter, TextureWrap, defaultExtensions, strideMap, uniMethod} from './constants'
+import {firstEntry, isNullish, keys, oForEach, oReduce, times} from './util'
 
 export class Core {
   gl: WebGL2RenderingContext

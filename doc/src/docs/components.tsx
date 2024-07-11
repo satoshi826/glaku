@@ -26,7 +26,7 @@ export function CaptionText({children}: React.PropsWithChildren) {
 
 export function BodyText({children, sx}: React.PropsWithChildren & {sx?: SxProps<Theme>}) {
   return (
-    <BodyTextTypography variant='body1' sx={{mb: 4, ...sx}}>
+    <BodyTextTypography variant='body1' sx={{mb: 4, color: '#bbb', ...sx}}>
       {children}
     </BodyTextTypography>
   )

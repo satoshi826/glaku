@@ -1,4 +1,4 @@
-import {oForEach} from 'jittoku'
+import {oForEach} from '../util'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Fn = (value: any) => any

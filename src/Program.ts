@@ -1,6 +1,6 @@
 import {AttributeName, AttributeType, Core, PrimitiveTypes, TextureName} from '.'
-import {keys, oMapO, oForEach, oReduce, PartialRecord} from 'jittoku'
 import {ProgramId, UniformName, UniformType} from './types'
+import {PartialRecord, keys, oForEach, oMapO, oReduce} from './util'
 
 export type AttributeTypes = Record<AttributeName, AttributeType>
 

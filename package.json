@@ -1,6 +1,6 @@
 {
   "name": "glaku",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "minimum webGL library",
   "type": "module",
   "exports": "./dist/index.js",
@@ -20,8 +20,5 @@
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.0.0-alpha.10",
     "vite": "^5.2.0"
-  },
-  "dependencies": {
-    "jittoku": "^0.1.13"
   }
 }

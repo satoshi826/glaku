@@ -1,8 +1,8 @@
-import {partition} from 'jittoku'
 import {AttributeName, Core, TextureName, TextureType, UniformName} from '.'
 import {Program} from './Program'
 import {Vao} from './Vao'
 import {ColorArray, WebGLConstants, ResizeArgs} from './types'
+import {partition} from './util'
 
 export type TextureWithInfo = (WebGLTexture & {
   internalFormat: WebGLConstants, format: WebGLConstants, type: WebGLConstants

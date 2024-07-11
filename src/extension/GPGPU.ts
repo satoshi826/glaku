@@ -1,5 +1,5 @@
-import {PartialRecord, keys, oForEach, oMapO, oReduce, range} from 'jittoku'
 import {AttributeName, AttributeType, AttributeTypes, Core, OutputName, ProgramId, UniformName, UniformType, Vao, testKeyword} from '..'
+import {PartialRecord, keys, oForEach, oMapO, oReduce, range} from '../util'
 
 const outputNames = (v: AttributeTypes) => keys(v).map(a => a.replace('a_', 'a_tf_')) as OutputName[]
 
