@@ -1,7 +1,8 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, setHandler} from 'glaku'
+import {Core, Loop, Program, Renderer, Vao} from 'glaku'
+import {mouseState, resizeState} from '../../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
-  const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})
+  const core = new Core({canvas, resizeListener: (fn) => resizeState.on(fn)})
   const renderer = new Renderer(core)
 
   const program1 = new Program(core, {
@@ -55,15 +56,14 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   const vao = plane(core)
 
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
-    const aspectRatioVec = calcAspectRatioVec(width, height)
-    // const aspectRatio = width / height
-    // const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
+  resizeState.on(({width, height}) => {
+    const aspectRatio = width / height
+    const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
     program1.setUniform({u_aspectRatio: aspectRatioVec})
     program2.setUniform({u_aspectRatio: aspectRatioVec})
   })
 
-  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+  mouseState.on(({x, y}) => {
     program1.setUniform({u_mouse: [x, y]})
   })
 

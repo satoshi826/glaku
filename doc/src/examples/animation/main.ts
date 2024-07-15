@@ -1,4 +1,5 @@
-import {Core, Loop, Program, Renderer, Vao, setHandler} from 'glaku'
+import {Core, Loop, Program, Renderer, Vao} from 'glaku'
+import {mouseState} from '../../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({canvas})
@@ -31,7 +32,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
   const vao = triangle(core)
 
-  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+  mouseState.on(({x, y}) => {
     program.setUniform({u_mouse: [x, y]})
   })
 

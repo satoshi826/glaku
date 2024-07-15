@@ -1,12 +1,13 @@
-import {Core, GPGPU, Loop, Program, Renderer, ResizeArgs, calcAspectRatioVec, setHandler} from 'glaku'
+import {Core, GPGPU, Loop, Program, Renderer, calcAspectRatioVec} from 'glaku'
 import {random, range} from 'jittoku'
+import {mouseState, resizeState} from '../../state'
 
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
 
-  const core = new Core({canvas, pixelRatio, resizeListener: (fn) => setHandler('resize', fn)})
+  const core = new Core({canvas, pixelRatio, resizeListener: (fn) => resizeState.on(fn)})
   const renderer = new Renderer(core, {backgroundColor: [0, 0, 0, 1]})
 
   const gpgpu = new GPGPU(core, {
@@ -70,12 +71,12 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
     }`
   })
 
-  setHandler('resize', ({width, height}: ResizeArgs = {}) => {
+  resizeState.on(({width, height}) => {
     const ar = width && height ? calcAspectRatioVec(width, height) : [1, 1]
     gpgpu.setUniform({u_aspectRatio: ar})
   })
 
-  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+  mouseState.on(({x, y}) => {
     gpgpu.setUniform({u_origin: [x, y]})
   })
 

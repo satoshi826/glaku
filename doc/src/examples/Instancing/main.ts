@@ -1,5 +1,6 @@
-import {Camera, Core, Loop, Program, Renderer, Vao, box, setHandler, normalize, Model} from 'glaku'
+import {Camera, Core, Loop, Program, Renderer, Vao, box, normalize, Model} from 'glaku'
 import {random, range} from 'jittoku'
+import {resizeState} from '../../state'
 
 const CUBE_NUM = 3000
 
@@ -7,7 +8,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
   const core = new Core({
     canvas,
     pixelRatio,
-    resizeListener: (fn) => setHandler('resize', fn),
+    resizeListener: (fn) => resizeState.on(fn),
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
   const renderer = new Renderer(core, {backgroundColor: [0.2, 0.2, 0.25, 1.0]})
@@ -68,7 +69,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
 
   const camera = new Camera({lookAt: [0, 0, 0], position: [0, 0, 50], far: 200})
 
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
+  resizeState.on(({width, height}) => {
     camera.aspect = width / height
     camera.update()
     program.setUniform({u_vpMatrix: camera.matrix.vp})

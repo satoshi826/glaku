@@ -28,6 +28,8 @@ const Wrapper = ({post, children}: { post: (any: object) => void, children: Reac
     points.current ??= [[0, 0, Date.now()]]
   }
 
+  const sendTarget = (x: number, y: number) => post({state: {target: {x, y}}})
+
   const drag = (clientX: number, clientY: number) => {
     if (!start.current || !boxRef.current || !points.current) return
     const [startX, startY] = start.current
@@ -37,7 +39,7 @@ const Wrapper = ({post, children}: { post: (any: object) => void, children: Reac
     points.current.unshift([x, y, Date.now()])
     const dx = x - points.current[1][0]
     const dy = y - points.current[1][1]
-    post({state: {target: [dx, dy]}})
+    sendTarget(dx, dy)
     if (points.current.length > 4) points.current.pop()
   }
 
@@ -114,7 +116,7 @@ const Wrapper = ({post, children}: { post: (any: object) => void, children: Reac
         setInitVel(null)
         return
       }
-      post({state: {target: [nextX, nextY]}})
+      sendTarget(nextX, nextY)
       animationFrameId = requestAnimationFrame(tick)
     }
 

@@ -1,21 +1,22 @@
-import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec, imageToTexture, setHandler} from 'glaku'
+import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec} from 'glaku'
+import {imageState, mouseState, resizeState} from '../../state'
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
-  const core = new Core({canvas, resizeListener: (fn) => setHandler('resize', fn)})
+  const core = new Core({canvas, resizeListener: (fn) => resizeState.on(fn)})
   const renderer = new Renderer(core)
 
   const image = await new Promise<ImageBitmap>((resolve) => {
-    const cleanup = setHandler('image', (img) => {
+    const off = imageState.on((img) => {
       if (img) {
         resolve(img)
-        cleanup()
+        off()
       }
     })
   })
   // const image = document.getElementById('image')
 
-  const texture = imageToTexture(core, image)
+  const texture = core.createTexture({image})
 
   const program = new Program(core, {
     id            : 'texture',
@@ -90,11 +91,11 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
 
   program.setUniform({u_aspectRatio_image: calcAspectRatioVec(image.width, image.height)})
 
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
+  resizeState.on(({width, height}) => {
     program.setUniform({u_aspectRatio: calcAspectRatioVec(width, height)})
   })
 
-  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+  mouseState.on(({x, y}) => {
     program.setUniform({u_mouse: [x, y]})
   })
 

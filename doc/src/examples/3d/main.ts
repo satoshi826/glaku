@@ -1,9 +1,10 @@
-import {Camera, Core, Loop, Model, Program, Renderer, Vao, box, setHandler} from 'glaku'
+import {Camera, Core, Loop, Model, Program, Renderer, Vao, box} from 'glaku'
+import {mouseState, resizeState} from '../../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
     canvas,
-    resizeListener: (fn) => setHandler('resize', fn),
+    resizeListener: (fn) => resizeState.on(fn),
     options       : ['DEPTH_TEST', 'CULL_FACE'] // gl.enable(gl.DEPTH_TEST) && gl.enable(gl.CULL_FACE)
   })
   const renderer = new Renderer(core, {backgroundColor: [0.1, 0.1, 0.1, 1.0]})
@@ -55,16 +56,16 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
         }`
   })
 
-
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
+  resizeState.on(({width, height}) => {
     camera.aspect = width / height
     camera.update()
     program.setUniform({u_vpMatrix: camera.matrix.vp})
   })
 
-  setHandler('mouse', ({x, y}: {x: number, y: number} = {x: 0, y: 0}) => {
+  mouseState.on(({x, y}) => {
     program.setUniform({u_lightPosition: [5 * x, 5 * y, 2]})
   })
+
 
   program.setUniform({
     u_lightPosition : [2, 2, 2],

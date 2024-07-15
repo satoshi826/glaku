@@ -224,23 +224,33 @@ export class Core {
     }
   }
 
-  // Todo: 汎用化
-  createTexture(
-    width: number,
-    height: number,
-    internalFormat: WebGLConstants,
-    format: WebGLConstants,
-    type: WebGLConstants,
-    filter: TextureFilter,
-    wrap: TextureWrap
-  ) {
+  createTexture(args : {
+    filter?: TextureFilter,
+    wrap?: TextureWrap
+  } & (
+    {image: TexImageSource, array?: undefined, width?: undefined, height?: undefined, format?: undefined, internalFormat?: undefined, type?: undefined} |
+    {image?: undefined, array: Float32Array, width: number, height: number, format?: undefined, internalFormat?: undefined, type?: undefined} |
+    {image?: undefined, array?: undefined, width: number, height: number, format: WebGLConstants, internalFormat: WebGLConstants, type: WebGLConstants})) {
+    const {image, array, width, height, internalFormat, format, type, filter, wrap} = args
     const texture = this.gl.createTexture()
+    if (!texture) throw new Error('failed to create texture')
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl[internalFormat], width / 2, height / 2, 0, this.gl[format], this.gl[type], null)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl[filter])
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl[filter])
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl[wrap])
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl[wrap])
+    if (image) {
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+      this.gl.generateMipmap(this.gl.TEXTURE_2D)
+    } else if (array) {
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA32F, width, height, 0, this.gl.RGBA, this.gl.FLOAT, array)
+    } else {
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl[internalFormat], width, height, 0, this.gl[format], this.gl[type], null)
+    }
+    if (filter) {
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl[filter])
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl[filter])
+    }
+    if (wrap) {
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl[wrap])
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl[wrap])
+    }
     this.gl.bindTexture(this.gl.TEXTURE_2D, null)
     return texture
   }

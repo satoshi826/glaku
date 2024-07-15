@@ -109,13 +109,12 @@ export class Renderer {
     const [colorTextures, [depthTexture]] = partition(textures, (([, format]) => format !== 'DEPTH_COMPONENT'))
     colorTextures.forEach(([internalFormat, format, type, filter, wrap], i) => {
       const attachment = gl.COLOR_ATTACHMENT0 + i
-      this.renderTexture[i] = this.#createTexture(attachment, this.width, this.height, internalFormat, format, type, filter, wrap)
+      this.renderTexture[i] = this.#createTexture({attachment, width: this.width, height: this.height, internalFormat, format, type, filter, wrap})
       this.drawBuffers[i] = attachment
     })
-
     if (depthTexture) {
       const [internalFormat, format, type, filter, wrap] = depthTexture
-      this.depthTexture = this.#createTexture(this.core.gl.DEPTH_ATTACHMENT, this.width, this.height, internalFormat, format, type, filter, wrap)
+      this.depthTexture = this.#createTexture({attachment: this.core.gl.DEPTH_ATTACHMENT, width: this.width, height: this.height, internalFormat, format, type, filter, wrap})
     } else {
       this.depthRenderBuffer = this.core.gl.createRenderbuffer()
       gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthRenderBuffer)
@@ -136,9 +135,9 @@ export class Renderer {
     gl.bindTexture(gl.TEXTURE_2D, null)
   }
 
-  #createTexture(attachment: number, ...[width, height, internalFormat, format, type, filter, wrap]: Parameters<Core['createTexture']>) {
-    const texture = this.core.createTexture(width, height, internalFormat, format, type, filter, wrap) as TextureWithInfo
-    if (!texture) throw new Error('Could create depth texture')
+  #createTexture({attachment, width, height, internalFormat, format, type, filter, wrap}:
+    Required<Omit<Parameters<Core['createTexture']>[0], 'image' | 'array'>> & {attachment: number}) {
+    const texture = this.core.createTexture({width, height, internalFormat, format, type, filter, wrap}) as TextureWithInfo
     this.core.gl.framebufferTexture2D(this.core.gl.FRAMEBUFFER, attachment, this.core.gl.TEXTURE_2D, texture, 0)
     texture.internalFormat = internalFormat
     texture.format = format

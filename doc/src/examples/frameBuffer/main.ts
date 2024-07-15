@@ -1,9 +1,10 @@
-import {Core, Loop, Program, RGBA8, Renderer, Vao, calcAspectRatioVec, setHandler} from 'glaku'
+import {Core, Loop, Program, RGBA8, Renderer, Vao, calcAspectRatioVec} from 'glaku'
+import {resizeState} from '../../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
     canvas,
-    resizeListener: (fn) => setHandler('resize', fn)
+    resizeListener: (fn) => resizeState.on(fn)
   })
 
   const rendererToFrameBuffer = new Renderer(core, {frameBuffer: [RGBA8]})
@@ -75,7 +76,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   })
   const planeVao = plane(core)
 
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
+  resizeState.on(({width, height}) => {
     program.setUniform({u_aspectRatio: calcAspectRatioVec(width, height)})
     glitchEffect.setUniform({u_resolution: [width, height]})
   })

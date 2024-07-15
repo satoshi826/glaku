@@ -1,26 +1,24 @@
-import {oForEach} from '../util'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Fn = (value: any) => any
-
-const state: Record<string, {value?: unknown, handler?: Set<Fn>}> = {}
-
-export const getState = (key: string) => {
-  return state?.[key]?.value
-}
-
-export const setState = async<T>(object: Record<string, T>) => {
-  oForEach(object, ([k, v]) => {
-    state[k] ??= {}
-    state[k].value = v
-    state[k].handler?.forEach(async(f) => f(v))
-  })
-}
-
-export const setHandler = (key: string, f: Fn) => {
-  state[key] ??= {}
-  state[key].handler ??= new Set()
-  state[key].handler!.add(f)
-  f(state[key].value)
-  return () => state[key].handler?.delete(f)
+type Handler<T> = (value: T) => void
+export class State<T> {
+  value : T
+  handler : Set<Handler<T>>
+  constructor(init : T) {
+    this.value = init
+    this.handler = new Set()
+  }
+  get() {
+    return this.value
+  }
+  set(value : T) {
+    this.value = value
+    this.handler.forEach(f => f(this.value))
+  }
+  on(handler: Handler<T>) {
+    this.handler.add(handler)
+    handler(this.value)
+    const off = () => {
+      this.handler.delete(handler)
+    }
+    return off
+  }
 }

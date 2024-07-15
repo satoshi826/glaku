@@ -9,7 +9,7 @@ import {main as _3d} from './examples/3d/main'
 import {main as instancing} from './examples/instancing/main'
 import {main as frameBuffer} from './examples/frameBuffer/main'
 import {main as demo} from './examples/demo/main'
-import {setState} from 'glaku'
+import {imageState, mouseState, resizeState, targetState, zoomState} from './state'
 
 export const srcRecord = {
   helloTriangle,
@@ -38,7 +38,13 @@ onmessage = async({data}) => {
   if (src) {
     srcRecord[src as SrcType](canvas!, pr)
   }
-  if (state) setState(state)
+  if (state) {
+    if (state.resize) resizeState.set(state.resize)
+    if (state.mouse) mouseState.set(state.mouse)
+    if (state.target) targetState.set(state.target)
+    if (state.zoom) zoomState.set(state.zoom)
+    if (state.image) imageState.set(state.image)
+  }
 }
 
 export default {}

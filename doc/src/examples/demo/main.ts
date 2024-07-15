@@ -1,9 +1,10 @@
-import {Camera, Model, Vao, box, setHandler, plane, Core, Renderer, DEPTH, RGBA16F, sphere} from 'glaku'
+import {Camera, Model, Vao, box, plane, DEPTH, RGBA16F, sphere, Core, Renderer} from 'glaku'
 import {prepass} from './prepass'
 import {shade} from './shading'
 import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
 import {getBuildings} from './buildings'
+import {resizeState, targetState, zoomState} from '../../state'
 
 export const SCALE = 0.2
 
@@ -28,7 +29,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
-  let cameraR = 6000
+  let cameraR = 4000
   let cameraAngleH = Math.PI / 4
   let cameraAngleV = Math.PI / 12
 
@@ -43,13 +44,13 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     position: calcCameraPosition(),
     near    : 10 * SCALE,
     far     : 16000 * SCALE,
-    fov     : 70
+    fov     : 60
   })
 
   const core = new Core({
     canvas,
     pixelRatio,
-    resizeListener: (fn) => setHandler('resize', fn),
+    resizeListener: (fn) => resizeState.on(fn),
     options       : ['DEPTH_TEST', 'CULL_FACE']
   })
 
@@ -134,15 +135,13 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   requestAnimationFrame(render)
 
-  setHandler('resize', ({width, height}: {width: number, height: number} = {width: 100, height: 100}) => {
+  resizeState.on(({width, height}) => {
     camera.aspect = width / height
     camera.update()
     setTimeout(render, 100)
   })
 
-  setHandler('target', (target) => {
-    if (!target) return
-    const [x, y] = target
+  targetState.on(({x, y}) => {
     cameraAngleH += 0.35 * x
     cameraAngleV -= 0.25 * y
     if (cameraAngleV > Math.PI / 2) cameraAngleV = Math.PI / 2
@@ -152,8 +151,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     render()
   })
 
-  setHandler('zoom', (zoom) => {
-    if (!zoom) return
+  zoomState.on((zoom) => {
     cameraR -= zoom / 2
     if (cameraR > 8000) cameraR = 8000
     if (cameraR < 100) cameraR = 100
