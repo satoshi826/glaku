@@ -4,7 +4,7 @@ import {shade} from './shading'
 import {postEffect} from './postEffect'
 import {getBlurPass} from './blur'
 import {getBuildings} from './buildings'
-import {resizeState, targetState, zoomState} from '../../state'
+import {resizeState, targetState, zoomState} from '../state'
 
 export const SCALE = 0.2
 

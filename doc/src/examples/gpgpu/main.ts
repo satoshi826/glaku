@@ -1,6 +1,6 @@
 import {Core, GPGPU, Loop, Program, Renderer, calcAspectRatioVec} from 'glaku'
 import {random, range} from 'jittoku'
-import {mouseState, resizeState} from '../../state'
+import {mouseState, resizeState} from '../state'
 
 const PARTICLE_NUM = 500000
 const PARTICLE_RANGE = range(PARTICLE_NUM)

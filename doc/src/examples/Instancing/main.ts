@@ -1,6 +1,6 @@
 import {Camera, Core, Loop, Program, Renderer, Vao, box, normalize, Model} from 'glaku'
 import {random, range} from 'jittoku'
-import {resizeState} from '../../state'
+import {resizeState} from '../state'
 
 const CUBE_NUM = 3000
 

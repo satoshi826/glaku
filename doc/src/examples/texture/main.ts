@@ -1,5 +1,5 @@
 import {Core, Loop, Program, Renderer, Vao, calcAspectRatioVec} from 'glaku'
-import {imageState, mouseState, resizeState} from '../../state'
+import {imageState, mouseState, resizeState} from '../state'
 
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas) => {
 

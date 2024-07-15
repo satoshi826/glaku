@@ -9,7 +9,7 @@ import {main as _3d} from './examples/3d/main'
 import {main as instancing} from './examples/instancing/main'
 import {main as frameBuffer} from './examples/frameBuffer/main'
 import {main as demo} from './examples/demo/main'
-import {imageState, mouseState, resizeState, targetState, zoomState} from './state'
+import {imageState, mouseState, resizeState, targetState, zoomState} from './examples/state'
 
 export const srcRecord = {
   helloTriangle,

@@ -80,7 +80,7 @@ export default function Page() {
       </Syntax>
       <BodyText sx={{pt: 2}}>
         まずattributesは頂点単位に分割されます。
-        今回の例では、<code>a_position = [[0, 1], [1, -1], [-1, -1]]</code> となるイメージです。
+        a_position は<code>[[0, 1], [1, -1], [-1, -1]]</code> となりますね。
         <br />
         次に、頂点に対応する数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
         今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
@@ -99,6 +99,9 @@ export default function Page() {
       <Syntax lang='tsx'>
         {tutorialRenderer}
       </Syntax>
+      <BodyText sx={{pt: 2}}>
+        ここまでの内容でQuick Startの内容を習得することができました、続いて更に実践的なサンプルを見ていきましょう。
+      </BodyText>
     </Template>
   )
 }

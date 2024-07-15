@@ -1,5 +1,5 @@
 import {Core, Loop, Program, RGBA8, Renderer, Vao, calcAspectRatioVec} from 'glaku'
-import {resizeState} from '../../state'
+import {resizeState} from '../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({

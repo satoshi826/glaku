@@ -1,5 +1,5 @@
 import {Camera, Core, Loop, Model, Program, Renderer, Vao, box} from 'glaku'
-import {mouseState, resizeState} from '../../state'
+import {mouseState, resizeState} from '../state'
 
 export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
   const core = new Core({
