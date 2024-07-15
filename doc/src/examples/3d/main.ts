@@ -66,7 +66,6 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas) => {
     program.setUniform({u_lightPosition: [5 * x, 5 * y, 2]})
   })
 
-
   program.setUniform({
     u_lightPosition : [2, 2, 2],
     u_cameraPosition: camera.position

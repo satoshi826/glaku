@@ -1,4 +1,4 @@
-import {State} from '../../src/extension/state'
+import {State} from 'glaku'
 
 export const resizeState = new State({width: 1, height: 1})
 

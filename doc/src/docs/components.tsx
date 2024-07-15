@@ -64,7 +64,13 @@ function SandboxButton({children}: {children: string}) {
   const isXs = useIsXs()
   return (
     isXs ?
-      <IconButton sx={{position: 'absolute', bottom: 16, right: 12, backgroundColor: '#88888822'}} color="primary">
+      <IconButton
+        sx={{position: 'absolute', bottom: 16, right: 12, backgroundColor: '#88888822'}}
+        color="primary"
+        LinkComponent={'a'}
+        href={children}
+        target="_blank"
+      >
         <Icon >code</Icon>
       </IconButton>
       :

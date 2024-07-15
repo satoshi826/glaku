@@ -29,7 +29,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
 
   const lightPos = lightCubes.flatMap(({position}) => position ?? [])
 
-  let cameraR = 4000
+  let cameraR = 5000
   let cameraAngleH = Math.PI / 4
   let cameraAngleV = Math.PI / 12
 
@@ -44,7 +44,7 @@ export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRati
     position: calcCameraPosition(),
     near    : 10 * SCALE,
     far     : 16000 * SCALE,
-    fov     : 60
+    fov     : canvas.width < canvas.height ? 90 : 70
   })
 
   const core = new Core({

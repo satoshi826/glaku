@@ -55,7 +55,7 @@ export default function Page() {
       <CaptionText>VAO</CaptionText>
       <BodyText>
         VAOはVertexArrayObjectの略称で、各頂点で扱う属性(attributes)を格納するものです。
-        ここではattributesとして、3つの2次元位置座標を定義しています。試しに <code>a_position</code> の値を変更して三角形の形が変わる様子を見てみましょう。
+        ここではattributesとして、3つの2次元位置座標を定義しています。
         属性(attribute)がどのように使われるかはシェーダー次第です。(3次元座標やRGBをセットするのも自由です)
       </BodyText>
       <Syntax lang='tsx'>
@@ -84,14 +84,12 @@ export default function Page() {
         <br />
         次に、頂点に対応する数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
         今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
-        試しにコードを <code>gl_Position = vec4(a_position.yx, 1.0, 1.0)</code> のように変更して、xy軸が入れ替わる様子を見てみましょう。
         <br />
         そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、このままでは点の集合である「面」を表現することができません。
         そこで、頂点で囲まれた「面」に含まれるピクセルをWebGLが内部で自動的に割り出してくれます。
         <br />
         最後に、「面」に含まれるピクセルの数だけFragmentShaderを実行してディスプレイに表示する色を決定します。
         今回は青色を指定しているだけなので、青い三角形が表示されます。
-        試しにコードを <code> o_color = vec4(1.0, 0.4, 0.4, 1.0)</code> のように変更して、三角形の色が変わる様子を見てみましょう。
       </BodyText>
       <CaptionText>Renderer</CaptionText>
       <BodyText>

@@ -47,7 +47,7 @@ function ScrollStyle() {
       }
       ::-webkit-scrollbar{
         transition : all .6s;
-        height: 8px;
+        height: 6px;
         width: 8px;
       }
     `
