@@ -1,23 +1,49 @@
 import {List, ListItem, ListItemButton, ListItemText, Stack} from '@mui/material'
 import {Tabs} from '../../components/Tabs'
 import {Link, useLocation, useRoute} from 'wouter'
-import {Page, PageType, pageTypes, pages} from '../../pages'
+import {PageType, pageTypes} from '../../pages'
 import {sidebarOpenAtom} from '..'
 import {useSetAtom} from 'jotai'
-import {aToO} from 'jittoku'
 import {useIsXs} from '../../theme/hooks'
+import {examples} from '../../examples/worker'
 
-const items = aToO(pageTypes, (v) => [v, pages.filter(({type}) => type === v)])
+type Content = {
+  type: 'section' | 'page',
+  title: string
+}
+
+export const sidebarContents : Content[] = [
+  {type: 'section', title: 'Getting started'},
+  {type: 'page', title: 'introduction'},
+  {type: 'page', title: 'tutorial'},
+  {type: 'section', title: 'API'},
+  {type: 'page', title: 'Core'},
+  {type: 'page', title: 'Program'},
+  {type: 'page', title: 'VAO'},
+  {type: 'page', title: 'Renderer'},
+  {type: 'section', title: 'Extensions'},
+  // {type: 'page', title: '3D'},
+  {type: 'page', title: 'Shape'},
+  {type: 'page', title: 'State'}
+  // {type: 'page', title: 'GPGPU'}
+]
+
+const items = {
+  docs    : sidebarContents,
+  examples: examples.map(name => ({
+    type: 'page', title: name
+  })) satisfies Content[]
+}
 
 export function SidebarContent() {
   const [, setLocation] = useLocation()
   const [, params] = useRoute('/:name')
   const currentPage = params?.name
 
-  const currentTab: PageType = items.examples.find(({name}) => name === currentPage) ? 'examples' : 'docs'
+  const currentTab: PageType = items.examples.find(({title}) => title === currentPage) ? 'examples' : 'docs'
   const handleChangeTab = (value: PageType) => {
     if(value === currentTab) return
-    setLocation(`/${items[value][0].name}`)
+    setLocation(`/${items[value].find(({type}) => type === 'page')?.title}`)
   }
   return (
     <Stack>
@@ -32,33 +58,47 @@ export function SidebarContent() {
   )
 }
 
-function SidebarList({items, currentPage}: {items: Page[], currentPage: string}) {
+function SidebarList({items, currentPage}: {items: Content[], currentPage: string}) {
   const setSidebarOpen = useSetAtom(sidebarOpenAtom)
   const isXs = useIsXs()
   const handleClick = () => setSidebarOpen(false)
   return (
     <List >
-      {items.map(({name}) => {
-        const isCurrentPage = currentPage === name
+      {items.map(({title, type}) => {
+        const isCurrentPage = currentPage === title
+        const isPage = type === 'page'
         return (
-          <ListItem
-            key={name}
-            component={Link}
-            to={name}
-            sx={({palette : {text, primary}}) => ({
-              color      : isCurrentPage ? primary.main : text.primary,
-              borderRight: isCurrentPage ? `2px solid ${primary.main}` : undefined
-            })}
-            dense
-            disablePadding
-            onClick={isXs ? handleClick : undefined}
-          >
-            <ListItemButton>
-              <ListItemText sx={{textTransform: 'capitalize'}}>
-                {name}
+          isPage ?
+            <ListItem
+              key={title}
+              component={Link}
+              to={title}
+              sx={({palette : {text, primary}}) => ({
+                color      : isCurrentPage ? primary.main : text.secondary,
+                borderRight: isCurrentPage ? `2px solid ${primary.main}` : undefined,
+                px         : 2
+              })}
+              dense
+              disablePadding
+              onClick={isXs ? handleClick : undefined}
+            >
+              <ListItemButton>
+                <ListItemText sx={{textTransform: 'capitalize'}}>
+                  {title}
+                </ListItemText>
+              </ListItemButton>
+            </ListItem>
+            :
+            <ListItem
+              key={title}
+              sx={({palette : {text}}) => ({color: text.primary, pl: 2})}
+              dense
+              disablePadding
+            >
+              <ListItemText sx={{textTransform: 'capitalize'}} primaryTypographyProps={{variant: 'h6'}}>
+                {title}
               </ListItemText>
-            </ListItemButton>
-          </ListItem>
+            </ListItem>
         )
       })}
     </List>

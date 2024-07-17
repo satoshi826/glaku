@@ -1,5 +1,5 @@
 import {useCallback, useLayoutEffect, useMemo, useRef} from 'react'
-import Worker from '../worker?worker'
+import Worker from './worker?worker'
 
 export type CanvasProps = { src: string; state?: object}
 

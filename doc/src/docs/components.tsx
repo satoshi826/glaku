@@ -16,8 +16,8 @@ export function TitleText({children}: React.PropsWithChildren) {
   )
 }
 
-export function SubTitleText({children}: React.PropsWithChildren) {
-  return <Typography variant='h4' sx={{mt: 4, mb: 2}}>{children}</Typography>
+export function SubTitleText({children, sx}: React.PropsWithChildren& {sx?: SxProps<Theme>}) {
+  return <Typography variant='h4' sx={{mt: 4, mb: 2, ...sx}}>{children}</Typography>
 }
 
 export function CaptionText({children}: React.PropsWithChildren) {

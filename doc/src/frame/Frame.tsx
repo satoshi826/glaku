@@ -4,7 +4,7 @@ import {Header} from './Header/Header'
 import {Sidebar} from './Sidebar/Sidebar'
 
 export const sidebarOpenAtom = atom(true)
-export const SIDEBAR_WIDTH = 200
+export const SIDEBAR_WIDTH = 220
 
 export function Frame({children}: React.PropsWithChildren) {
   return (

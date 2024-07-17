@@ -39,10 +39,6 @@ export default function Page() {
       <Syntax lang='tsx' sandbox={sandbox}>
         {code}
       </Syntax>
-      <SubTitleText>Tutorial</SubTitleText>
-      <BodyText>
-        まずQuick Startの内容について解説し、その後実践的な機能を付与していきながらGlakuの機能に触れていきます。
-      </BodyText>
       <CaptionText>Core</CaptionText>
       <BodyText>
         ともかくCoreを準備しましょう。CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
@@ -73,16 +69,17 @@ export default function Page() {
       </Syntax>
 
       <BodyText sx={{pt: 2}}>
-        GLSLシェーダーの解説を行うには余白が狭すぎるので、JavaScript風の疑似コードを元に概要を説明します。
+        GLSLシェーダーの解説を行うには余白が狭すぎるので、次のJavaScript風の疑似コードを元に概要を説明します。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialGLSL}
       </Syntax>
       <BodyText sx={{pt: 2}}>
         まずattributesは頂点単位に分割されます。
-        a_position は<code>[[0, 1], [1, -1], [-1, -1]]</code> となりますね。
+        a_position なら <code>[[0, 1], [1, -1], [-1, -1]]</code> となりますね。
         <br />
-        次に、頂点に対応する数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
+        次に、頂点の数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
+        VertexShaderの実行毎に、分割されたattributesの値を使用することができます。
         今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
         <br />
         そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、このままでは点の集合である「面」を表現することができません。

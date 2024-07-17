@@ -1,7 +1,7 @@
 import {LinearProgress} from '@mui/material'
 import {Frame} from './frame'
-import {pages} from './pages'
-import {Suspense, lazy} from 'react'
+import {pages as pagesFn} from './pages'
+import {Suspense, lazy, useMemo} from 'react'
 import {Route} from 'wouter'
 
 function App() {
@@ -13,6 +13,7 @@ function App() {
 }
 
 function Pages() {
+  const pages = useMemo(() => pagesFn(), [])
   return (
     pages.map(({type, name}) => {
       const Page = lazy(() => import(`./${type}/${name}/Page.tsx`))
