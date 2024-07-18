@@ -76,7 +76,7 @@ function SidebarList({items, currentPage}: {items: Content[], currentPage: strin
               sx={({palette : {text, primary}}) => ({
                 color      : isCurrentPage ? primary.main : text.secondary,
                 borderRight: isCurrentPage ? `2px solid ${primary.main}` : undefined,
-                px         : 2
+                px         : 3
               })}
               dense
               disablePadding
@@ -91,7 +91,7 @@ function SidebarList({items, currentPage}: {items: Content[], currentPage: strin
             :
             <ListItem
               key={title}
-              sx={({palette : {text}}) => ({color: text.primary, pl: 2})}
+              sx={({palette : {text}}) => ({color: text.primary, pl: 3})}
               dense
               disablePadding
             >

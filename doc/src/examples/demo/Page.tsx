@@ -137,10 +137,7 @@ const Wrapper = ({post, children}: { post: (any: object) => void, children: Reac
       sx={{
         touchAction: 'none',
         cursor     : 'pointer',
-        userSelect : 'none',
-        boxShadow  : `
-        inset 0 0 400px rgba(0, 0, 0, 0.6),
-        inset 0 0 800px rgba(0, 0, 0, 0.4);`
+        userSelect : 'none'
       }}
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
