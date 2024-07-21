@@ -38,9 +38,9 @@ export class Vao<T extends AttributeName = 'a_'> {
       const strideSize = this.core.getStrideSize(att)
       this.instancedAttributes![att].array ??= new Float32Array(this.maxInstance * strideSize)
       this.instancedCount = value.length / strideSize
+      this.instancedAttributes![att].dirty = true
       for (let i = 0; i < value.length; i++) {
         this.instancedAttributes![att].array![i] = value[i]
-        this.instancedAttributes![att].dirty = true
       }
     }))
   }

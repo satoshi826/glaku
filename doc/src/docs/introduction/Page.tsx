@@ -4,11 +4,16 @@ import {Tabs} from '../../components/Tabs'
 import {Template} from '../Template'
 
 export default function Page() {
-  const [state, setState] = useState<'Vanilla' | 'React'>('Vanilla')
-  const code = state === 'Vanilla' ? quickStartVanilla : quickStartReact
-  const sandbox = state === 'Vanilla'
-    ? 'https://codesandbox.io/p/sandbox/hello-glaku-skgjgf'
-    : 'https://codesandbox.io/p/sandbox/hello-glaku-react-qf9gj4'
+  const [state, setState] = useState<'Main' | 'Vanilla' | 'React'>('Main')
+  const code = {
+    Main   : quickStartMain,
+    Vanilla: quickStartVanilla,
+    React  : quickStartReact
+  }[state]
+  const sandbox = state !== 'Main' ? {
+    Vanilla: 'https://codesandbox.io/p/sandbox/hello-glaku-skgjgf',
+    React  : 'https://codesandbox.io/p/sandbox/hello-glaku-react-qf9gj4'
+  }[state] : undefined
 
   return (
     <Template>
@@ -32,7 +37,7 @@ export default function Page() {
       </BodyText>
       <Tabs
         value={state}
-        options={['Vanilla', 'React']}
+        options={['Main', 'Vanilla', 'React']}
         onChange={setState}
         tabSx={{textTransform: 'unset'}}
       />
@@ -103,67 +108,54 @@ export default function Page() {
   )
 }
 
-
-const quickStartVanilla =
+const quickStartMain =
 `import { Core, Vao, Program, Renderer } from "glaku";
 
-const canvas = document.getElementById("c");
-const core = new Core({ canvas });
-const vao = new Vao(core, {
-  id: "triangle",
-  attributes: { a_position: [0, 1, 1, -1, -1, -1] },
-});
-const program = new Program(core, {
-  id: "hello",
-  attributeTypes: { a_position: "vec2" },
-  vert: /* glsl */ \`
-      void main() {
-        gl_Position = vec4(a_position, 1.0, 1.0);
-      }\`,
-  frag: /* glsl */ \`
-      out vec4 o_color;
-      void main() {
-        o_color = vec4(0.4, 0.4, 1.0, 1.0);
-      }\`,
-});
-const renderer = new Renderer(core);
-renderer.render(vao, program);
+export const main = (canvas: HTMLCanvasElement) => {
+  const core = new Core({ canvas });
+  const vao = new Vao(core, {
+    id: "triangle",
+    attributes: { a_position: [0, 1, 1, -1, -1, -1] },
+  });
+  const program = new Program(core, {
+    id: "hello",
+    attributeTypes: { a_position: "vec2" },
+    vert: /* glsl */ \`
+            void main() {
+            gl_Position = vec4(a_position, 1.0, 1.0);
+            }\`,
+    frag: /* glsl */ \`
+            out vec4 o_color;
+            void main() {
+            o_color = vec4(0.4, 0.4, 1.0, 1.0);
+            }\`,
+  });
+  const renderer = new Renderer(core);
+  renderer.render(vao, program);
+};`
+
+
+const quickStartVanilla =
+`import { main } from "./main";
+
+const canvas = document.getElementById("c") as HTMLCanvasElement;
+main(canvas);
 `
 
 const quickStartReact =
 `import { useEffect, useRef } from "react";
-import { Core, Vao, Program, Renderer } from "glaku";
+import { main } from "./main";
 
 export default function App() {
   const canvasRef = useRef(null);
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      const core = new Core({ canvas });
-      const vao = new Vao(core, {
-        id: "triangle",
-        attributes: { a_position: [0, 1, 1, -1, -1, -1] },
-      });
-      const program = new Program(core, {
-        id: "hello",
-        attributeTypes: { a_position: "vec2" },
-        vert: /* glsl */ \`
-            void main() {
-              gl_Position = vec4(a_position, 1.0, 1.0);
-            }\`,
-        frag: /* glsl */ \`
-            out vec4 o_color;
-            void main() {
-              o_color = vec4(0.4, 0.4, 1.0, 1.0);
-            }\`,
-      });
-      const renderer = new Renderer(core);
-      renderer.render(vao, program);
+      main(canvas);
     }
   }, []);
   return <canvas ref={canvasRef} />;
-}
-`
+}`
 
 const tutorialCore =
 `const canvas = document.getElementById("c");

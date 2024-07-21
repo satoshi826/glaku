@@ -1,40 +1,4 @@
-import {useEffect, useRef, useState} from 'react'
-import {BodyText, CaptionText, SubTitleText, Syntax, TitleText} from '../components'
-import {Template} from '../Template'
-import {main} from './main'
-
-export default function Page() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (canvas) main(canvas)
-  }, [])
-
-
-  return (
-    <Template>
-      <TitleText>Tutorial</TitleText>
-      <SubTitleText sx={{pb: 1}}>Goal</SubTitleText>
-      <canvas
-        ref={canvasRef}
-        style={{width: '100%', height: '500px', borderRadius: '32px'}}
-      />
-      {/* <Syntax lang='tsx' >
-        {tutorialGoal}
-      </Syntax> */}
-      <BodyText sx={{pt: 2}}>
-        このチュートリアルでは回転する複数のオーブを段階を踏んで作っていきましょう。
-      </BodyText>
-      <SubTitleText sx={{pb: 1}}>オーブを作る</SubTitleText>
-      <SubTitleText sx={{pb: 1}}>オーブを回す</SubTitleText>
-      <SubTitleText sx={{pb: 1}}>オーブを増やす</SubTitleText>
-    </Template>
-  )
-}
-
-const tutorialGoal =
-`import {Core, Vao, Program, Renderer, Loop, resizeObserver} from 'glaku'
+import {Core, Vao, Program, Renderer, Loop, resizeObserver} from 'glaku'
 
 export const main = (canvas: HTMLCanvasElement) => {
 
@@ -70,7 +34,7 @@ export const main = (canvas: HTMLCanvasElement) => {
       u_aspectRatio: 'vec2',
       u_orbSize    : 'float'
     },
-    vert: /* glsl */ \`
+    vert: /* glsl */ `
         out vec2 local_pos;
         void main() {
           vec2 pos = a_position * u_orbSize / u_aspectRatio ;
@@ -78,15 +42,15 @@ export const main = (canvas: HTMLCanvasElement) => {
           vec2 rotate = u_orbSize * vec2(sin(angel), cos(angel)) / u_aspectRatio;
           gl_Position = vec4(pos + rotate, 1.0, 1.0);
           local_pos = a_position;
-        }\`,
-    frag: /* glsl */ \`
+        }`,
+    frag: /* glsl */ `
         in vec2 local_pos;
         out vec4 o_color;
         void main() {
           float radius = length(local_pos);
           float brightness = 1.0 / radius;
           o_color = vec4(vec3(smoothstep(0.8, 25.0, brightness)), 1.0);
-        }\`
+        }`
   })
 
   const setAspectRatio = resizeObserver(({width, height}) => {
@@ -109,4 +73,5 @@ export const main = (canvas: HTMLCanvasElement) => {
     })
   }})
   animation.start()
-}`
+}
+
