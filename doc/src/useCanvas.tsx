@@ -1,9 +1,8 @@
 import {useCallback, useLayoutEffect, useMemo, useRef} from 'react'
-import Worker from './worker?worker'
 
 export type CanvasProps = { src: string; state?: object}
 
-export function useCanvas() {
+export function useCanvas({Worker, style = ''} :{Worker: new () => Worker, style?: string}) {
 
   const workerRef = useRef<Worker | null>(null)
   const handlerRef = useRef(new Set<(v: unknown) => void>())
@@ -15,7 +14,7 @@ export function useCanvas() {
   useLayoutEffect(() => {
     const wrapperEl = document.getElementById('canvas_wrapper')
     const canvasEl = document.createElement('canvas')
-    canvasEl.setAttribute('style', 'position: absolute; height: 100%; width: 100%; zIndex: 0;')
+    canvasEl.setAttribute('style', 'position: absolute; height: 100%; width: 100%; zIndex: 0;' + style)
     canvasEl.setAttribute('name', 'canvas')
     wrapperEl?.appendChild(canvasEl)
     const offScreenCanvas = canvasEl.transferControlToOffscreen()

@@ -1,28 +1,27 @@
 import {useEffect, useRef, useState} from 'react'
 import {BodyText, CaptionText, SubTitleText, Syntax, TitleText} from '../components'
 import {Template} from '../Template'
-import {main} from './main'
+import Worker from '../worker?worker'
+import {useCanvas} from '../../useCanvas'
+import {resizeObserver} from 'glaku'
 
 export default function Page() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const {canvas: canvas1, ref: ref1, post: post1} = useCanvas({Worker, style: 'border-radius: 32px;'})
+  // const {canvas, ref, post} = useCanvas({Worker, style: 'border-radius: 32px;'})
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (canvas) main(canvas)
+    const ro = resizeObserver((resize) => post1({resize}))
+    ro.observe(ref1.current!)
   }, [])
-
 
   return (
     <Template>
       <TitleText>Tutorial</TitleText>
       <SubTitleText sx={{pb: 1}}>Goal</SubTitleText>
-      <canvas
-        ref={canvasRef}
-        style={{width: '100%', height: '500px', borderRadius: '32px'}}
-      />
-      {/* <Syntax lang='tsx' >
-        {tutorialGoal}
-      </Syntax> */}
+      <div style={{width: '100%', height: '500px', borderRadius: '32px', display: 'flex'}}>
+        {canvas1}
+      </div>
       <BodyText sx={{pt: 2}}>
         このチュートリアルでは回転する複数のオーブを段階を踏んで作っていきましょう。
       </BodyText>

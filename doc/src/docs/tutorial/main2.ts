@@ -1,13 +1,11 @@
-import {Core, Vao, Program, Renderer, Loop, resizeObserver} from 'glaku'
+import {Core, Vao, Program, Renderer, Loop} from 'glaku'
+import {resizeState} from '../../examples/state'
 
-export const main = (canvas: HTMLCanvasElement) => {
+export const main1 = (canvas: HTMLCanvasElement) => {
 
   const core = new Core({canvas,
-    resizeListener: (resizeHandler) => {
-      const observer = resizeObserver(resizeHandler)
-      observer.observe(canvas)
-    },
-    options: ['BLEND']
+    resizeListener: (resizeHandler) => resizeState.on(resizeHandler),
+    options       : ['BLEND']
   })
   core.gl.blendFunc(core.gl.ONE, core.gl.ONE)
 
@@ -37,7 +35,7 @@ export const main = (canvas: HTMLCanvasElement) => {
     vert: /* glsl */ `
         out vec2 local_pos;
         void main() {
-          vec2 pos = a_position * u_orbSize / u_aspectRatio ;
+          vec2 pos = a_position * u_orbSize / u_aspectRatio;
           float angel = 0.0005 * u_elapsed / u_orbSize;
           vec2 rotate = u_orbSize * vec2(sin(angel), cos(angel)) / u_aspectRatio;
           gl_Position = vec4(pos + rotate, 1.0, 1.0);
@@ -53,16 +51,15 @@ export const main = (canvas: HTMLCanvasElement) => {
         }`
   })
 
-  const setAspectRatio = resizeObserver(({width, height}) => {
+  resizeState.on(({width, height}) => {
     const aspectRatio = width / height
     const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
     program.setUniform({u_aspectRatio: aspectRatioVec})
   })
-  setAspectRatio.observe(canvas)
 
   const renderer = new Renderer(core)
 
-  const orbSizes = [...Array(50)].map(() => Math.random() * 0.9 + 0.1)
+  const orbSizes = [...Array(50)].map((_, i) => i / 50)
 
   const animation = new Loop({callback: ({elapsed}) => {
     renderer.clear()
@@ -71,7 +68,7 @@ export const main = (canvas: HTMLCanvasElement) => {
       program.setUniform({u_orbSize: size})
       renderer.render(vao, program)
     })
-  }})
+  }, interval: 0})
   animation.start()
 }
 

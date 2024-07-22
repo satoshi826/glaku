@@ -1,13 +1,14 @@
 import {Fab, Icon} from '@mui/material'
-import {useCanvas} from './useCanvas'
+import {useCanvas} from '../useCanvas'
 import React, {ElementType, memo, useEffect} from 'react'
 import {resizeObserver, screenToViewPort} from 'glaku'
 import {HEADER_HEIGHT} from '../frame/Header/Header'
+import Worker from './worker?worker'
 
 export const Template = memo(({src, state, wrapper, sendMouse = true}: {
   src: string, state?: object, wrapper?: ElementType, sendMouse?: boolean
 }) => {
-  const {canvas, post, ref} = useCanvas()
+  const {canvas, post, ref} = useCanvas({Worker})
 
   useEffect(() => {
     post({src})
