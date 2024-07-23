@@ -23,7 +23,7 @@ export const main3 = (canvas: OffscreenCanvas) => {
     ]
   })
   const program = new Program(core, {
-    id            : 'orbs',
+    id            : 'orb',
     attributeTypes: {a_position: 'vec2'},
     uniformTypes  : {
       u_aspectRatio: 'vec2',
@@ -32,8 +32,8 @@ export const main3 = (canvas: OffscreenCanvas) => {
     vert: /* glsl */ `
         out vec2 local_pos;
         void main() {
-          vec2 pos = 1.0 * a_position / u_aspectRatio;
-          float angel = 0.001 * u_elapsed;
+          vec2 pos = a_position / u_aspectRatio;
+          float angel = 0.0005 * u_elapsed;
           vec2 rotate = vec2(sin(angel), cos(angel)) / u_aspectRatio;
           gl_Position = vec4(pos + rotate, 1.0, 1.0);
           local_pos = a_position;

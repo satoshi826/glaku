@@ -207,6 +207,7 @@ export class Core {
   render(primitive: PrimitiveTypes, drawElements: boolean) {
     if (drawElements) this.gl.drawElements(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0)
     else this.gl.drawArrays(this.gl[primitive], 0, this.vao[this.currentVao!].count!)
+    this.gl.flush()
   }
 
   renderInstanced(primitive: PrimitiveTypes, drawElements: boolean, count: number) {

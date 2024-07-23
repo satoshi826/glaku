@@ -23,7 +23,7 @@ export const main2 = (canvas: OffscreenCanvas) => {
     ]
   })
   const program = new Program(core, {
-    id            : 'orbs',
+    id            : 'orb',
     attributeTypes: {a_position: 'vec2'},
     uniformTypes  : {
       u_aspectRatio: 'vec2'
@@ -31,7 +31,7 @@ export const main2 = (canvas: OffscreenCanvas) => {
     vert: /* glsl */ `
         out vec2 local_pos;
         void main() {
-          vec2 pos = 1.0 * a_position / u_aspectRatio;
+          vec2 pos = a_position / u_aspectRatio;
           gl_Position = vec4(pos, 1.0, 1.0);
           local_pos = a_position;
         }`,
@@ -55,7 +55,5 @@ export const main2 = (canvas: OffscreenCanvas) => {
     renderer.render(vao, program)
   })
 
-  renderer.clear()
-  renderer.render(vao, program)
 }
 

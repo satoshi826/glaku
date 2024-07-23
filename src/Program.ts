@@ -35,13 +35,11 @@ export class Program<T extends UniformName, K extends TextureName> {
 
     this.core.setAttLoc(attributeTypes)
     const parsed = this.#parseShader({vert, frag, attributeTypes, uniformTypes, texture})
-
     if(texture) this.setTexture(texture)
 
-    if (!core.program[this.id]) {
-      this.core.setProgram(this.id, parsed.vert, parsed.frag)
-      this.core.setUniLoc(this.id, keys(this.uniforms))
-    }
+    if(core.program[this.id]) throw new Error(`program ${this.id} is already exists`)
+    this.core.setProgram(this.id, parsed.vert, parsed.frag)
+    this.core.setUniLoc(this.id, keys(this.uniforms))
   }
 
   setUniform(uniformValues: PartialRecord<T, number | number[]>) {
