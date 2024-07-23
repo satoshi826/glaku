@@ -1,7 +1,7 @@
-import {Core, Vao, Program, Renderer} from 'glaku'
+import {Core, Vao, Program, Renderer, Loop} from 'glaku'
 import {resizeState} from '../../examples/state'
 
-export const main2 = (canvas: OffscreenCanvas) => {
+export const main3 = (canvas: OffscreenCanvas) => {
 
   const core = new Core({canvas,
     resizeListener: (resizeHandler) => resizeState.on(resizeHandler)
@@ -26,13 +26,16 @@ export const main2 = (canvas: OffscreenCanvas) => {
     id            : 'orbs',
     attributeTypes: {a_position: 'vec2'},
     uniformTypes  : {
-      u_aspectRatio: 'vec2'
+      u_aspectRatio: 'vec2',
+      u_elapsed    : 'float'
     },
     vert: /* glsl */ `
         out vec2 local_pos;
         void main() {
           vec2 pos = 1.0 * a_position / u_aspectRatio;
-          gl_Position = vec4(pos, 1.0, 1.0);
+          float angel = 0.001 * u_elapsed;
+          vec2 rotate = vec2(sin(angel), cos(angel)) / u_aspectRatio;
+          gl_Position = vec4(pos + rotate, 1.0, 1.0);
           local_pos = a_position;
         }`,
     frag: /* glsl */ `
@@ -51,11 +54,15 @@ export const main2 = (canvas: OffscreenCanvas) => {
     const aspectRatio = width / height
     const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
     program.setUniform({u_aspectRatio: aspectRatioVec})
-    renderer.clear()
-    renderer.render(vao, program)
   })
 
-  renderer.clear()
-  renderer.render(vao, program)
+  const animation = new Loop({callback: ({elapsed}) => {
+    program.setUniform({u_elapsed: elapsed})
+    renderer.clear()
+    renderer.render(vao, program)
+  }})
+  animation.start()
 }
+
+
 

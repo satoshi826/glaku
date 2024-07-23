@@ -3,30 +3,45 @@ import {BodyText, CaptionText, SubTitleText, Syntax, TitleText} from '../compone
 import {Template} from '../Template'
 import Worker from '../worker?worker'
 import {useCanvas} from '../../useCanvas'
-import {resizeObserver} from 'glaku'
+import {ResizeArgs, resizeObserver} from 'glaku'
 
 export default function Page() {
 
-  const {canvas: canvas1, ref: ref1, post: post1} = useCanvas({Worker, style: 'border-radius: 32px;'})
-  // const {canvas, ref, post} = useCanvas({Worker, style: 'border-radius: 32px;'})
+  const {canvas: canvas1, ref: ref1, post: post1} = useCanvas({Worker, style: 'border-radius: 32px;', id: '1'})
+  const {canvas: canvas2, ref: ref2, post: post2} = useCanvas({Worker, style: 'border-radius: 32px;', id: '2'})
+  const {canvas: canvas3, ref: ref3, post: post3} = useCanvas({Worker, style: 'border-radius: 32px;', id: '3'})
 
   useEffect(() => {
-    const ro = resizeObserver((resize) => post1({resize}))
-    ro.observe(ref1.current!)
+    if (ref1.current && ref2.current && ref3.current) {
+      const init = (canvas : HTMLDivElement, post : (obj : object) => void, src: string) => {
+        post({src})
+        const ro = resizeObserver((resize) => post({resize}))
+        ro.observe(canvas)
+      }
+      init(ref1.current, post1, '1')
+      init(ref2.current, post2, '2')
+      init(ref3.current, post3, '3')
+    }
   }, [])
 
   return (
     <Template>
       <TitleText>Tutorial</TitleText>
       <SubTitleText sx={{pb: 1}}>Goal</SubTitleText>
-      <div style={{width: '100%', height: '500px', borderRadius: '32px', display: 'flex'}}>
+      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
         {canvas1}
       </div>
       <BodyText sx={{pt: 2}}>
-        このチュートリアルでは回転する複数のオーブを段階を踏んで作っていきましょう。
+        このチュートリアルでは回転する複数のオーブを段階を踏んで作っていきます。IntroductionのQuick Startが完了していることを前提にしています。
       </BodyText>
       <SubTitleText sx={{pb: 1}}>オーブを作る</SubTitleText>
+      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+        {canvas2}
+      </div>
       <SubTitleText sx={{pb: 1}}>オーブを回す</SubTitleText>
+      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+        {canvas3}
+      </div>
       <SubTitleText sx={{pb: 1}}>オーブを増やす</SubTitleText>
     </Template>
   )

@@ -2,7 +2,7 @@ import {useCallback, useLayoutEffect, useMemo, useRef} from 'react'
 
 export type CanvasProps = { src: string; state?: object}
 
-export function useCanvas({Worker, style = ''} :{Worker: new () => Worker, style?: string}) {
+export function useCanvas({Worker, style = '', id = ''} :{Worker: new () => Worker, style?: string, id?: string}) {
 
   const workerRef = useRef<Worker | null>(null)
   const handlerRef = useRef(new Set<(v: unknown) => void>())
@@ -12,7 +12,7 @@ export function useCanvas({Worker, style = ''} :{Worker: new () => Worker, style
   const post = useCallback((...args: any[]) => workerRef.current?.postMessage(...args), [])
 
   useLayoutEffect(() => {
-    const wrapperEl = document.getElementById('canvas_wrapper')
+    const wrapperEl = document.getElementById('canvas_wrapper_' + id)
     const canvasEl = document.createElement('canvas')
     canvasEl.setAttribute('style', 'position: absolute; height: 100%; width: 100%; zIndex: 0;' + style)
     canvasEl.setAttribute('name', 'canvas')
@@ -34,7 +34,7 @@ export function useCanvas({Worker, style = ''} :{Worker: new () => Worker, style
     }
   }, [])
 
-  const canvas = useMemo(() => <div id='canvas_wrapper' ref={coverRef} style={{flexGrow: 1, position: 'relative'}} />, [])
+  const canvas = useMemo(() => <div id={'canvas_wrapper_' + id} ref={coverRef} style={{flexGrow: 1, position: 'relative'}} />, [])
 
   return {canvas, post, ref: coverRef}
 }
