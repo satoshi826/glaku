@@ -60,6 +60,10 @@ export function Syntax({children, lang, sandbox}: SyntaxArg) {
   )
 }
 
+export function SyntaxTsx({children}: {children: string}) {
+  return <Syntax lang='tsx'>{children}</Syntax>
+}
+
 function SandboxButton({children}: {children: string}) {
   const isXs = useIsXs()
   return (

@@ -14,7 +14,7 @@ let canvas : OffscreenCanvas
 onmessage = async({data}) => {
   const {canvas : offscreenCanvas, resize, src} = data
   if (offscreenCanvas) canvas = offscreenCanvas
-  if (src) srcMap[src as '1' | '2'](canvas)
+  if (src) srcMap[src as '1' | '2' | '3'](canvas)
   if (resize) resizeState.set(resize)
 }
 
