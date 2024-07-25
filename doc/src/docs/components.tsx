@@ -38,7 +38,7 @@ const useSyntaxHighlighter = () => useMemo(() => {
 }, [])
 
 const syntaxHighlighterStyle: CSSProperties = {
-  border      : '1px solid #555',
+  border      : '1px solid #5558',
   borderRadius: '12px',
   padding     : '8px 16px 8px 16px'
 }
@@ -64,12 +64,18 @@ export function SyntaxTsx({children}: {children: string}) {
   return <Syntax lang='tsx'>{children}</Syntax>
 }
 
-function SandboxButton({children}: {children: string}) {
+export function SandboxButton({children}: {children: string}) {
   const isXs = useIsXs()
   return (
     isXs ?
       <IconButton
-        sx={{position: 'absolute', bottom: 16, right: 12, backgroundColor: '#88888822'}}
+        sx={{
+          position       : 'absolute',
+          bottom         : 16,
+          right          : 12,
+          backgroundColor: '#88888811',
+          backdropFilter : 'blur(16px) saturate(50%)'
+        }}
         color="primary"
         LinkComponent={'a'}
         href={children}
@@ -79,7 +85,16 @@ function SandboxButton({children}: {children: string}) {
       </IconButton>
       :
       <Button
-        sx={{position: 'absolute', bottom: 12, right: 12, fontSize: 12, textTransform: 'unset'}}
+        sx={{
+          position      : 'absolute',
+          bottom        : 12,
+          right         : 12,
+          fontSize      : 12,
+          textTransform : 'unset',
+          borderRadius  : 16,
+          backdropFilter: 'blur(24px) saturate(50%)'
+
+        }}
         variant='outlined'
         startIcon={<Icon >code</Icon>}
         LinkComponent={'a'}

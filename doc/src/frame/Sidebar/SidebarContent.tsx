@@ -74,16 +74,19 @@ function SidebarList({items, currentPage}: {items: Content[], currentPage: strin
               component={Link}
               to={title}
               sx={({palette : {text, primary}}) => ({
-                color      : isCurrentPage ? primary.main : text.secondary,
-                borderRight: isCurrentPage ? `2px solid ${primary.main}` : undefined,
-                px         : 3
+                px   : 3,
+                color: isCurrentPage ? primary.main : text.secondary
               })}
               dense
               disablePadding
               onClick={isXs ? handleClick : undefined}
             >
-              <ListItemButton>
-                <ListItemText sx={{textTransform: 'capitalize'}}>
+              <ListItemButton sx={({palette : {primary, divider}}) => ({
+                textTransform: 'capitalize',
+                borderLeft   : isCurrentPage ? `1px solid ${primary.main}` : `1px solid ${divider}`,
+                px           : 0
+              })}>
+                <ListItemText sx={{px: 2}}>
                   {title}
                 </ListItemText>
               </ListItemButton>
@@ -91,11 +94,11 @@ function SidebarList({items, currentPage}: {items: Content[], currentPage: strin
             :
             <ListItem
               key={title}
-              sx={({palette : {text}}) => ({color: text.primary, pl: 3})}
+              sx={({palette : {text}}) => ({color: text.primary, pl: 2.5})}
               dense
               disablePadding
             >
-              <ListItemText sx={{textTransform: 'capitalize'}} primaryTypographyProps={{variant: 'h6'}}>
+              <ListItemText sx={{textTransform: 'capitalize', py: 0.5}} primaryTypographyProps={{variant: 'body1'}}>
                 {title}
               </ListItemText>
             </ListItem>

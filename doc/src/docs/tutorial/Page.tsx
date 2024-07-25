@@ -1,14 +1,26 @@
 import {useEffect, useRef, useState} from 'react'
-import {BodyText, CaptionText, SubTitleText, SyntaxTsx, TitleText} from '../components'
+import {BodyText, CaptionText, SandboxButton, SubTitleText, SyntaxTsx, TitleText} from '../components'
 import {Template} from '../Template'
 import Worker from '../worker?worker'
 import {useCanvas} from '../../useCanvas'
 import {ResizeArgs, resizeObserver} from 'glaku'
+import {Box} from '@mui/material'
+
+
+function CanvasWrapper({children, sandbox}: React.PropsWithChildren<{sandbox : string}>) {
+  return (
+    <Box width='100%' height='400px' borderRadius='32px' display='flex' position='relative' sx={{backgroundColor: '#000'}}>
+      {children}
+      <SandboxButton >
+        {sandbox}
+      </SandboxButton>
+    </Box>
+  )
+}
 
 export default function Page() {
 
-  const style = 'border-radius: 32px;'
-
+  const style = 'border-radius: 24px;'
   const {canvas: canvas1, ref: ref1, post: post1} = useCanvas({Worker, style, id: '1'})
   const {canvas: canvas2, ref: ref2, post: post2} = useCanvas({Worker, style, id: '2'})
   const {canvas: canvas3, ref: ref3, post: post3} = useCanvas({Worker, style, id: '3'})
@@ -32,20 +44,20 @@ export default function Page() {
     <Template>
       <TitleText>Tutorial</TitleText>
       <SubTitleText >Goal</SubTitleText>
-      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+      <CanvasWrapper sandbox='https://codesandbox.io/p/sandbox/tutorial-many-orb-43gt6p'>
         {canvas1}
-      </div>
+      </CanvasWrapper>
       <BodyText sx={{pt: 2}}>
         このチュートリアルでは回転する複数のオーブを作ります。IntroductionのQuick Startが完了していることを前提にしています。
       </BodyText>
 
       <SubTitleText >オーブを表示する</SubTitleText>
-      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+      <CanvasWrapper sandbox='https://codesandbox.io/p/sandbox/tutorial-render-orb-s7c8ps'>
         {canvas2}
-      </div>
+      </CanvasWrapper>
       <CaptionText>リサイズ対応：解像度</CaptionText>
       <BodyText >
-      Coreのインスタンスを作成する際に、resizeListenerを登録しておきましょう。
+      Coreのインスタンスを作成する際に、resizeListenerを設定しておきましょう。
       resizeListenerは、リサイズ時のcallback関数を登録するための関数です。
       これにより、表示領域の変化にRendererの解像度が自動的に追従するようになります。
       ここではResizeObserverをシンプルに使うためのヘルパー関数(resizeObserver)を使用しています。
@@ -81,9 +93,9 @@ export default function Page() {
       </SyntaxTsx>
 
       <SubTitleText sx={{pb: 1}}>オーブを回す</SubTitleText>
-      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+      <CanvasWrapper sandbox='https://codesandbox.io/p/sandbox/tutorial-rotate-orb-c7vp38'>
         {canvas3}
-      </div>
+      </CanvasWrapper>
       <CaptionText>時間経過による回転</CaptionText>
       <BodyText >
         [[empty5]]
@@ -100,9 +112,9 @@ export default function Page() {
       </SyntaxTsx>
 
       <SubTitleText sx={{pb: 1}}>オーブを増やす</SubTitleText>
-      <div style={{width: '100%', height: '400px', borderRadius: '32px', display: 'flex'}}>
+      <CanvasWrapper sandbox='https://codesandbox.io/p/sandbox/tutorial-many-orb-43gt6p'>
         {canvas4}
-      </div>
+      </CanvasWrapper>
       <CaptionText>光の加算合成</CaptionText>
       <BodyText >
         [[empty7]]
@@ -114,14 +126,14 @@ export default function Page() {
       <BodyText >
         [[empty8]]
       </BodyText>
-      <SyntaxTsx lang='tsx'>
+      <SyntaxTsx >
         {tutorialManyOrb_program}
       </SyntaxTsx>
       <CaptionText>オーブの複数表示</CaptionText>
       <BodyText >
         [[empty9]]
       </BodyText>
-      <SyntaxTsx lang='tsx'>
+      <SyntaxTsx >
         {tutorialManyOrb_render}
       </SyntaxTsx>
 
@@ -133,7 +145,8 @@ const tutorialRenderOrb_core =
 `const core = new Core({
   canvas,
   resizeListener: (resizeHandler) => {
-    const observer = resizeObserver(resizeHandler); // resizeObserver(({ width, height }) => resizeHandler({ width, height })
+    // resizeObserver(({ width, height }) => resizeHandler({ width, height })
+    const observer = resizeObserver(resizeHandler);
     observer.observe(canvas);
   }
 })
@@ -188,8 +201,7 @@ const tutorialRenderOrb_render =
 
 const setAspectRatio = resizeObserver(({ width, height }) => {
   const aspectRatio = width / height;
-  const aspectRatioVec =
-    aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio];
+  const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio];
   program.setUniform({ u_aspectRatio: aspectRatioVec });
   renderer.clear();
   renderer.render(vao, program);
