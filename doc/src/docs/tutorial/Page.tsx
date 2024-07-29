@@ -1,10 +1,10 @@
 import {useEffect, useRef, useState} from 'react'
-import {BodyText, CaptionText, SandboxButton, SubTitleText, SyntaxTsx, TitleText} from '../components'
+import {BodyText, CaptionText, Code, SandboxButton, SubTitleText, SyntaxTsx, TitleText} from '../components'
 import {Template} from '../Template'
 import Worker from '../worker?worker'
 import {useCanvas} from '../../useCanvas'
 import {ResizeArgs, resizeObserver} from 'glaku'
-import {Box} from '@mui/material'
+import {Box, Typography} from '@mui/material'
 
 
 function CanvasWrapper({children, sandbox}: React.PropsWithChildren<{sandbox : string}>) {
@@ -57,29 +57,54 @@ export default function Page() {
       </CanvasWrapper>
       <CaptionText>リサイズ対応：解像度</CaptionText>
       <BodyText >
-      Coreのインスタンスを作成する際に、resizeListenerを設定しておきましょう。
-      resizeListenerは、リサイズ時のcallback関数を登録するための関数です。
-      これにより、表示領域の変化にRendererの解像度が自動的に追従するようになります。
-      ここではResizeObserverをシンプルに使うためのヘルパー関数(resizeObserver)を使用しています。
+        Coreのインスタンス作成する際に、resizeListenerを設定しましょう。
+        resizeListenerは、リサイズ時のcallback関数を登録するための関数です。
+        これにより、表示領域の変化にRendererの解像度が自動的に追従するようになります。
+        なお、ここではResizeObserverをシンプルに使うためのヘルパー関数(<Code>resizeObserver</Code>)を使用しています。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_core}
       </SyntaxTsx>
       <CaptionText>四角形の準備</CaptionText>
       <BodyText >
-      次に、四角形をレンダするためのVaoを作成しましょう。ここでは、四角形のattributesとIndex bufferを定義しています。
-      Index bufferは頂点をシンプルに定義するためのものです。詳しい解説は割愛しますが、
-      四角形の表示ならば本来2つの三角形、つまりは6つの頂点が必要になるところを、共通する頂点の番号を指定することで
-      4つの頂点で表現することができます。
+        次に、四角形をレンダするためのVaoを作成しましょう。ここでは、四角形のattributesとIndex bufferを定義しています。
+        Index bufferは頂点をシンプルに定義するためのものです。詳しい解説は割愛しますが、
+        四角形の表示ならば本来2つの三角形、つまりは6つの頂点が必要になるところを、共通する頂点の番号を指定することで
+        4つの頂点で表現することができます。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_vao}
       </SyntaxTsx>
       <CaptionText>オーブの表示</CaptionText>
+      <Typography variant='body1' sx={{pb: 1}}>Uniform</Typography>
       <BodyText >
-      Programクラスを使ってシェーダプログラムを作成します。
-      このプログラムは、頂点シェーダとフラグメントシェーダを含み、頂点属性とユニフォーム変数を設定します。
-      頂点シェーダでは、頂点の位置を変換し、フラグメントシェーダではオーブの光の加算合成を行います。
+        ここでuniformという概念が登場します。
+        attributeでは「各頂点に対応するデータ」を設定できましたが、
+        uniformを使用することで「どの頂点でも共通して使えるデータ」を設定することができます。
+        <br/>
+        実例で考えてみましょう。
+        VertexShaderで指定する<Code>gl_Position</Code>は、
+        キャンバスの端から端を<Code>[-1, 1]</Code>の範囲で指定するので(クリップ空間)、
+        何も対策しない場合は
+        キャンバスサイズに連動してオーブが伸び縮みしてしまいます。
+        そこで伸び縮みした分を打ち消すために、キャンバスのアスペクト比の逆数をattributeに掛けることを考えます。
+        そのために今回では<Code noWrap>u_aspectRatio: 'vec2'</Code>をuniformTypesに指定して、
+        VertexShaderで<Code noWrap>a_position / u_aspectRatio</Code>
+        とすることでオーブの形状がキャンバスのアスペクト比の影響を受けないようにしています。
+      </BodyText>
+      <Typography variant='body1' sx={{pb: 1}}>Varying</Typography>
+      <BodyText >
+        オーブの表示のために<Code >a_position</Code>の値をFragmentShaderでも使いたいです。
+        しかし、FragmentShaderではattributeを直接参照することはできないので、
+        varyingという仕組みによってVertexShaderからFragmentShaderへデータを渡します。
+        使い方は単純で、VertexShaderでは<Code noWrap>out vec2 local_pos;</Code>のように
+        varyingとして渡すデータの型と名前を宣言した上で、<Code noWrap>local_pos = a_position;</Code>とすることで、
+        FragmentShaderへ値を渡します。
+        そしてFragmentShaderでは、<Code noWrap>in vec2 local_pos;</Code>のように
+        varyingとして受け取るデータの型と名前を宣言することで、データを使う準備が整います。
+      </BodyText>
+      <Typography variant='body1' sx={{pb: 1}}>FragmentShader</Typography>
+      <BodyText >
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_program}
@@ -175,9 +200,7 @@ const tutorialRenderOrb_program =
 `const program = new Program(core, {
   id            : 'orb',
   attributeTypes: {a_position: 'vec2'},
-  uniformTypes  : {
-    u_aspectRatio: 'vec2'
-  },
+  uniformTypes  : {u_aspectRatio: 'vec2'},
   vert: /* glsl */ \`
     out vec2 local_pos;
     void main() {
@@ -297,22 +320,26 @@ const tutorialManyOrb_program =
 `
 
 const tutorialManyOrb_render =
-`const renderer = new Renderer(core)
+`const renderer = new Renderer(core);
 
-resizeState.on(({width, height}) => {
-  const aspectRatio = width / height
-  const aspectRatioVec = aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio]
-  program.setUniform({u_aspectRatio: aspectRatioVec})
-})
+const setAspectRatio = resizeObserver(({ width, height }) => {
+  const aspectRatio = width / height;
+  const aspectRatioVec =
+    aspectRatio > 1 ? [aspectRatio, 1] : [1, 1 / aspectRatio];
+  program.setUniform({ u_aspectRatio: aspectRatioVec });
+});
+setAspectRatio.observe(canvas);
 
-const orbSizes = [...Array(50)].map((_, i) => (i + 2) * 0.015)
+const orbSizes = [...Array(50)].map((_, i) => (i + 2) * 0.015);
 
-const animation = new Loop({callback: ({elapsed}) => {
-  renderer.clear()
-  program.setUniform({u_elapsed: elapsed})
-  orbSizes.forEach((size) => {
-    program.setUniform({u_orbSize: size})
-    renderer.render(vao, program)
-  })
-}})
-animation.start()`
+const animation = new Loop({
+  callback: ({ elapsed }) => {
+    renderer.clear();
+    program.setUniform({ u_elapsed: elapsed });
+    orbSizes.forEach((size) => {
+      program.setUniform({ u_orbSize: size });
+      renderer.render(vao, program);
+    });
+  },
+});
+animation.start();`

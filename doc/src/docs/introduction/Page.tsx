@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {BodyText, CaptionText, SubTitleText, Syntax, TitleText} from '../components'
+import {BodyText, CaptionText, Code, SubTitleText, Syntax, TitleText} from '../components'
 import {Tabs} from '../../components/Tabs'
 import {Template} from '../Template'
 
@@ -30,9 +30,9 @@ export default function Page() {
       </Syntax>
 
       <SubTitleText>Quick Start</SubTitleText>
-      <BodyText>
+      <BodyText sx={{mb: 1}}>
         以下のサンプルコードを試してみましょう。青い三角形が表示されたら成功です！
-        コードの構造はとてもシンプルで、"VAO"と"Program"を用意して"Renderer"に渡しているだけです。
+        コードの構造はとてもシンプルで、<Code>VAO</Code>と<Code>Program</Code>を用意して<Code>Renderer</Code>に渡すだけです。
         発展的な実装を行う場合もこの流れから逸脱することはありません。
       </BodyText>
       <Tabs
@@ -46,7 +46,7 @@ export default function Page() {
       </Syntax>
       <CaptionText>Core</CaptionText>
       <BodyText>
-        ともかくCoreを準備しましょう。CoreのコンストラクタにCanvas(HTMLCanvasElement または OffScreenCanvas)を渡すことで最小限の初期化が完了します。
+        ともかくCoreを準備しましょう。CoreのコンストラクタにCanvasElementを渡すことで最小限の初期化が完了します。
         CoreはWebGLでレンダリングするための様々な状態を管理していますが、他のクラスから参照して使われることがほとんどなので、直接操作することは少ないかもしれません。
       </BodyText>
       <Syntax lang='tsx'>
@@ -55,9 +55,9 @@ export default function Page() {
 
       <CaptionText>VAO</CaptionText>
       <BodyText>
-        VAOはVertexArrayObjectの略称で、各頂点で扱う属性(attributes)を格納するものです。
-        ここではattributesとして、3つの2次元位置座標を定義しています。
-        属性(attribute)がどのように使われるかはシェーダー次第です。(3次元座標やRGBをセットするのも自由です)
+        VAOはVertexArrayObjectの略称で、各頂点で扱う属性(attribute)を格納するものです。
+        ここではattributeとして、3つの2次元位置座標を定義しています。
+        attributeがどのように使われるかはシェーダー次第です。(3次元座標やRGBをセットするのも自由です)
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialVAO}
@@ -65,9 +65,10 @@ export default function Page() {
 
       <CaptionText>Program</CaptionText>
       <BodyText>
-        Programは特に重要なので丁寧に見ていきましょう。Programには2つのGLSLシェーダー(VertexShader / FragmentShader)と、シェーダー内で扱う変数を定義します。
+        Programは特に重要なので丁寧に見ていきましょう。
+        Programには2つのGLSLシェーダー(VertexShader / FragmentShader)と、シェーダー内で扱う変数を定義します。
         <br />
-        ここでは <code>a_position: "vec2"</code> とすることで、a_position が2次元ベクトルであることをシェーダーに伝えています。
+        ここでは <Code>a_position: "vec2"</Code> とすることで、a_position が2次元ベクトルであることをシェーダーに伝えています。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialProgram}
@@ -80,14 +81,15 @@ export default function Page() {
         {tutorialGLSL}
       </Syntax>
       <BodyText sx={{pt: 2}}>
-        まずattributesは頂点単位に分割されます。
-        a_position なら <code>[[0, 1], [1, -1], [-1, -1]]</code> となりますね。
+        まずattributeは頂点単位に分割されます。
+        a_position なら <Code>[[0, 1], [1, -1], [-1, -1]]</Code> となりますね。
         <br />
         次に、頂点の数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
-        VertexShaderの実行毎に、分割されたattributesの値を使用することができます。
+        VertexShaderの実行毎に、分割されたattributeの値を使用することができます。
         今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
         <br />
-        そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、このままでは点の集合である「面」を表現することができません。
+        そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、
+        このままでは点の集合である「面」を表現することができません。
         そこで、頂点で囲まれた「面」に含まれるピクセルをWebGLが内部で自動的に割り出してくれます。
         <br />
         最後に、「面」に含まれるピクセルの数だけFragmentShaderを実行してディスプレイに表示する色を決定します。
@@ -95,7 +97,7 @@ export default function Page() {
       </BodyText>
       <CaptionText>Renderer</CaptionText>
       <BodyText>
-        Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、レンダリング結果をTextureにしたりすることができますが、(FrameBuffer)
+        Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、レンダリング結果をTextureにしたりすることができますが(FrameBuffer)、
         ここでは単純に使うだけなので、以下のように初期化を行った後renderメソッドを実行し、ディスプレイへレンダリングしています。
       </BodyText>
       <Syntax lang='tsx'>

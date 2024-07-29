@@ -26,9 +26,24 @@ export function CaptionText({children}: React.PropsWithChildren) {
 
 export function BodyText({children, sx}: React.PropsWithChildren & {sx?: SxProps<Theme>}) {
   return (
-    <BodyTextTypography variant='body1' sx={{mb: 4, color: '#bbb', ...sx}}>
+    <BodyTextTypography variant='body1' sx={{mb: 4, color: '#bbb', lineHeight: 1.7, ...sx}}>
       {children}
     </BodyTextTypography>
+  )
+}
+
+export function Code({children, noWrap}: React.PropsWithChildren<{noWrap?: boolean}>) {
+  return (
+    <Typography variant='body1' component='code' noWrap={noWrap} sx={{
+      mx             : 0.5,
+      px             : 1,
+      color          : '#ddd',
+      backgroundColor: '#333',
+      borderRadius   : '7.5px',
+      fontFamily     : 'Source Code Pro,Console'
+    }}>
+      {children}
+    </Typography>
   )
 }
 
@@ -38,7 +53,7 @@ const useSyntaxHighlighter = () => useMemo(() => {
 }, [])
 
 const syntaxHighlighterStyle: CSSProperties = {
-  border      : '1px solid #5558',
+  border      : '1px solid #8884',
   borderRadius: '12px',
   padding     : '8px 16px 8px 16px'
 }
@@ -46,9 +61,11 @@ const syntaxHighlighterStyle: CSSProperties = {
 type SyntaxArg = {children: string, lang?: 'tsx' | undefined, sandbox?: string}
 export function Syntax({children, lang, sandbox}: SyntaxArg) {
   const SyntaxHighlighter = useSyntaxHighlighter()
+  vscDarkPlus['code[class*="language-"]'].fontFamily = 'Source Code Pro,Console'
+  vscDarkPlus['code[class*="language-"]'].fontWeight = 600
   return (
     <Box position='relative' >
-      <SyntaxHighlighter language={lang} style={vscDarkPlus} customStyle={syntaxHighlighterStyle}>
+      <SyntaxHighlighter language={lang} style={vscDarkPlus} customStyle={syntaxHighlighterStyle} >
         {children}
       </SyntaxHighlighter>
       {sandbox &&
@@ -73,8 +90,8 @@ export function SandboxButton({children}: {children: string}) {
           position       : 'absolute',
           bottom         : 16,
           right          : 12,
-          backgroundColor: '#88888811',
-          backdropFilter : 'blur(16px) saturate(50%)'
+          backgroundColor: '#99999933',
+          backdropFilter : 'blur(4px) saturate(50%)'
         }}
         color="primary"
         LinkComponent={'a'}
