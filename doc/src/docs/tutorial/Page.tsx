@@ -49,6 +49,7 @@ export default function Page() {
       </CanvasWrapper>
       <BodyText sx={{pt: 2}}>
         このチュートリアルでは回転する複数のオーブを作ります。IntroductionのQuick Startが完了していることを前提にしています。
+        Glakuの使い方を説明しつつ、WebGLに関する解説も行っていきます。
       </BodyText>
 
       <SubTitleText >オーブを表示する</SubTitleText>
@@ -59,59 +60,80 @@ export default function Page() {
       <BodyText >
         Coreのインスタンス作成する際に、resizeListenerを設定しましょう。
         resizeListenerは、リサイズ時のcallback関数を登録するための関数です。
-        これにより、表示領域の変化にRendererの解像度が自動的に追従するようになります。
-        なお、ここではResizeObserverをシンプルに使うためのヘルパー関数(<Code>resizeObserver</Code>)を使用しています。
+        これにより、キャンバスサイズの変化にRendererの解像度が追従するようになります。
+        ここでは、ResizeObserverをシンプルに使うためのヘルパー関数(<Code>resizeObserver</Code>)を使用しています。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_core}
       </SyntaxTsx>
       <CaptionText>四角形の準備</CaptionText>
       <BodyText >
-        次に、四角形をレンダするためのVaoを作成しましょう。ここでは、四角形のattributesとIndex bufferを定義しています。
-        Index bufferは頂点をシンプルに定義するためのものです。詳しい解説は割愛しますが、
-        四角形の表示ならば本来2つの三角形、つまりは6つの頂点が必要になるところを、共通する頂点の番号を指定することで
-        4つの頂点で表現することができます。
+        次に、四角形をレンダするためのVaoを作成しましょう。ここでは、四角形のattributesとindex bufferを定義しています。
+        index bufferは頂点をシンプルに定義するためのものです。
+        四角形を表示する際には、本来2つの三角形（つまり6つの頂点）が必要ですが、
+        共通する頂点の番号を指定することで4つの頂点で表現できます。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_vao}
       </SyntaxTsx>
-      <CaptionText>オーブの表示</CaptionText>
+      <CaptionText>Programの作成</CaptionText>
       <Typography variant='body1' sx={{pb: 1}}>Uniform</Typography>
       <BodyText >
         ここでuniformという概念が登場します。
         attributeでは「各頂点に対応するデータ」を設定できましたが、
         uniformを使用することで「どの頂点でも共通して使えるデータ」を設定することができます。
         <br/>
-        実例で考えてみましょう。
-        VertexShaderで指定する<Code>gl_Position</Code>は、
-        キャンバスの端から端を<Code>[-1, 1]</Code>の範囲で指定するので(クリップ空間)、
-        何も対策しない場合は
-        キャンバスサイズに連動してオーブが伸び縮みしてしまいます。
-        そこで伸び縮みした分を打ち消すために、キャンバスのアスペクト比の逆数をattributeに掛けることを考えます。
-        そのために今回では<Code noWrap>u_aspectRatio: 'vec2'</Code>をuniformTypesに指定して、
+        例として、VertexShaderで指定する<Code>gl_Position</Code>は、
+        キャンバスの端から端を<Code>[-1, 1]</Code>の範囲で指定しますが、
+        何も対策しない場合はキャンバスサイズに連動してオーブが伸び縮みしてしまいます。
+        そこで伸び縮みを防ぐために、<Code>a_position</Code>をキャンバスのアスペクト比で除算します。
+        そのために<Code noWrap>u_aspectRatio: 'vec2'</Code>をuniformTypesに指定して、
         VertexShaderで<Code noWrap>a_position / u_aspectRatio</Code>
         とすることでオーブの形状がキャンバスのアスペクト比の影響を受けないようにしています。
       </BodyText>
       <Typography variant='body1' sx={{pb: 1}}>Varying</Typography>
       <BodyText >
-        オーブの表示のために<Code >a_position</Code>の値をFragmentShaderでも使いたいです。
-        しかし、FragmentShaderではattributeを直接参照することはできないので、
+        オーブの表示のために座標位置をFragmentShaderで参照したいです。
+        しかし、FragmentShaderからattributeを直接参照することはできないので、
         varyingという仕組みによってVertexShaderからFragmentShaderへデータを渡します。
-        使い方は単純で、VertexShaderでは<Code noWrap>out vec2 local_pos;</Code>のように
-        varyingとして渡すデータの型と名前を宣言した上で、<Code noWrap>local_pos = a_position;</Code>とすることで、
-        FragmentShaderへ値を渡します。
-        そしてFragmentShaderでは、<Code noWrap>in vec2 local_pos;</Code>のように
-        varyingとして受け取るデータの型と名前を宣言することで、データを使う準備が整います。
+        方法は単純で、まずVertexShaderでvaryingとして渡す変数を宣言します。(<Code noWrap>out vec2 local_pos</Code>)
+        次に宣言した変数に値を代入することで、FragmentShaderへ値を渡します。(<Code noWrap>local_pos = a_position</Code>)
+        そしてFragmentShaderでは受け取る変数を宣言するだけでデータを使用できます。
+        (<Code noWrap>in vec2 local_pos</Code>)
+        <br/>
+        また、四角形の中心など頂点以外の場所でFragmentShaderが受け取る値はどうなるのか疑問に思うかもしれませんが、
+        これについてはwebGLが自動的に線形補完をかけた上でFragmentShadeに値を渡してくれます。
+        つまり四角形の中心で実行されるFragmentShaderは<Code >local_pos</Code>として<Code>[0, 0]</Code>を受け取ることができます。
       </BodyText>
       <Typography variant='body1' sx={{pb: 1}}>FragmentShader</Typography>
       <BodyText >
+        シェーダの核心に来ました。ポイントは光の減衰です。
+        ただの白い円は光っているようには見えませんが、中心から離れるほど白から黒へ滑らかに変化させると、
+        それは光のように見えます。これをコードで表してみましょう。
+
+        まず、<Code >local_pos</Code>は中心位置を<Code>[0, 0]</Code>とする四角形の座標位置でした。
+        なので、<Code>local_pos</Code>を位置ベクトルとして扱い、
+        この長さを求めることで中心からの距離が分かります。(<Code noWrap>radius = length(local_pos)</Code>)
+        <br/>
+        そして中心からの距離の逆数は、中心で無限大になり、遠方になるにつれて0に漸近していきます。この値をオーブの明るさとして
+        扱うことにしましょう。(<Code noWrap>brightness = 1.0 / radius</Code>)
+        あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、程よい感じになるように値を補完します。
+        (<Code noWrap>smoothstep(1.0, 10.0, brightness)</Code>)
+
+
+
+
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_program}
       </SyntaxTsx>
       <CaptionText>リサイズ対応：アスペクト比</CaptionText>
       <BodyText >
-        [[empty4]]
+      ここでは、ウィンドウのリサイズに対応してアスペクト比を調整する方法を説明します。
+      まず、リサイズイベントを監視するためにresizeObserverを使用します。
+      これにより、ウィンドウのサイズが変わるたびにキャンバスのアスペクト比を再計算し、シェーダーに新しい値を渡すことができます。
+      以下のコードでは、リサイズイベントをキャッチし、キャンバスの幅と高さの比率（アスペクト比）を計算して、
+      それをシェーダーのu_aspectRatioユニフォームに設定します。その後、レンダラーをクリアし、新しいアスペクト比で再描画します。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_render}

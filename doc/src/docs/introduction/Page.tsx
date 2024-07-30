@@ -68,7 +68,8 @@ export default function Page() {
         Programは特に重要なので丁寧に見ていきましょう。
         Programには2つのGLSLシェーダー(VertexShader / FragmentShader)と、シェーダー内で扱う変数を定義します。
         <br />
-        ここでは <Code>a_position: "vec2"</Code> とすることで、a_position が2次元ベクトルであることをシェーダーに伝えています。
+        ここでは <Code>a_position: "vec2"</Code> とすることで、<Code>a_position</Code> が
+        2次元ベクトルであることをシェーダーに伝えています。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialProgram}
@@ -82,23 +83,23 @@ export default function Page() {
       </Syntax>
       <BodyText sx={{pt: 2}}>
         まずattributeは頂点単位に分割されます。
-        a_position なら <Code>[[0, 1], [1, -1], [-1, -1]]</Code> となりますね。
+        <Code>a_position</Code>なら<Code>[[0, 1], [1, -1], [-1, -1]]</Code> となりますね。
         <br />
-        次に、頂点の数だけVertexShaderを実行してレンダリング対象の頂点位置を決定します。
+        次に、「頂点の数だけ」VertexShaderを実行してレンダリング対象の頂点位置を決定します。
         VertexShaderの実行毎に、分割されたattributeの値を使用することができます。
-        今回のシェーダーでは a_position の値をそのまま頂点位置に指定しています。
+        今回のシェーダーでは<Code>a_position</Code>の値をそのまま頂点位置に指定しています。
         <br />
         そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、
         このままでは点の集合である「面」を表現することができません。
         そこで、頂点で囲まれた「面」に含まれるピクセルをWebGLが内部で自動的に割り出してくれます。
         <br />
-        最後に、「面」に含まれるピクセルの数だけFragmentShaderを実行してディスプレイに表示する色を決定します。
+        最後に、「面」に含まれる「ピクセルの数だけ」FragmentShaderを実行してディスプレイに表示する色を決定します。
         今回は青色を指定しているだけなので、青い三角形が表示されます。
       </BodyText>
       <CaptionText>Renderer</CaptionText>
       <BodyText>
-        Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、レンダリング結果をTextureにしたりすることができますが(FrameBuffer)、
-        ここでは単純に使うだけなので、以下のように初期化を行った後renderメソッドを実行し、ディスプレイへレンダリングしています。
+        Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、レンダリング結果をTextureにすることもできますが、(frameBuffer)
+        ここでは単純に描画するだけなので、以下のように初期化を行った後renderメソッドを実行し、ディスプレイへレンダリングしています。
       </BodyText>
       <Syntax lang='tsx'>
         {tutorialRenderer}
@@ -190,8 +191,8 @@ const tutorialProgram =
 const tutorialGLSL =
 `const vertexes = chunk(vao)
 
-const positions = vertexes.map(attributes => {
-  const position = vertexShader(attributes)
+const positions = vertexes.map(attribute => {
+  const position = vertexShader(attribute)
   return position
 })
 
