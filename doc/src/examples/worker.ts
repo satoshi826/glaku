@@ -8,7 +8,9 @@ import {main as GPGPU} from './GPGPU/main'
 import {main as _3d} from './3D/main'
 import {main as instancing} from './instancing/main'
 import {main as frameBuffer} from './frameBuffer/main'
-import {main as demo} from './demo/main'
+import {main as gameOfLife} from './gameOfLife/main'
+import {main as cyberpunk} from './cyberpunk/main'
+
 import {imageState, mouseState, resizeState, targetState, zoomState} from './state'
 import {keys} from 'jittoku'
 
@@ -20,10 +22,11 @@ const srcRecord = {
   resize,
   texture,
   frameBuffer,
-  '3D': _3d,
+  '3D'          : _3d,
   instancing,
   GPGPU,
-  demo
+  'Game of Life': gameOfLife,
+  cyberpunk
 } as const
 type SrcType = keyof typeof srcRecord
 

@@ -16,11 +16,13 @@ function Pages() {
   const pages = useMemo(() => pagesFn(), [])
   return (
     pages.map(({type, name}) => {
-      const Page = lazy(() => import(`./${type}/${name}/Page.tsx`))
+      const _name = name.replaceAll(' ', '')
+      console.log(_name)
+      const Page = lazy(() => import(`./${type}/${_name}/Page.tsx`))
       return (
-        <Route path={name} key={name}>
+        <Route path={_name} key={_name}>
           <Suspense fallback={<LinearProgress sx={{width: '100%', height: 2}}/>}>
-            <Page name={name}/>
+            <Page name={_name}/>
           </Suspense>
         </Route>
       )

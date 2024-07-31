@@ -83,9 +83,9 @@ export default function Page() {
       </Syntax>
       <BodyText sx={{pt: 2}}>
         まずattributeは頂点単位に分割されます。
-        <Code>a_position</Code>なら<Code>[[0, 1], [1, -1], [-1, -1]]</Code> となりますね。
+        (<Code>a_position</Code>なら<Code>[0, 1], [1, -1], [-1, -1]</Code>)
         <br />
-        次に、「頂点の数だけ」VertexShaderを実行してレンダリング対象の頂点位置を決定します。
+        次に「頂点の数だけ」VertexShaderを実行してレンダリング対象の頂点位置を決定します。
         VertexShaderの実行毎に、分割されたattributeの値を使用することができます。
         今回のシェーダーでは<Code>a_position</Code>の値をそのまま頂点位置に指定しています。
         <br />

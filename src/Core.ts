@@ -213,6 +213,7 @@ export class Core {
   renderInstanced(primitive: PrimitiveTypes, drawElements: boolean, count: number) {
     if (drawElements) this.gl.drawElementsInstanced(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0, count)
     else this.gl.drawArraysInstanced(this.gl[primitive], 0, this.vao[this.currentVao!].count!, count)
+    this.gl.flush()
   }
 
   useRenderer({id, pixelRatio, width, height, frameBuffer, drawBuffers}:

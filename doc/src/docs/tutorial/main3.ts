@@ -34,7 +34,7 @@ export const main3 = (canvas: OffscreenCanvas) => {
         void main() {
           vec2 pos = a_position / u_aspectRatio;
           float angel = 0.0005 * u_elapsed;
-          vec2 rotate = vec2(sin(angel), cos(angel)) / u_aspectRatio;
+          vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio;
           gl_Position = vec4(pos + rotate, 1.0, 1.0);
           local_pos = a_position;
         }`,

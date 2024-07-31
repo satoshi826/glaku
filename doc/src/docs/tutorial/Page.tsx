@@ -107,7 +107,7 @@ export default function Page() {
       </BodyText>
       <Typography variant='body1' sx={{pb: 1}}>FragmentShader</Typography>
       <BodyText >
-        シェーダの核心に来ました。ポイントは光の減衰です。
+        オーブの核心に来ました。ポイントは光の減衰です。
         ただの白い円は光っているようには見えませんが、中心から離れるほど白から黒へ滑らかに変化させると、
         それは光のように見えます。これをコードで表してみましょう。
 
@@ -117,7 +117,7 @@ export default function Page() {
         <br/>
         そして中心からの距離の逆数は、中心で無限大になり、遠方になるにつれて0に漸近していきます。この値をオーブの明るさとして
         扱うことにしましょう。(<Code noWrap>brightness = 1.0 / radius</Code>)
-        あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、程よい感じになるように値を補完します。
+        あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、程よい感じになるように値を補正します。
         (<Code noWrap>smoothstep(1.0, 10.0, brightness)</Code>)
 
 
@@ -129,11 +129,13 @@ export default function Page() {
       </SyntaxTsx>
       <CaptionText>リサイズ対応：アスペクト比</CaptionText>
       <BodyText >
-      ここでは、ウィンドウのリサイズに対応してアスペクト比を調整する方法を説明します。
-      まず、リサイズイベントを監視するためにresizeObserverを使用します。
-      これにより、ウィンドウのサイズが変わるたびにキャンバスのアスペクト比を再計算し、シェーダーに新しい値を渡すことができます。
-      以下のコードでは、リサイズイベントをキャッチし、キャンバスの幅と高さの比率（アスペクト比）を計算して、
-      それをシェーダーのu_aspectRatioユニフォームに設定します。その後、レンダラーをクリアし、新しいアスペクト比で再描画します。
+        Programに<Code >u_aspectRatio</Code>を渡せるようにしたので、
+        キャンバスがリサイズされたタイミングで<Code noWrap>setUniform</Code>メソッドを使ってデータをセットしましょう。
+        ここで<Code >aspectRatioVec</Code>は、キャンバスの短辺に対する長辺の割合を表しており、
+        例えば <Code noWrap>width: 200 height: 100</Code> なら <Code noWrap>aspectRatioVec = [2, 1]</Code>となり、
+        <Code noWrap>width: 400 height: 800</Code> なら  <Code noWrap>aspectRatioVec = [1, 2]</Code>となります。
+        <br/>
+        また、uniformをセットするだけでは表示されないので、このタイミングでレンダリングも行いましょう。
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_render}
@@ -143,16 +145,24 @@ export default function Page() {
       <CanvasWrapper sandbox='https://codesandbox.io/p/sandbox/tutorial-rotate-orb-c7vp38'>
         {canvas3}
       </CanvasWrapper>
-      <CaptionText>時間経過による回転</CaptionText>
+      <CaptionText>経過時間に応じた回転</CaptionText>
       <BodyText >
-        [[empty5]]
+        VertexShaderを使ってオーブを回しましょう。
+        まずuniformTypesに<Code noWrap>u_elapsed: "float"</Code>を追加して、経過時間を扱えるようにします。
+        続いて経過時間に応じて増大する角度を<Code noWrap>angel = 0.0005 * u_elapsed</Code>として表します。
+        あとは<Code noWrap>vec2(cos(angel), sin(angel))</Code>とすることで回転による移動を計算することができますが、
+        このままでは<Code >a_position</Code>の同様にアスペクト比の影響を受けてしまうので
+        <Code noWrap>u_aspectRatio</Code>を使って補正しましょう。
+        (<Code noWrap>vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio</Code>)
+        <br/>
+        最後に、元々の座標に回転による移動を足すことで回転するオーブを表現できます。(<Code >pos + rotate</Code>)
       </BodyText>
       <SyntaxTsx>
         {tutorialRotateOrb_program}
       </SyntaxTsx>
       <CaptionText>アニメーションループ</CaptionText>
       <BodyText >
-        [[empty6]]
+        
       </BodyText>
       <SyntaxTsx>
         {tutorialRotateOrb_render}
@@ -266,7 +276,7 @@ const tutorialRotateOrb_program =
       void main() {
         vec2 pos = a_position / u_aspectRatio;
         float angel = 0.0005 * u_elapsed;
-        vec2 rotate = vec2(sin(angel), cos(angel)) / u_aspectRatio;
+        vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio;
         gl_Position = vec4(pos + rotate, 1.0, 1.0);
         local_pos = a_position;
       }\`,
@@ -326,7 +336,7 @@ const tutorialManyOrb_program =
       void main() {
         vec2 pos = a_position * u_orbSize / u_aspectRatio;
         float angel = 0.0005 * u_elapsed / u_orbSize;
-        vec2 rotate = 1.5 * u_orbSize * vec2(sin(angel), cos(angel)) / u_aspectRatio;
+        vec2 rotate = 1.5 * u_orbSize * vec2(cos(angel), sin(angel)) / u_aspectRatio;
         gl_Position = vec4(pos + rotate, 1.0, 1.0);
         local_pos = a_position;
       }\`,

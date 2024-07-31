@@ -72,8 +72,7 @@ export const main = (canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: nu
   })
 
   resizeState.on(({width, height}) => {
-    const ar = width && height ? calcAspectRatioVec(width, height) : [1, 1]
-    gpgpu.setUniform({u_aspectRatio: ar})
+    gpgpu.setUniform({u_aspectRatio: calcAspectRatioVec(width, height)})
   })
 
   mouseState.on(({x, y}) => {

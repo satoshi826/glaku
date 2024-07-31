@@ -10,6 +10,8 @@ export const SCALE = 0.2
 
 //----------------------------------------------------------------
 
+// Deferred Shading + Bloom + Instancing
+
 export const main = async(canvas: HTMLCanvasElement | OffscreenCanvas, pixelRatio: number) => {
 
   const [buildings, lightCubes] = getBuildings()
