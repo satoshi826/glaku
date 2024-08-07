@@ -22,10 +22,10 @@ const srcRecord = {
   resize,
   texture,
   frameBuffer,
-  '3D'          : _3d,
+  '3D': _3d,
   instancing,
   GPGPU,
-  'Game of Life': gameOfLife,
+  // 'Game of Life': gameOfLife,
   cyberpunk
 } as const
 type SrcType = keyof typeof srcRecord

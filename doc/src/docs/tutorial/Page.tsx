@@ -79,21 +79,22 @@ export default function Page() {
       <CaptionText>Programの作成</CaptionText>
       <Typography variant='body1' sx={{pb: 1}}>Uniform</Typography>
       <BodyText >
-        ここでuniformという概念が登場します。
+        ここでuniformという重要な概念が登場します。
         attributeでは「各頂点に対応するデータ」を設定できましたが、
         uniformを使用することで「どの頂点でも共通して使えるデータ」を設定することができます。
         <br/>
-        例として、VertexShaderで指定する<Code>gl_Position</Code>は、
-        キャンバスの端から端を<Code>[-1, 1]</Code>の範囲で指定しますが、
+        今回の例で何故uniformが必要になるか考えていきましょう。
+        VertexShaderで指定する<Code>gl_Position</Code>は、
+        キャンバスの端から端を<Code>[-1, 1]</Code>の範囲で指定するので、
         何も対策しない場合はキャンバスサイズに連動してオーブが伸び縮みしてしまいます。
-        そこで伸び縮みを防ぐために、<Code>a_position</Code>をキャンバスのアスペクト比で除算します。
+        これを防ぐために、<Code>a_position</Code>をキャンバスのアスペクト比で除算します。
         そのために<Code noWrap>u_aspectRatio: 'vec2'</Code>をuniformTypesに指定して、
         VertexShaderで<Code noWrap>a_position / u_aspectRatio</Code>
         とすることでオーブの形状がキャンバスのアスペクト比の影響を受けないようにしています。
       </BodyText>
       <Typography variant='body1' sx={{pb: 1}}>Varying</Typography>
       <BodyText >
-        オーブの表示のために座標位置をFragmentShaderで参照したいです。
+        オーブの表示のために四角形の座標位置をFragmentShaderで参照したいです。
         しかし、FragmentShaderからattributeを直接参照することはできないので、
         varyingという仕組みによってVertexShaderからFragmentShaderへデータを渡します。
         方法は単純で、まずVertexShaderでvaryingとして渡す変数を宣言します。(<Code noWrap>out vec2 local_pos</Code>)
@@ -101,13 +102,13 @@ export default function Page() {
         そしてFragmentShaderでは受け取る変数を宣言するだけでデータを使用できます。
         (<Code noWrap>in vec2 local_pos</Code>)
         <br/>
-        また、四角形の中心など頂点以外の場所でFragmentShaderが受け取る値はどうなるのか疑問に思うかもしれませんが、
+        また、四角形の中心など、頂点以外の場所でFragmentShaderが受け取る値はどうなるのか疑問に思うかもしれませんが、
         これについてはwebGLが自動的に線形補完をかけた上でFragmentShadeに値を渡してくれます。
         つまり四角形の中心で実行されるFragmentShaderは<Code >local_pos</Code>として<Code>[0, 0]</Code>を受け取ることができます。
       </BodyText>
       <Typography variant='body1' sx={{pb: 1}}>FragmentShader</Typography>
       <BodyText >
-        オーブの核心に来ました。ポイントは光の減衰です。
+        オーブの表現のポイントは光の減衰です。
         ただの白い円は光っているようには見えませんが、中心から離れるほど白から黒へ滑らかに変化させると、
         それは光のように見えます。これをコードで表してみましょう。
 
@@ -117,12 +118,8 @@ export default function Page() {
         <br/>
         そして中心からの距離の逆数は、中心で無限大になり、遠方になるにつれて0に漸近していきます。この値をオーブの明るさとして
         扱うことにしましょう。(<Code noWrap>brightness = 1.0 / radius</Code>)
-        あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、程よい感じになるように値を補正します。
+        あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、smoothstepという関数で程よく暗くします。
         (<Code noWrap>smoothstep(1.0, 10.0, brightness)</Code>)
-
-
-
-
       </BodyText>
       <SyntaxTsx>
         {tutorialRenderOrb_program}
@@ -153,16 +150,18 @@ export default function Page() {
         あとは<Code noWrap>vec2(cos(angel), sin(angel))</Code>とすることで回転による移動を計算することができますが、
         このままでは<Code >a_position</Code>の同様にアスペクト比の影響を受けてしまうので
         <Code noWrap>u_aspectRatio</Code>を使って補正しましょう。
-        (<Code noWrap>vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio</Code>)
+        (<Code >vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio</Code>)
         <br/>
         最後に、元々の座標に回転による移動を足すことで回転するオーブを表現できます。(<Code >pos + rotate</Code>)
       </BodyText>
       <SyntaxTsx>
         {tutorialRotateOrb_program}
       </SyntaxTsx>
-      <CaptionText>アニメーションループ</CaptionText>
+      <CaptionText>アニメーション</CaptionText>
       <BodyText >
-        
+        回転を表現するためにアニメーションを行いましょう。
+        ここでは手軽にアニメーションを行うためのLoopというヘルパークラスを使用して、
+        経過時間のセットとレンダリングを毎フレーム実行しています。
       </BodyText>
       <SyntaxTsx>
         {tutorialRotateOrb_render}
@@ -174,21 +173,40 @@ export default function Page() {
       </CanvasWrapper>
       <CaptionText>光の加算合成</CaptionText>
       <BodyText >
-        [[empty7]]
+        これまでFragmentShaderによって四角形の面に対してオーブをレンダリングしてきました。
+        しかし、複数のオーブを描画する場合、オーブ同士が近接していると、一方のオーブが他方のオーブによって覆われて見えなくなることがあります。
+        (トランプのカードが重なって置かれているようなイメージです。)
+        <br/>
+        この問題を解決するために、WebGLのBlending機能を使用します。
+        Blendingでは「描画する色をどのように混ぜ合わせるか」を指定することができます。
+        主に半透明の表現などで使われることが多いですが、ここでは単純に色を加算することによって、
+        オーブ同士が重なった部分がより明るく表示されるようにします。
+        <br/>
+        Coreのインスタンスを作成する際にBlendingを有効にした後、(<Code>options: ["BLEND"]</Code>)
+        色の加算合成を行うことを指定しましょう。(<Code>core.gl.blendFunc(core.gl.ONE, core.gl.ONE</Code>)
       </BodyText>
       <SyntaxTsx>
         {tutorialManyOrb_core}
       </SyntaxTsx>
       <CaptionText>オーブのサイズ変更</CaptionText>
       <BodyText >
-        [[empty8]]
+        次に、オーブのサイズを変更できるようにしてみましょう。
+        まず、オーブのサイズを変更するためuniformTypesに<Code noWrap>u_orbSize: "float"</Code>を追加します。
+        続いてVertexShader内で<Code>a_position * u_orbSize</Code>とすることで、
+        頂点の位置をスケールし、オーブのサイズを変更しています。
+        また、回転角度/回転半径の計算にも<Code>u_orbSize</Code>を組み込むことで、
+        オーブが大きくなるほど、ゆっくりと外側を回転するようにしています。
       </BodyText>
       <SyntaxTsx >
         {tutorialManyOrb_program}
       </SyntaxTsx>
       <CaptionText>オーブの複数表示</CaptionText>
       <BodyText >
-        [[empty9]]
+        いよいよ最後です。50個のオーブを異なるサイズで描画し、それぞれが独立して回転するようにしましょう。
+        まず<Code>orbSizes</Code>という配列を作成し、50個のオーブのサイズを定義しています。
+        <Code>orbSizes</Code>配列の各要素は、サイズを表していて、徐々に大きくなるように設定しています。
+        そして、アニメーションループ内でorbSizesの各値を<Code>u_orbSize</Code>にセットし、レンダリング
+        各オーブのサイズを設定して描画します。
       </BodyText>
       <SyntaxTsx >
         {tutorialManyOrb_render}
@@ -317,7 +335,7 @@ const tutorialManyOrb_core =
     const observer = resizeObserver(resizeHandler);
     observer.observe(canvas);
   },
-  options: ["BLEND"],
+  options: ["BLEND"], // gl.enable(gl.BLEND)
 });
 core.gl.blendFunc(core.gl.ONE, core.gl.ONE);
 `

@@ -16,7 +16,8 @@ function Pages() {
   const pages = useMemo(() => pagesFn(), [])
   return (
     pages.map(({type, name}) => {
-      const _name = name.replaceAll(' ', '')
+      // const _name = name.replaceAll(' ', '')
+      const _name = name
       console.log(_name)
       const Page = lazy(() => import(`./${type}/${_name}/Page.tsx`))
       return (

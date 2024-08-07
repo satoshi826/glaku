@@ -17,14 +17,14 @@ export const sidebarContents : Content[] = [
   {type: 'page', title: 'introduction'},
   {type: 'page', title: 'tutorial'},
   {type: 'section', title: 'API'},
-  {type: 'page', title: 'Core'},
-  {type: 'page', title: 'Program'},
+  {type: 'page', title: 'core'},
+  {type: 'page', title: 'program'},
   {type: 'page', title: 'VAO'},
-  {type: 'page', title: 'Renderer'},
-  {type: 'section', title: 'Extensions'},
+  {type: 'page', title: 'renderer'},
+  {type: 'section', title: 'extensions'},
   // {type: 'page', title: '3D'},
-  {type: 'page', title: 'Shape'},
-  {type: 'page', title: 'State'}
+  {type: 'page', title: 'shape'},
+  {type: 'page', title: 'state'}
   // {type: 'page', title: 'GPGPU'}
 ]
 
