@@ -1,0 +1,262 @@
+{
+  "introduction" : {
+    "overview": {
+      "header": "Glaku aims to unlock the power of pure WebGL with simple code.",
+      "simpleAPI": "By eliminating the complexity of the WebGL API, you can harness the power of shader coding with minimal code. With only four main classes, the learning curve is low, allowing you to focus on implementing your application.",
+      "webGL2Powered": "Built on WebGL2, Glaku offers powerful features like GLSL ES 3.0, instancing, Floating Point Textures, and MRT (Multiple Render Targets) as standard.",
+      "zeroDependencies": "The build size is only about 10KB after gzip, with no external dependencies, keeping your application compact.",
+      "fullyTyped": "Glaku is developed entirely in TypeScript, providing strong typing support."
+    },
+    "quickStart": "Try the sample code below. If you see a blue triangle, you're successful! The code structure is straightforward, involving just setting up a <c>VAO</c> and a <c>Program</c>, then passing them to the <c>Renderer</c>. Even for more advanced implementations, you won't deviate much from this flow.",
+    "fyi": {
+      "summary": "FYI: Without using Glaku...",
+      "conclusion": "In practical code, the amount of code and complexity will increase even further from here."
+    },
+    "core": "Let's start by setting up the Core. By passing a CanvasElement to the Core constructor, you complete the minimum initialization required. The Core manages various states for WebGL rendering, but it's mostly used by other classes, so direct interaction with it might be minimal.",
+    "VAO": "VAO stands for VertexArrayObject, which stores attributes for each vertex. Here, we define three 2D position coordinates as attributes. How these attributes are used depends on the shader (you could set 3D coordinates or RGB values if you prefer).",
+    "program" : {
+      "1": "Program is particularly important, so let's go over it carefully. A Program consists of two GLSL shaders (VertexShader / FragmentShader) and defines the variables used in the shaders.<br/>Here, by defining <c>a_position: \"vec2\"</c>, we inform the shader that <c>a_position</c> is a 2D vector.",
+      "2": "Explaining GLSL shaders requires more space than we have here, so let's go over the general idea using the following pseudocode inspired by JavaScript.",
+      "3": "First, the attributes are split per vertex (e.g., for <c>a_position</c>, <c>[0, 1], [1, -1], [-1, -1]</c>).<br />Then, the VertexShader is executed for each vertex to determine the vertex position for rendering. During each execution of the VertexShader, the split attribute values can be used. In this shader, we directly assign the <c>a_position</c> values to the vertex positions.<br />Next comes rasterization. Although we've instructed WebGL on the positions of three vertices, this alone can't represent a 'surface'—only a set of points. WebGL automatically determines which pixels lie within the surface formed by these vertices.<br />Finally, the FragmentShader is executed for each pixel within the 'surface' to determine the color displayed on the screen. In this case, we're simply specifying a blue color, resulting in a blue triangle."
+    },
+    "renderer" : "The Renderer is like a virtual display. You can specify the PixelRatio, link it with a FrameBuffer to render the result as a Texture, and more. Here, we're just rendering simply, so after initializing as shown below, we call the render method to render to the display.",
+    "conclusion": "By now, you've learned the contents of the Quick Start. Let's move on to more practical examples."
+  },
+  "tutorial": {
+    "header": "In this tutorial, we will create multiple rotating orbs. It assumes that you have completed the Quick Start section in the Introduction. While explaining how to use Glaku, we will also dive into some WebGL concepts.",
+    "renderOrb": {
+      "title": "Rendering the Orb",
+      "resizeResolution": {
+        "title": "Resize Handling: Resolution",
+        "body": "When creating an instance of Core, you should set up the resizeListener. The resizeListener is a function for registering callback functions that trigger when the window is resized. This allows the resolution of the Renderer to adjust with changes in canvas size. Here, we use a helper function (<c>resizeObserver</c>) to simplify the usage of the ResizeObserver."
+      },
+      "prepareRect": {
+        "title": "Preparing the Rectangle",
+        "body": "Next, let's create a Vao for rendering a rectangle. Here, we define the attributes and index buffer for the rectangle. The index buffer is used to simplify the definition of vertices. While rendering a rectangle typically requires two triangles (six vertices), by specifying common vertex indices, it can be represented with just four vertices."
+      },
+      "createProgram": {
+        "title": "Creating the Program",
+        "uniform": "Here we introduce the important concept of uniform. While attributes allow you to set data for each vertex, with uniforms you can set data that is common across all vertices.<br/>Let's consider why uniforms are necessary in this example. The <c>gl_Position</c> in the VertexShader is specified within a range of <c>[-1, 1]</c> from one end of the canvas to the other, so without any adjustments, the orb would stretch and shrink along with the canvas size. To prevent this, we divide <c>a_position</c> by the canvas aspect ratio. To achieve this, we specify <c>u_aspectRatio: 'vec2'</c> in uniformTypes, and by doing <c>a_position / u_aspectRatio</c> in the VertexShader, the orb's shape will not be affected by the canvas aspect ratio.",
+        "varying": "To display the orb, we want to reference the coordinates of the rectangle in the FragmentShader. However, the FragmentShader cannot directly reference attributes, so we use a mechanism called varying to pass data from the VertexShader to the FragmentShader. The method is simple: first, declare the variable to be passed as a varying in the VertexShader. (<c>out vec2 local_pos</c>) Then, assign a value to the declared variable, which will pass the data to the FragmentShader. (<c>local_pos = a_position</c>) Finally, in the FragmentShader, declare the variable to receive the data, and you can use it. (<c>in vec2 local_pos</c>)<br/>You might wonder how values are handled in the FragmentShader for positions other than the vertices, such as the center of the rectangle. In this case, WebGL automatically performs linear interpolation and passes the interpolated value to the FragmentShader. So, the FragmentShader executed at the center of the rectangle can receive <c>local_pos</c> as <c>[0, 0]</c>.",
+        "fragment": "The key to representing the orb is light attenuation. A plain white circle does not appear to glow, but if it smoothly transitions from white to black as you move away from the center, it will look like a light source. Let's represent this in code. First, <c>local_pos</c> was the coordinate position of the rectangle with the center at <c>[0, 0]</c>. So, by treating <c>local_pos</c> as a position vector and calculating its length, we can find the distance from the center. (<c>radius = length(local_pos)</c>)<br/>The inverse of the distance from the center becomes infinite at the center and approaches 0 as it moves away. We will use this value as the brightness of the orb. (<c>brightness = 1.0 / radius</c>) All that remains is to display this, but as it is, the corners of the rectangle would be too bright and visible, so we use a function called smoothstep to gradually darken it to an appropriate level. (<c>smoothstep(1.0, 10.0, brightness)</c>)"
+      },
+      "resizeAspect": {
+        "title": "Resize Handling: Aspect Ratio",
+        "body": "We have now made it possible to pass <c>u_aspectRatio</c> to the Program, so let's use the <c>setUniform</c> method to set the data when the canvas is resized. Here, <c>aspectRatioVec</c> represents the ratio of the longer side to the shorter side of the canvas. For example, if <c>width: 200 height: 100</c>, then <c>aspectRatioVec = [2, 1]</c>, and if <c>width: 400 height: 800</c>, it will be <c>aspectRatioVec = [1, 2]</c>.<br/> Additionally, just setting the uniform will not render the scene, so be sure to perform rendering at this point as well."
+}
+    },
+    "rotateOrb": {
+      "title": "Rotating the Orb",
+      "rotateByTime": {
+        "title": "Rotation Based on Elapsed Time",
+        "body": "Let's rotate the orb using the VertexShader. First, add <c>u_elapsed: \"float\"</c> to uniformTypes to handle the elapsed time. Then, calculate the angle that increases with time as <c>angel = 0.0005 * u_elapsed</c>. You can then compute the movement due to rotation with <c>vec2(cos(angel), sin(angel))</c>, but this would still be affected by the aspect ratio of the canvas, just like <c>a_position</c>, so use <c>u_aspectRatio</c> for correction. (<c>vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio</c>)<br/>Finally, by adding the movement due to rotation to the original coordinates, you can represent a rotating orb. (<c>pos + rotate</c>)"
+      },
+      "animation": {
+        "title": "Animation",
+        "body": "Let's animate the rotation. Here, we use a helper class called Loop for easy animation, which sets the elapsed time and performs rendering every frame."
+      }
+    },
+    "increaseOrb": {
+      "title": "Increasing the Number of Orbs",
+      "blending": {
+        "title": "Additive Blending of Light",
+        "body": "So far, we've been rendering orbs onto the surface of a rectangle using the FragmentShader. However, when rendering multiple orbs, if they are close together, one orb may be obscured by another, making it invisible. (Imagine playing cards stacked on top of each other.)<br/>To solve this issue, we use WebGL's Blending functionality. Blending allows us to specify how colors should be mixed during rendering. It is commonly used for transparent effects, but here we will simply add the colors together so that overlapping orbs appear brighter.<br/>After enabling Blending when creating an instance of Core (<c>options: [\"BLEND\"]</c>), specify additive blending for colors. (<c>core.gl.blendFunc(core.gl.ONE, core.gl.ONE</c>)"
+      },
+      "scaleOrb": {
+        "title": "Changing the Size of the Orbs",
+        "body": "Next, let's allow the orbs to change in size. First, add <c>u_orbSize: \"float\"</c> to uniformTypes to control the size of the orbs. Then, by doing <c>a_position * u_orbSize</c> in the VertexShader, the vertex positions are scaled, changing the size of the orbs. Also, by incorporating <c>u_orbSize</c> into the calculations for the rotation angle and radius, larger orbs will rotate more slowly on the outer edges."
+      },
+      "renderMultiOrb": {
+        "title": "Rendering Multiple Orbs",
+        "body": "Finally, let's render 50 orbs of different sizes, each rotating independently. First, create an array called <c>orbSizes</c> and define the sizes of the 50 orbs. Each element of the <c>orbSizes</c> array represents the size of an orb, set to gradually increase. In the animation loop, set <c>u_orbSize</c> to the values from <c>orbSizes</c> and render the orbs with their respective sizes."
+      }
+    }
+  },
+  "api": {
+    "core": {
+      "overview": "This class is literally the core for using Glaku. It manages various states required for rendering with WebGL, and operations in other classes (Program/VAO/Renderer) are generally executed through Core.",
+      "parameters": {
+        "canvas": "The Canvas or OffscreenCanvas that will be used as the rendering target.",
+        "pixelRatio": "Used to set the device's pixel ratio. The default value is 1.",
+        "resizeListener": "Listener for the canvas resize event. Register a callback function (resizeHandler) that will be called each time the canvas is resized.",
+        "options": "An array of options to enable specific WebGL features.",
+        "extensions": "An array of options to enable specific WebGL extensions."
+      },
+      "method": {
+        "createTexture": "Creates and initializes a 2D texture in WebGL. An image, data array, or other sources can be used as the texture source."
+      },
+      "properties": {
+        "gl": "WebGL2 context. This is the central rendering context used by this class.",
+        "canvasWidth": "The width of the WebGL context's canvas. It is obtained from the canvas during initialization.",
+        "canvasHeight": "The height of the WebGL context's canvas. It is obtained from the canvas during initialization.",
+        "pixelRatio": "The device's pixel ratio, set as needed during initialization.",
+        "program": "Records of registered Programs.",
+        "vao": "Records of registered VAOs, using VaoId as the key to manage each VAO. The count property holds the number of vertices or indices required during draw calls.",
+        "uniLoc": "Records storing uniform locations for each Program.",
+        "attLoc": "Records managing the location positions of each Attribute.",
+        "stride": "Records managing the stride (data intervals) of each Attribute.",
+        "texture": "Records managing registered textures, using the texture name as the key to manage the texture objects and their numbers.",
+        "currentProgram": "The ID of the currently active Program. Used to optimize Program switching.",
+        "currentVao": "The ID of the currently bound VAO. Used to optimize VAO switching.",
+        "currentRenderer": "The ID of the currently used Renderer. Used to optimize Renderer switching.",
+        "uniMethod": "A map storing WebGL methods corresponding to each Uniform type. Used internally for setting Uniforms.",
+        "resizeListener": "The listener called when the window size is changed. Set as needed during initialization."
+      }
+    },
+    "program": {
+      "overview": "This class manages shader programs. It includes setting attributes, uniforms, and textures, as well as compiling and linking the VertexShader and FragmentShader.",
+      "parameters": {
+        "core": "The Core instance of Glaku to which this Program belongs.",
+        "id": "A string identifier for the Program. If omitted, a sequential number will be assigned internally.",
+        "attributeTypes": "A record representing an attribute name (a_${string}) and its type (e.g., vec2, float). Ensure that the type corresponding to the attribute name is always unique.",
+        "uniformTypes": "A record representing a uniform name (u_${string}) and its type. Supports array formats (e.g., vec3[3]).",
+        "vert": "The GLSL source code for the VertexShader.",
+        "frag": "The GLSL source code for the FragmentShader.",
+        "texture": "A record representing a texture name (t_${string}) and the corresponding WebGLTexture.",
+        "primitive": "The type of primitive to render. The default value is TRIANGLES."
+      },
+      "method": {
+        "setUniform": "Sets the actual data to the uniform defined during Program initialization.",
+        "setTexture": "Updates the texture data defined during Program initialization."
+      },
+      "properties": {
+        "core": "The instance of the Core class.",
+        "id": "The string identifier for the Program.",
+        "vert": "The GLSL source code for the VertexShader.",
+        "frag": "The GLSL source code for the FragmentShader.",
+        "uniforms": "An object that manages the uniforms used in the Program. 'type' indicates the data type of the uniform, 'value' holds the value of the uniform, and 'dirty' indicates whether the uniform value has been changed.",
+        "primitive": "The type of primitive to render."
+      }
+    },
+    "vao": {
+      "overview": "This class manages VertexArrayObject (VAO). Each instance represents a specific VAO and holds information necessary for attributes and instancing.",
+      "parameters": {
+        "core": "The Core instance of Glaku to which this VAO belongs.",
+        "id": "A string identifier for the VAO. If omitted, a sequential number will be assigned internally.",
+        "attributes": "A record holding vertex attribute names and their associated data.",
+        "index": "The index buffer corresponding to the vertices.",
+        "instancedAttributes": "An array of attribute names used for instancing.",
+        "maxInstance": "The maximum number of instances during instancing. The default is 1000."
+      },
+      "method": {
+        "setInstancedValues": "Sets values to attributes used for instancing."
+      },
+      "properties": {
+        "core": "The instance of the Core class.",
+        "id": "The string identifier for the VAO.",
+        "attributes": "A record holding the attributes. The key is the attribute name, and the value is an array of data for each vertex.",
+        "index": "An array holding the index buffer.",
+        "maxInstance": "The maximum number of instances during instancing.",
+        "instancedAttributes": "A record managing attributes used for instancing. The key is the attribute name; 'array' stores a Float32Array of data for each instance, 'vbo' is the WebGL buffer object, and 'dirty' indicates whether the data has been updated.",
+        "instancedCount": "Stores the number of instances calculated when setInstancedValues is executed."
+      }
+    },
+    "renderer": {
+      "overview": "This class provides key functionalities related to rendering, such as handling canvas resizing, setting up framebuffers, executing drawing operations, and clearing the rendering area.",
+      "parameters": {
+        "core": "The Core instance of Glaku to which this Renderer belongs.",
+        "id": "A string identifier for the Renderer. If omitted, a sequential number will be assigned internally.",
+        "height": "The height of the rendering area. The default value is the height of the canvas used during Core initialization.",
+        "width": "The width of the rendering area. The default value is the width of the canvas used during Core initialization.",
+        "backgroundColor": "The background color for rendering (RGBA).",
+        "frameBuffer": "An array specifying the textures to which the rendering results will be written. If specified, a framebuffer associated with the Renderer will be automatically created, and the rendering results can be retrieved from Renderer.renderTexture. If multiple textures are specified, MultipleRenderTargets will be enabled, requiring multiple outputs in the FragmentShader.",
+        "pixelRatio": "The pixel ratio. An additional multiplier is applied to the Core's pixelRatio.",
+        "screenFit": "Specifies whether to automatically resize to fit the screen size. The default value is true."
+      },
+      "method": {
+        "clear": "Clears the rendering area and fills it with the background color.",
+        "render": "Renders using the specified Vao and Program."
+      },
+      "properties": {
+        "core": "The instance of the Core class.",
+        "id": "The string identifier for the Renderer.",
+        "pixelRatio": "The pixel ratio. This value is multiplied by the width and height during rendering.",
+        "width": "The width of the rendering area.",
+        "height": "The height of the rendering area.",
+        "resizeQueue": "Holds information if a resize operation is queued.",
+        "backgroundColor": "Holds the background color as an array in RGBA format.",
+        "isCanvas": "Indicates whether the rendering target is the canvas. True for canvas, false for framebuffer.",
+        "frameBuffer": "The framebuffer object. It will be null if rendering to the canvas.",
+        "depthRenderBuffer": "The depth renderbuffer object. It will be null if a depth texture is set.",
+        "renderTexture": "An array of color textures attached to the framebuffer. Stored in the format and order specified in the frameBuffer parameter of the constructor.",
+        "depthTexture": "The depth texture attached to the framebuffer. Stored if a depth texture was specified in the frameBuffer parameter of the constructor.",
+        "drawBuffers": "An array holding the indices of color buffers.",
+        "screenFit": "Indicates whether to automatically resize to fit the screen size."
+      }
+    }
+  },
+  "extensions": {
+    "model": {
+      "overview": "Manages the position, rotation, and scale of a model in 3D space. It provides the model's world matrix, which can be used to set the model's rendering position and orientation.",
+      "parameters": {
+        "position": "Specifies the initial position of the model. If not specified, the model is placed at the origin.",
+        "rotation": "Specifies the rotation of the model. 'angle' represents the rotation angle in degrees, and 'axis' is a vector indicating the rotation axis. The default is angle: 0, axis: [0, 1, 0].",
+        "scale": "Specifies the scale of the model. If not specified, the model will not be scaled."
+      },
+      "method": {
+        "update": "Updates the model's world matrix. This method is called to reflect changes in position, rotation, and scale."
+      },
+      "properties": {
+        "matrix": "Holds the model's world matrix, which reflects the model's position, rotation, and scale.",
+        "position": "Represents the model's current position. If not specified during initialization, this property will be undefined.",
+        "rotation": "Represents the model's rotation. 'angle' is the rotation angle, and 'axis' indicates the rotation axis.",
+        "scale": "Represents the model's scale. If not specified during initialization, this property will be undefined."
+      }
+    },
+    "camera": {
+      "overview": "Manages the position, orientation, and projection matrix of a camera in 3D space. It provides the view matrix, projection matrix, and the combined view-projection matrix used for rendering objects from the camera's perspective.",
+      "parameters": {
+        "position": "Specifies the initial position of the camera. If not specified, the camera is placed at the origin.",
+        "lookAt": "Specifies the point the camera is directed towards. The default is [0, 0, 0].",
+        "up": "Defines the up direction for the camera as a vector. The default is [0, 1, 0].",
+        "fov": "Specifies the camera's field of view (FOV) in degrees. The default is 60.",
+        "near": "Specifies the distance to the near clipping plane. The default is 0.1.",
+        "far": "Specifies the distance to the far clipping plane. The default is 100.",
+        "aspect": "Specifies the aspect ratio. The default is 1."
+      },
+      "method": {
+        "update": "Updates the camera's view matrix, projection matrix, and computes the combined view-projection matrix."
+      },
+      "properties": {
+        "matrix": "Holds the camera's view matrix, projection matrix, and the combined view-projection matrix.",
+        "position": "Represents the current position of the camera.",
+        "lookAt": "Represents the point the camera is directed towards.",
+        "up": "Represents the up direction vector of the camera.",
+        "fov": "Represents the camera's field of view (FOV) in degrees.",
+        "near": "Represents the distance to the near clipping plane.",
+        "far": "Represents the distance to the far clipping plane.",
+        "aspect": "Represents the aspect ratio."
+      }
+    },
+    "loop": {
+      "overview": "Manages a loop that executes a specified callback function at regular intervals. It can be used for measuring animation frames or executing callbacks at a specified time interval.",
+      "parameters": {
+        "callback": "The callback function executed on each frame. This function receives delta (time elapsed since the previous frame), drawTime (the time taken to draw the current frame), and elapsed (the total elapsed time since the loop started).",
+        "interval": "Specifies the interval in milliseconds at which the callback is executed. If omitted, requestAnimationFrame is used to execute the callback on every frame."
+      },
+      "method": {
+        "start": "Starts the animation loop. Once this method is called, the callback continues to execute."
+      }
+    },
+    "shape": {
+      "overview": "Provides basic shape data.",
+      "plane": "Returns an object containing the attributes and indices for a plane shape.",
+      "box": "Returns an object containing the attributes and indices for a cube shape.",
+      "sphere": "Returns an object containing the attributes and indices for a sphere shape.",
+      "plane2D": "Returns an object containing the attributes and indices for a plane shape designed for 2D. It assumes that a_position is treated as vec2. Normal information is not included."
+    },
+    "state": {
+      "overview": "Provides a mechanism for managing specific states and calling registered handlers when those states change.",
+      "parameters": {
+        "init": "Specifies the initial value of the state."
+      },
+      "method": {
+        "get": "Retrieves the current state value.",
+        "set": "Updates the state and calls all registered handlers.",
+        "on": "Registers a handler to be called whenever the state changes. The handler is immediately called with the current state value at the time of registration. Returns a function to unregister the handler.",
+        "off": "Unregisters a previously registered handler.",
+        "clear": "Clears all registered handlers and resets the state to its initial value."
+      }
+    }
+  }
+}

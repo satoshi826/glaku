@@ -1,0 +1,38 @@
+{
+  "name": "glaku",
+  "version": "0.5.0",
+  "description": "Simple WebGL Library",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "engines": {"node": ">=14.16"},
+  "sideEffects": false,
+  "scripts": {
+    "lint": "eslint --fix",
+    "build": "vite build && tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Satoshi Hata",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satoshi826/glaku.git"
+  },
+  "homepage": "https://glaku.vercel.app",
+  "bugs": {
+    "url": "https://github.com/satoshi826/glaku/issues"
+  },
+  "devDependencies": {
+    "eslint": "^9.10.0",
+    "rollup": "^4.22.4",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.5.0",
+    "vite": "^5.4.8"
+  },
+  "overrides": {
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node"
+    }
+  }
+}

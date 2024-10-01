@@ -1,0 +1,262 @@
+{
+  "introduction" : {
+    "overview": {
+      "header": "GlakuはピュアなWebGLのパワーをシンプルなコードで引き出すことを目的とします。",
+      "simpleAPI": "WebGLが備えるAPIの煩雑さを排除し、最小限のコードでシェーダコーディングの力を発揮できます。 主要なクラスはわずか4つなので学習コストは低く、アプリケーションの実装に集中できます。",
+      "webGL2Powered": "WebGL2を基盤としており、GLSL ES 3.0、インスタンシング、浮動小数点テクスチャ、MRT（マルチレンダリングターゲット）などの強力な機能が標準で使用可能です。",
+      "zeroDependencies": "gzip後のビルドサイズはわずか10KB程度で、外部ライブラリへの依存もないため、アプリケーションをコンパクトに保つことができます。",
+      "fullyTyped": "Glakuは全てTypeScriptで開発されており、型によるサポートを受けることができます。"
+    },
+    "quickStart": "以下のサンプルコードを試してみましょう。青い三角形が表示されたら成功です！ コードの構造はとてもシンプルで、<c>VAO</c>と<c>Program</c>を用意して<c>Renderer</c>に渡すだけです。 発展的な実装を行う場合もこの流れから逸脱することはありません。",
+    "fyi": {
+      "summary" : "FYI: Glakuを使わない場合...",
+      "conclusion": "実践的なコードでは記述量と複雑性はここから更に増していきます。"
+    },
+    "core": "ともかくCoreを準備しましょう。CoreのコンストラクタにCanvasElementを渡すことで最小限の初期化が完了します。 CoreはWebGLでレンダリングするための様々な状態を管理していますが、他のクラスから参照して使われることがほとんどなので、直接操作することは少ないかもしれません。",
+    "VAO": "VAOはVertexArrayObjectの略称で、各頂点で扱う属性(attribute)を格納するものです。 ここではattributeとして、3つの2次元位置座標を定義しています。 attributeがどのように使われるかはシェーダー次第です。(3次元座標やRGBをセットするのも自由です)",
+    "program" : {
+      "1": "Programは特に重要なので丁寧に見ていきましょう。 Programには2つのGLSLシェーダー(VertexShader / FragmentShader)と、シェーダー内で扱う変数を定義します。<br/>ここでは <c>a_position: \"vec2\"</c> とすることで、<c>a_position</c> が 2次元ベクトルであることをシェーダーに伝えています。",
+      "2": "GLSLシェーダーの解説を行うには余白が狭すぎるので、次のJavaScript風の疑似コードを元に概要を説明します。",
+      "3": "まずattributeは頂点単位に分割されます。(<c>a_position</c>なら<c>[0, 1], [1, -1], [-1, -1]</c>)<br />次に「頂点の数だけ」VertexShaderを実行してレンダリング対象の頂点位置を決定します。VertexShaderの実行毎に、分割されたattributeの値を使用することができます。今回のシェーダーでは<c>a_position</c>の値をそのまま頂点位置に指定しています。<br />そしてラスタライズです。ここまでの処理で3つの頂点位置をWebGLに指示しましたが、このままでは点の集合である「面」を表現することができません。そこで、頂点で囲まれた「面」に含まれるピクセルをWebGLが内部で自動的に割り出してくれます。<br />最後に、「面」に含まれる「ピクセルの数だけ」FragmentShaderを実行してディスプレイに表示する色を決定します。今回は青色を指定しているだけなので、青い三角形が表示されます。"
+    },
+    "renderer" : "Rendererは仮想的なディスプレイのようなものです。PixelRatioを指定したり、FrameBufferと紐づけてレンダリング結果をTextureにすることもできますが、 ここでは単純に描画するだけなので、以下のように初期化を行った後renderメソッドを実行し、ディスプレイへレンダリングしています。",
+    "conclusion": "ここまでの内容でQuick Startの内容を習得することができました、続いて更に実践的なサンプルを見ていきましょう。"
+  },
+  "tutorial": {
+    "header": "このチュートリアルでは回転する複数のオーブを作ります。IntroductionのQuick Startが完了していることを前提にしています。Glakuの使い方を説明しつつ、WebGLに関する解説も行っていきます。",
+    "renderOrb" : {
+      "title" : "オーブを表示する",
+      "resizeResolution": {
+        "title" : "リサイズ対応：解像度",
+        "body" : "Coreのインスタンス作成する際に、resizeListenerを設定しましょう。 resizeListenerは、リサイズ時のcallback関数を登録するための関数です。 これにより、キャンバスサイズの変化にRendererの解像度が追従するようになります。 ここでは、ResizeObserverをシンプルに使うためのヘルパー関数(<c>resizeObserver</c>)を使用しています。"
+      },
+      "prepareRect" : {
+        "title" : "四角形の準備",
+        "body" : "次に、四角形をレンダするためのVaoを作成しましょう。ここでは、四角形のattributesとindex bufferを定義しています。 index bufferは頂点をシンプルに定義するためのものです。 四角形を表示する際には、本来2つの三角形（つまり6つの頂点）が必要ですが、 共通する頂点の番号を指定することで4つの頂点で表現できます。"
+      },
+      "createProgram": {
+        "title" : "Programの作成",
+        "uniform": "ここでuniformという重要な概念が登場します。attributeでは「各頂点に対応するデータ」を設定できましたが、uniformを使用することで「どの頂点でも共通して使えるデータ」を設定することができます。<br/>今回の例で何故uniformが必要になるか考えていきましょう。VertexShaderで指定する<c>gl_Position</c>は、キャンバスの端から端を<c>[-1, 1]</c>の範囲で指定するので、何も対策しない場合はキャンバスサイズに連動してオーブが伸び縮みしてしまいます。これを防ぐために、<c>a_position</c>をキャンバスのアスペクト比で除算します。そのために<c >u_aspectRatio: 'vec2'</c>をuniformTypesに指定して、VertexShaderで<c >a_position / u_aspectRatio</c>とすることでオーブの形状がキャンバスのアスペクト比の影響を受けないようにしています。",
+        "varying": "オーブの表示のために四角形の座標位置をFragmentShaderで参照したいです。しかし、FragmentShaderからattributeを直接参照することはできないので、varyingという仕組みによってVertexShaderからFragmentShaderへデータを渡します。方法は単純で、まずVertexShaderでvaryingとして渡す変数を宣言します。(<c >out vec2 local_pos</c>)次に宣言した変数に値を代入することで、FragmentShaderへ値を渡します。(<c >local_pos = a_position</c>)そしてFragmentShaderでは受け取る変数を宣言するだけでデータを使用できます。(<c noWrap>in vec2 local_pos</c>)<br/>また、四角形の中心など、頂点以外の場所でFragmentShaderが受け取る値はどうなるのか疑問に思うかもしれませんが、これについてはWebGLが自動的に線形補完をかけた上でFragmentShadeに値を渡してくれます。つまり四角形の中心で実行されるFragmentShaderは<c >local_pos</c>として<c>[0, 0]</c>を受け取ることができます。",
+        "fragment": "オーブの表現のポイントは光の減衰です。ただの白い円は光っているようには見えませんが、中心から離れるほど白から黒へ滑らかに変化させると、それは光のように見えます。これをコードで表してみましょう。まず、<c >local_pos</c>は中心位置を<c>[0, 0]</c>とする四角形の座標位置でした。なので、<c>local_pos</c>を位置ベクトルとして扱い、この長さを求めることで中心からの距離が分かります。(<c >radius = length(local_pos)</c>)<br/>そして中心からの距離の逆数は、中心で無限大になり、遠方になるにつれて0に漸近していきます。この値をオーブの明るさとして扱うことにしましょう。(<c >brightness = 1.0 / radius</c>)あとはこれを表示すれば良いのですが、そのままでは明るすぎて四角形の角が見えてしまうので、smoothstepという関数で程よく暗くします。(<c >smoothstep(1.0, 10.0, brightness)</c>)"
+      },
+      "resizeAspect": {
+        "title" : "リサイズ対応：アスペクト比",
+        "body" : "Programに<c >u_aspectRatio</c>を渡せるようにしたので、キャンバスがリサイズされたタイミングで<c>setUniform</c>メソッドを使ってデータをセットしましょう。ここで<c >aspectRatioVec</c>は、キャンバスの短辺に対する長辺の割合を表しており、例えば <c >width: 200 height: 100</c> なら <c >aspectRatioVec = [2, 1]</c>となり、<c >width: 400 height: 800</c> なら  <c >aspectRatioVec = [1, 2]</c>となります。<br/>また、uniformをセットするだけでは表示されないので、このタイミングでレンダリングも行いましょう。"
+      }
+    },
+    "rotateOrb": {
+      "title": "オーブを回す",
+      "rotateByTime": {
+        "title": "経過時間に応じた回転",
+        "body": "VertexShaderを使ってオーブを回しましょう。まずuniformTypesに<c >u_elapsed: \"float\"</c>を追加して、経過時間を扱えるようにします。続いて経過時間に応じて増大する角度を<c >angel = 0.0005 * u_elapsed</c>として表します。あとは<c >vec2(cos(angel), sin(angel))</c>とすることで回転による移動を計算することができますが、このままでは<c >a_position</c>の同様にアスペクト比の影響を受けてしまうので<c >u_aspectRatio</c>を使って補正しましょう。(<c >vec2 rotate = vec2(cos(angel), sin(angel)) / u_aspectRatio</c>)<br/>最後に、元々の座標に回転による移動を足すことで回転するオーブを表現できます。(<c >pos + rotate</c>)"
+      },
+      "animation": {
+        "title": "アニメーション",
+        "body": "回転を表現するためにアニメーションを行いましょう。 ここでは手軽にアニメーションを行うためのLoopというヘルパークラスを使用して、 経過時間のセットとレンダリングを毎フレーム実行しています。"
+      }
+    },
+    "increaseOrb": {
+      "title": "オーブを増やす",
+      "blending": {
+        "title": "光の加算合成",
+        "body": "これまでFragmentShaderによって四角形の面に対してオーブをレンダリングしてきました。しかし、複数のオーブを描画する場合、オーブ同士が近接していると、一方のオーブが他方のオーブによって覆われて見えなくなることがあります。(トランプのカードが重なって置かれているようなイメージです。)<br/>この問題を解決するために、WebGLのBlending機能を使用します。Blendingでは「描画する色をどのように混ぜ合わせるか」を指定することができます。主に半透明の表現などで使われることが多いですが、ここでは単純に色を加算することによって、オーブ同士が重なった部分がより明るく表示されるようにします。<br/>Coreのインスタンスを作成する際にBlendingを有効にした後、(<c>options: [\"BLEND\"]</c>)色の加算合成を行うことを指定しましょう。(<c>core.gl.blendFunc(core.gl.ONE, core.gl.ONE</c>)"
+      },
+      "scaleOrb": {
+        "title": "オーブのサイズ変更",
+        "body": "次に、オーブのサイズを変更できるようにしてみましょう。まず、オーブのサイズを変更するためuniformTypesに<c>u_orbSize: \"float\"</c>を追加します。続いてVertexShader内で<c>a_position * u_orbSize</c>とすることで、頂点の位置をスケールし、オーブのサイズを変更しています。また、回転角度/回転半径の計算にも<c>u_orbSize</c>を組み込むことで、オーブが大きくなるほど、ゆっくりと外側を回転するようにしています。"
+      },
+      "renderMultiOrb": {
+        "title": "オーブの複数表示",
+        "body": "いよいよ最後です。50個のオーブを異なるサイズで描画し、それぞれが独立して回転するようにしましょう。まず<c>orbSizes</c>という配列を作成し、50個のオーブのサイズを定義しています。<c>orbSizes</c>配列の各要素は、サイズを表していて、徐々に大きくなるように設定しています。そして、アニメーションループ内でorbSizesの各値を<c>u_orbSize</c>にセットし、レンダリング各オーブのサイズを設定して描画します。"
+      }
+    }
+  },
+  "api" : {
+    "core": {
+      "overview": "文字通りGlakuを使用するためのコアとなるクラスです。 WebGLでレンダリングするための様々な状態を管理しており、他のクラス(Program/VAO/Renderer)での処理は基本的にCoreを介して実行されます。",
+      "parameters": {
+        "canvas": "レンダリング対象のキャンバス要素またはOffscreenCanvas。",
+        "pixelRatio": "デバイスのピクセル比率を設定するために使用します。デフォルト値は1。",
+        "resizeListener": "キャンバスのサイズ変更イベントのリスナー。コールバックの引数(resizeHandler)が キャンバスがリサイズされる度に呼び出されるように登録します。",
+        "options": "WebGLの特定の機能を有効にするためのオプションの配列。",
+        "extensions": "WebGLの特定の拡張機能を有効にするためのオプションの配列。"
+      },
+      "method": {
+        "createTexture": "WebGLの2Dテクスチャを作成し、初期化を行います。 テクスチャのソースとしてイメージ、データ配列などを使用することができます。"
+      },
+      "properties": {
+        "gl": "WebGL2 コンテキスト。このクラスの中心的なレンダリングコンテキストとして使用されます。",
+        "canvasWidth": "WebGL コンテキストのキャンバスの幅。初期化時にキャンバスから取得されます。",
+        "canvasHeight": "WebGL コンテキストのキャンバスの高さ。初期化時にキャンバスから取得されます。",
+        "pixelRatio": "デバイスのピクセル比率。必要に応じて初期化時に設定されます。",
+        "program": "登録されたProgramのレコード。",
+        "vao": "VAOのレコード。VaoId をキーとして使用し、各VAOを管理します。count プロパティは、ドローコール時に必要な頂点またはインデックスの数を保持します。",
+        "uniLoc": "各ProgramのUniformロケーションを格納するレコード。",
+        "attLoc": "各Attributeのロケーション位置を管理するレコード。",
+        "stride": "各Attributeのストライド（データ間隔）を管理するレコード。",
+        "texture": "登録されたテクスチャを管理するレコード。テクスチャ名をキーとして使用し、テクスチャオブジェクトとその番号を管理します。",
+        "currentProgram": "現在アクティブなProgramのId。Programの切り替えを最適化するために使用されます。",
+        "currentVao": "現在バインドされているVAOのId。VAOの切り替えを最適化するために使用されます。",
+        "currentRenderer": "現在使用されているRendererのId。Rendererの切り替えを最適化するために使用されます。",
+        "uniMethod": "Uniformユニフォームの型ごとに対応する WebGLメソッドを格納したマップ。内部的にUniformの設定に使用されます。",
+        "resizeListener": "ウィンドウサイズが変更された際に呼び出されるリスナー。必要に応じて初期化時に設定されます。"
+      }
+    },
+    "program": {
+      "overview": "シェーダープログラムを管理するクラスです。これには、Attribute、Uniform、テクスチャの設定や、VertexShaderとFragmentShaderのコンパイルおよびリンク等が含まれます。",
+      "parameters": {
+        "core": "このProgramが属するGlakuのCore。",
+        "id": "Programの識別子となる文字列。省略した場合は内部で連番が割り当てられます。",
+        "attributeTypes": "attribute名(a_${string})とその型（例: vec2, float）を表すレコード。なお、attribute名に対応する型は常に一意になるようにしてください。",
+        "uniformTypes": "uniform名(u_${string})とその型を表すレコード。配列形式にも対応（例: vec3[3]）。",
+        "vert": "VertexShaderのGLSLソースコード。",
+        "frag": "FragmentShaderのGLSLソースコード。",
+        "texture": "Texture名(t_${string})と対応する WebGLTexture のレコード。",
+        "primitive": "レンダリングするプリミティブのタイプ。デフォルト値はTRIANGLES。"
+      },
+      "method": {
+        "setUniform": "Programの初期化時に定義したuniformに実際のデータをセットします。",
+        "setTexture": "Programの初期化時に定義したtextureのデータを更新します。"
+      },
+      "properties": {
+        "core": "Core クラスのインスタンス。",
+        "id": "Programの識別子となる文字列。",
+        "vert": "VertexShaderのGLSLソースコード。",
+        "frag": "FragmentShaderのGLSLソースコード。",
+        "uniforms": "Programで使用するuniformを管理するオブジェクト。type はUniformのデータ型を示し、 value はユニフォームの値を保持し、dirty はUniformの値が変更されたかどうかを示します。",
+        "primitive": "レンダリングするプリミティブのタイプ。"
+      }
+    },
+    "vao": {
+      "overview": "VertexArrayObject(VAO)を管理するためのクラスです。各インスタンスは特定のVAOを表し、属性やインスタンシングに必要な情報を保持します。",
+      "parameters": {
+        "core": "このVAOが属するGlakuのCore。",
+        "id": "VAOの識別子となる文字列。省略した場合は内部で連番が割り当てられます。",
+        "attributes": "頂点属性名とそのデータを持つレコード。",
+        "index": "頂点に対応するindex buffer。",
+        "instancedAttributes": "インスタンシングに使用するAttribute名の配列。",
+        "maxInstance": "インスタンシング時の最大インスタンス数。デフォルトは1000。"
+      },
+      "method": {
+        "setInstancedValues": "インスタンシング用のattributeに値をセットします。"
+      },
+      "properties": {
+        "core": "Core クラスのインスタンス。",
+        "id": "VAOの識別子となる文字列。",
+        "attributes": "attributeを保持するレコード。キーは属性名で、値は各頂点に対するデータの配列です。",
+        "index": "インデックスバッファを保持する配列。",
+        "maxInstance": "インスタンシングにおける最大インスタンス数。",
+        "instancedAttributes": "インスタンシングに使用される属性を管理するレコード。 キーは属性名で、array はインスタンスごとのデータを格納する Float32Array、 vbo は WebGL のバッファオブジェクト、dirty はデータが更新されたかどうかを示します。",
+        "instancedCount": "setInstancedValuesが実行された時に計算されたインスタンス数が格納されます。"
+      }
+    },
+    "renderer": {
+      "overview": "キャンバスのサイズ変更、フレームバッファの設定、描画の実行、クリア操作など、レンダリングに関わる主要な機能を提供するクラスです。",
+      "parameters": {
+        "core": "このRendererが属するGlakuのCore。",
+        "id": "Rendererの識別子となる文字列。省略した場合は内部で連番が割り当てられます。",
+        "height": "レンダリング領域の高さ。デフォルトはCoreの初期化に使用したキャンバスの高さ。",
+        "width": "レンダリング領域の幅。デフォルトはCoreの初期化に使用したキャンバスの幅。",
+        "backgroundColor": "レンダリング時の背景色(RGBA)",
+        "frameBuffer": "フレームバッファのレンダリング結果を書き込むテクスチャの形式の配列で指定します。 指定がある場合はRendererに紐づくフレームバッファが自動で作成され、 レンダリングの結果はRenderer.renderTextureから取得できます。 複数指定した場合はMultipleRenderTargetsが有効になり、FragmentShaderで 複数のoutputが必要になります。",
+        "pixelRatio": "ピクセル比率。CoreのpixelRatioに対して追加で倍率がかかります。",
+        "screenFit": "スクリーンサイズに合わせて自動的にリサイズするかどうかを指定します。デフォルトはtrue。"
+      },
+      "method": {
+        "clear": "レンダリング領域をクリアし、背景色で塗りつぶします。",
+        "render": "指定されたVaoとProgramを用いてレンダリングします。"
+      },
+      "properties": {
+        "core": "Coreクラスのインスタンス。",
+        "id": "Rendererの識別子となる文字列",
+        "pixelRatio": "ピクセル比率。レンダリング時にはこの数値がwidthとheightに掛けられます。",
+        "width": "レンダリング領域の幅。",
+        "height": "レンダリング領域の高さ。",
+        "resizeQueue": "リサイズ操作がキューに入っている場合、その情報を保持します。",
+        "backgroundColor": "背景色をRGBA形式の配列として保持します。",
+        "isCanvas": "レンダリングターゲットがキャンバスかどうかを示します。trueならキャンバス、falseならフレームバッファです。",
+        "frameBuffer": "フレームバッファオブジェクト。キャンバスにレンダリングする場合は null になります。",
+        "depthRenderBuffer": "深度レンダーバッファオブジェクト。深度テクスチャが設定されている場合は null になります。",
+        "renderTexture": "フレームバッファにアタッチされるカラーテクスチャの配列。ConstructorのframeBufferに指定した形式と順番で格納されます。",
+        "depthTexture": "フレームバッファにアタッチされる深度テクスチャ。ConstructorのframeBufferに深度テクスチャを指定した場合に格納されます。",
+        "drawBuffers": "カラーバッファのindexを保持する配列。",
+        "screenFit": "スクリーンサイズに合わせて自動的にリサイズするかどうかを示します。"
+      }
+    }
+  },
+  "extensions": {
+    "model": {
+      "overview": "3D空間におけるモデルの位置、回転、スケールを管理します。 モデルのワールド行列を提供し、これを利用してモデルの描画位置や姿勢を設定できます。",
+      "parameters" : {
+        "position" : "モデルの初期位置を指定します。指定されない場合、モデルは原点に配置されます。",
+        "rotation" : "モデルの回転を指定します。angle は回転角度（度数）、axis は回転軸を示すベクトルです。 デフォルトは angle: 0, axis: [0, 1, 0] です。",
+        "scale": "モデルのスケールを指定します。指定されない場合、モデルのスケーリングは行われません。"
+      },
+      "method": {
+        "update": "モデルのワールド行列を更新します。このメソッドは、position、rotation、scale の変更を反映するために呼び出されます。"
+      },
+      "properties": {
+        "matrix": "モデルのワールド行列を保持します。この行列はモデルの位置、回転、スケールを反映したものです。",
+        "position": "モデルの現在の位置を表します。初期化時に指定されていない場合、このプロパティは undefined となります。",
+        "rotation": "モデルの回転を表します。angle は回転角度、axis は回転軸を示します。",
+        "scale": "モデルのスケールを表します。初期化時に指定されていない場合、このプロパティは undefined となります。"
+      }
+    },
+    "camera": {
+      "overview": "3D空間におけるカメラの位置、方向、投影行列を管理します。 カメラの視点から見た物体の描画に使用されるビュー行列、プロジェクション行列、およびその両方を組み合わせたビュー・プロジェクション行列を提供します。",
+      "parameters" : {
+        "position" : "モデルの初期位置を指定します。指定されない場合、モデルは原点に配置されます。",
+        "lookAt" : "カメラが向く方向のポイントを指定します。デフォルトは [0, 0, 0]。",
+        "up": "カメラの上方向を定義するベクトル。デフォルトは [0, 1, 0]。",
+        "fov": "カメラの視野角 (Field of View) を度数で指定します。デフォルトは 60。",
+        "near": "ニアクリップ面の距離を指定します。デフォルトは 0.1。",
+        "far": "ファークリップ面の距離を指定します。デフォルトは 100。",
+        "aspect": "アスペクト比を指定します。デフォルトは 1。"
+      },
+      "method": {
+        "update": "カメラのビュー行列およびプロジェクション行列を更新し、それらを掛け合わせた行列を計算します。"
+      },
+      "properties": {
+        "matrix": "カメラのビュー行列、プロジェクション行列、ビュー行列とプロジェクション行列を掛け合わせた行列を保持します。",
+        "position" : "カメラの現在の位置を表します。",
+        "lookAt" : "カメラが向いているポイントを表します。",
+        "up": "カメラの上方向を定義するベクトルを表します。",
+        "fov": "カメラの視野角 (Field of View) を度数で表します。",
+        "near": "ニアクリップ面の距離を表します。",
+        "far": "ファークリップ面の距離を表します。",
+        "aspect": "アスペクト比を表します。"
+      }
+    },
+    "loop": {
+      "overview": "指定されたコールバック関数を一定間隔で実行するためのループを管理します。 アニメーションフレームの計測や、指定された時間間隔でのコールバック実行が可能です。",
+      "parameters" : {
+        "callback" : "各フレームごとに実行されるコールバック関数です。 この関数には delta（前フレームからの経過時間）、drawTime（現在のフレームの描画にかかった時間）、および elapsed（開始からの累計経過時間）が渡されます。",
+        "interval" : "コールバックを実行する間隔をミリ秒単位で指定します。 省略した場合は、requestAnimationFrame を使用してフレームごとにコールバックが実行されます。"
+      },
+      "method": {
+        "start": "アニメーションループを開始します。このメソッドを呼び出すと、コールバックが実行され続けます。"
+      }
+    },
+    "shape": {
+      "overview": "基本的な形状データを提供します。",
+      "plane": "平面形状のattributeとインデックスを含むオブジェクトを返します。",
+      "box": "立方体形状のattributeとインデックスを含むオブジェクトを返します。",
+      "sphere": "球体形状のattributeとインデックスを含むオブジェクトを返します。",
+      "plane2D": "2Dを前提とした平面形状のattributeとインデックスを含むオブジェクトを返します。a_positionがvec2として扱われることを想定しています。 法線情報は含まれません。"
+    },
+    "state": {
+      "overview": "特定の状態と、その状態が変化した際に登録されたハンドラーを呼び出す仕組みを提供します。",
+      "parameters" : {
+        "init" : "初期状態の値を指定します。"
+      },
+      "method": {
+        "get": "現在の状態を取得します。",
+        "set": "状態を更新し、すべての登録されたハンドラを呼び出します。",
+        "on": "状態が変更されるたびに呼び出されるハンドラを登録します。ハンドラは登録時に現在の状態値で即座に呼び出されます。 戻り値として、登録したハンドラを無効にする関数を受け取ります。",
+        "off": "以前に登録されたハンドラの登録を解除します。",
+        "clear": "登録されているすべてのハンドラをクリアし、状態を初期値にリセットします。"
+      }
+    }
+  }
+}
