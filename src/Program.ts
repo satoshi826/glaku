@@ -62,7 +62,7 @@ export class Program<T extends UniformName, K extends TextureName> {
   }) {
     const uniformKeys = new Set(keys(uniformTypes))
     const textureKeys = new Set(keys(texture))
-    const testVert = (key: T) => testKeyword(vert, key)
+    const testVert = (key: T | K) => testKeyword(vert, key)
     const testFrag = (key: T | K) => testKeyword(frag, key)
     const parseUniformArray = (name: T, type: UniformTypeWithArray) => {
       const match = type.match(/([a-zA-Z0-9]+)(\[\d+\])/)
@@ -78,10 +78,18 @@ export class Program<T extends UniformName, K extends TextureName> {
       },
       '#version 300 es\n'
     )
+    fullVert = oReduce(texture,
+      (result, [name]) => {
+        const res = testVert(name)
+        if (res) textureKeys.delete(name)
+        return result + (res ? `uniform sampler2D ${name};\n` : '')
+      },
+      fullVert
+    )
     fullVert = oReduce(attributeTypes,
       (result, [name, type]) =>
         result +
-      `layout(location = ${this.core.attLoc[name]}) in ${type} ${name};\n`, fullVert) + this.vert
+        `layout(location = ${this.core.attLoc[name]}) in ${type} ${name};\n`, fullVert) + this.vert
 
     let fullFrag = oReduce(uniformTypes,
       (result, [name, type]) => {
