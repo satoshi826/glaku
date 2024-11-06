@@ -10,6 +10,7 @@ import {main as instancing} from './instancing/main'
 import {main as frameBuffer} from './frameBuffer/main'
 import {main as gameOfLife} from './gameOfLife/main'
 import {main as particle} from './particle/main'
+import {main as vtf} from './vtf/main'
 import {main as wave} from './wave/main'
 import {main as fluid} from './fluid/main'
 import {main as cyberpunk} from './cyberpunk/main'
@@ -25,6 +26,7 @@ const srcRecord = {
   resize,
   texture,
   frameBuffer,
+  vtf,
   '3D': _3d,
   particle,
   instancing,
