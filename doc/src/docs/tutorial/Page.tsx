@@ -268,7 +268,7 @@ const tutorialManyOrb_core =
   },
   options: ["BLEND"], // gl.enable(gl.BLEND)
 });
-core.gl.blendFunc(core.gl.ONE, core.gl.ONE);
+core.blend('ADDITIVE');
 `
 
 const tutorialManyOrb_program =
