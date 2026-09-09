@@ -60,7 +60,7 @@
       "title": "Increasing the Number of Orbs",
       "blending": {
         "title": "Additive Blending of Light",
-        "body": "So far, we've been rendering orbs onto the surface of a rectangle using the FragmentShader. However, when rendering multiple orbs, if they are close together, one orb may be obscured by another, making it invisible. (Imagine playing cards stacked on top of each other.)<br/>To solve this issue, we use WebGL's Blending functionality. Blending allows us to specify how colors should be mixed during rendering. It is commonly used for transparent effects, but here we will simply add the colors together so that overlapping orbs appear brighter.<br/>After enabling Blending when creating an instance of Core (<c>options: [\"BLEND\"]</c>), specify additive blending for colors. (<c>core.gl.blendFunc(core.gl.ONE, core.gl.ONE</c>)"
+        "body": "So far, we've been rendering orbs onto the surface of a rectangle using the FragmentShader. However, when rendering multiple orbs, if they are close together, one orb may be obscured by another, making it invisible. (Imagine playing cards stacked on top of each other.)<br/>To solve this issue, we use WebGL's Blending functionality. Blending allows us to specify how colors should be mixed during rendering. It is commonly used for transparent effects, but here we will simply add the colors together so that overlapping orbs appear brighter.<br/>After enabling Blending when creating an instance of Core (<c>options: [\"BLEND\"]</c>), specify additive blending for colors. (<c>core.blend(\"ADDITIVE\")</c>)"
       },
       "scaleOrb": {
         "title": "Changing the Size of the Orbs",
@@ -83,7 +83,8 @@
         "extensions": "An array of options to enable specific WebGL extensions."
       },
       "method": {
-        "createTexture": "Creates and initializes a 2D texture in WebGL. An image, data array, or other sources can be used as the texture source."
+        "createTexture": "Creates and initializes a 2D texture in WebGL. An image, data array, or other sources can be used as the texture source. When passing a data array, omitting internalFormat / type derives them from the array type. (RGBA32F / FLOAT for Float32Array, RGBA8 / UNSIGNED_BYTE otherwise)",
+        "blend": "Enables blending and sets how colors are combined. Calling gl.enable(BLEND) alone leaves blendFunc at its default (ONE, ZERO), which performs no blending, so this method does both at once. The destination alpha is preserved, so the canvas itself never becomes translucent and lets the page background show through."
       },
       "properties": {
         "gl": "WebGL2 context. This is the central rendering context used by this class.",
@@ -232,7 +233,7 @@
       "overview": "Manages a loop that executes a specified callback function at regular intervals. It can be used for measuring animation frames or executing callbacks at a specified time interval.",
       "parameters": {
         "callback": "The callback function executed on each frame. This function receives delta (time elapsed since the previous frame), drawTime (the time taken to draw the current frame), and elapsed (the total elapsed time since the loop started).",
-        "interval": "Specifies the interval in milliseconds at which the callback is executed. If omitted, requestAnimationFrame is used to execute the callback on every frame."
+        "interval": "Specifies the interval in milliseconds at which the callback is executed. If omitted, requestAnimationFrame is used to execute the callback on every frame. In environments without requestAnimationFrame, such as a Worker, it falls back to setTimeout even when omitted."
       },
       "method": {
         "start": "Starts the animation loop. Once this method is called, the callback continues to execute."

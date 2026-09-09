@@ -7,7 +7,7 @@ export const main1 = (canvas: OffscreenCanvas) => {
     resizeListener: (resizeHandler) => resizeState.on(resizeHandler),
     options       : ['BLEND']
   })
-  core.gl.blendFunc(core.gl.ONE, core.gl.ONE)
+  core.blend('ADDITIVE')
 
   const vao = new Vao(core, {
     id        : 'rect',

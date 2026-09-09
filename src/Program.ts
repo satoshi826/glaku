@@ -6,7 +6,7 @@ export type AttributeTypes = Record<AttributeName, AttributeType>
 
 type UniformTypeWithArray = UniformType | `${UniformType}[${number}]`
 
-export const testKeyword = (target: string, key: string) => new RegExp(`[-=+*/(\\s,]${key}[-=+*/).,;\\s\\[]`).test(target)
+export const testKeyword = (target: string, key: string) => new RegExp(`(^|[^\\w])${key}([^\\w]|$)`).test(target)
 
 export class Program<T extends UniformName, K extends TextureName> {
   static idCounter = 0
@@ -82,7 +82,7 @@ export class Program<T extends UniformName, K extends TextureName> {
       (result, [name]) => {
         const res = testVert(name)
         if (res) textureKeys.delete(name)
-        return result + (res ? `uniform sampler2D ${name};\n` : '')
+        return result + (res ? `uniform highp sampler2D ${name};\n` : '')
       },
       fullVert
     )

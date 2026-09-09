@@ -63,7 +63,7 @@ export default function Page() {
     wrap?: TextureWrap,
   } & (
     {image: TexImageSource, array?: undefined, width?: undefined, height?: undefined, format?: undefined, internalFormat?: undefined, type?: undefined} |
-    {image?: undefined, array: Float32Array, width: number, height: number, format?: undefined, internalFormat?: TextureInternalFormat, type?: undefined} |
+    {image?: undefined, array: ArrayBufferView, width: number, height: number, format?: TextureFormat, internalFormat?: TextureInternalFormat, type?: TextureType} |
     {image?: undefined, array?: undefined, width: number, height: number, format: TextureFormat, internalFormat: TextureInternalFormat, type: TextureType})) : WebGLTexture`}</Syntax>
       <BodyText>
         {t('api.core.method.createTexture')}
@@ -78,13 +78,23 @@ const textureFromImage = core.createTexture({
 });
 
 // Example 2: Creating a floating point texture with raw data
+// (Float32Array defaults to RGBA32F / FLOAT)
 const textureFromArray = core.createTexture({
   array: new Float32Array([1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]), // 2x2 red and green pixels
   width: 2,
   height: 2,
 });
 
-// Example 3: Creating an empty texture with specific format
+// Example 3: Creating a byte texture used as a lookup table
+// (Uint8Array defaults to RGBA8 / UNSIGNED_BYTE)
+const lookupTable = core.createTexture({
+  array: new Uint8Array([255, 0, 0, 255, 0, 255, 0, 255]),
+  width: 2,
+  height: 1,
+  filter: 'NEAREST'
+});
+
+// Example 4: Creating an empty texture with specific format
 const emptyTexture = core.createTexture({
   width: 512,
   height: 512,
@@ -94,6 +104,20 @@ const emptyTexture = core.createTexture({
   filter: 'LINEAR',
   wrap: 'REPEAT'
 });`}
+      </Syntax>
+      <CaptionText >blend</CaptionText>
+      <Syntax lang='tsx'>
+        {"blend(mode: 'NORMAL' | 'ADDITIVE' | 'MULTIPLY' | 'SCREEN' | 'PREMULTIPLIED') : void"}</Syntax>
+      <BodyText>
+        {t('api.core.method.blend')}
+      </BodyText>
+      <CaptionText2 sx={{mt: -2}}>Usage</CaptionText2>
+      <Syntax lang='tsx'>
+        { `core.blend('NORMAL');        // SRC_ALPHA, ONE_MINUS_SRC_ALPHA
+core.blend('ADDITIVE');      // SRC_ALPHA, ONE
+core.blend('MULTIPLY');      // DST_COLOR, ZERO
+core.blend('SCREEN');        // ONE, ONE_MINUS_SRC_COLOR
+core.blend('PREMULTIPLIED'); // ONE, ONE_MINUS_SRC_ALPHA`}
       </Syntax>
       <SubTitleText sx={{pb: 1}}>Properties</SubTitleText>
       <BodyText>

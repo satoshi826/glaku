@@ -44,3 +44,12 @@ export const defaultExtensions : string[] = [
   'WEBGL_multisampled_render_to_texture',
   'WEBGL_draw_buffers'
 ]
+export const blendModes = {
+  NORMAL       : ['SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA'],
+  ADDITIVE     : ['SRC_ALPHA', 'ONE'],
+  MULTIPLY     : ['DST_COLOR', 'ZERO'],
+  SCREEN       : ['ONE', 'ONE_MINUS_SRC_COLOR'],
+  PREMULTIPLIED: ['ONE', 'ONE_MINUS_SRC_ALPHA']
+} as const
+
+export type BlendMode = keyof typeof blendModes

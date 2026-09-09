@@ -1,4 +1,4 @@
-import {defaultExtensions, strideMap, uniMethod} from './constants'
+import {blendModes, defaultExtensions, strideMap, uniMethod, type BlendMode} from './constants'
 import {firstEntry, isNullish, keys, oForEach, oReduce, times} from './util'
 import type {ProgramId, RendererId, UniformName, Uniforms, VaoId, WebGLConstants,
   ResizeArgs, AttributeName, AttributeType, PrimitiveTypes, TextureName, WebGLEnables, TextureFilter, TextureWrap,
@@ -70,6 +70,12 @@ export class Core {
     options?.forEach(o => this.gl.enable(this.gl[o]))
   }
 
+  blend(mode: BlendMode) {
+    const [srcRGB, dstRGB] = blendModes[mode]
+    this.gl.enable(this.gl.BLEND)
+    this.gl.blendFuncSeparate(this.gl[srcRGB], this.gl[dstRGB], this.gl.ZERO, this.gl.ONE)
+  }
+
   disable(options?: WebGLConstants[]) {
     options?.forEach(o => this.gl.disable(this.gl[o]))
   }
@@ -119,7 +125,7 @@ export class Core {
     if(index) {
       const ibo = this.gl.createBuffer()
       this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, ibo)
-      this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Int16Array(index), this.gl.STATIC_DRAW)
+      this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(index), this.gl.STATIC_DRAW)
     }
     this.gl.bindVertexArray(null)
     if (!vao) throw new Error('createVertexArray failed')
@@ -209,13 +215,13 @@ export class Core {
   }
 
   render(primitive: PrimitiveTypes, drawElements: boolean) {
-    if (drawElements) this.gl.drawElements(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0)
+    if (drawElements) this.gl.drawElements(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_INT, 0)
     else this.gl.drawArrays(this.gl[primitive], 0, this.vao[this.currentVao!].count!)
     this.gl.flush()
   }
 
   renderInstanced(primitive: PrimitiveTypes, drawElements: boolean, count: number) {
-    if (drawElements) this.gl.drawElementsInstanced(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_SHORT, 0, count)
+    if (drawElements) this.gl.drawElementsInstanced(this.gl[primitive], this.vao[this.currentVao!].count!, this.gl.UNSIGNED_INT, 0, count)
     else this.gl.drawArraysInstanced(this.gl[primitive], 0, this.vao[this.currentVao!].count!, count)
     this.gl.flush()
   }
@@ -235,7 +241,7 @@ export class Core {
     wrap?: TextureWrap,
   } & (
     {image: TexImageSource, array?: undefined, width?: undefined, height?: undefined, format?: undefined, internalFormat?: undefined, type?: undefined} |
-    {image?: undefined, array: Float32Array, width: number, height: number, format?: undefined, internalFormat?: TextureInternalFormat, type?: undefined} |
+    {image?: undefined, array: ArrayBufferView, width: number, height: number, format?: TextureFormat, internalFormat?: TextureInternalFormat, type?: TextureType} |
     {image?: undefined, array?: undefined, width: number, height: number, format: TextureFormat, internalFormat: TextureInternalFormat, type: TextureType})) {
     const {image, array, width, height, internalFormat, format, type, filter = 'LINEAR', wrap = 'CLAMP_TO_EDGE'} = args
     const texture = this.gl.createTexture()
@@ -245,7 +251,14 @@ export class Core {
       this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
       this.gl.generateMipmap(this.gl.TEXTURE_2D)
     } else if (array) {
-      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA32F, width, height, 0, this.gl.RGBA, this.gl.FLOAT, array)
+      const isFloat = array instanceof Float32Array
+      const arrayInternalFormat = internalFormat ?? (isFloat ? 'RGBA32F' : 'RGBA8')
+      const arrayFormat = format ?? 'RGBA'
+      const arrayType = type ?? (isFloat ? 'FLOAT' : 'UNSIGNED_BYTE')
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D, 0, this.gl[arrayInternalFormat], width, height, 0,
+        this.gl[arrayFormat], this.gl[arrayType], array
+      )
     } else {
       this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl[internalFormat], width, height, 0, this.gl[format], this.gl[type], null)
     }
@@ -281,4 +294,3 @@ export class Core {
   }
 
 }
-
