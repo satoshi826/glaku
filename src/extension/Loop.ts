@@ -25,7 +25,8 @@ export class Loop {
       callback({delta: this.delta, drawTime: this.drawTime, elapsed: this.elapsed})
       this.drawTime = performance.now() - tmpTime
       if (this.interval) setTimeout(this.animeCallback, this.interval)
-      else requestAnimationFrame(this.animeCallback)
+      else if (typeof requestAnimationFrame === 'function') requestAnimationFrame(this.animeCallback)
+      else setTimeout(this.animeCallback, 16)
     }
   }
 
