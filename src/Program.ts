@@ -71,10 +71,10 @@ export class Program<T extends UniformName, K extends TextureName> {
 
     let fullVert = oReduce(uniformTypes,
       (result, [name, type]) => {
-        [name, type] = parseUniformArray(name, type)
+        const [nameArray, typeArray] = parseUniformArray(name, type)
         const res = testVert(name)
         if (res) uniformKeys.delete(name)
-        return result + (res ? `uniform ${type} ${name};\n` : '')
+        return result + (res ? `uniform ${typeArray} ${nameArray};\n` : '')
       },
       '#version 300 es\n'
     )
