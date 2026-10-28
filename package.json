@@ -1,12 +1,16 @@
 {
   "name": "glaku",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Simple WebGL Library",
   "type": "module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
-  "engines": {"node": ">=14.16"},
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14.16"
+  },
   "sideEffects": false,
   "scripts": {
     "lint": "eslint --fix",
